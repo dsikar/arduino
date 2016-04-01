@@ -1,6 +1,15 @@
 #include <Buttons.h>
 #include <EEPROM.h>
 #include <LiquidCrystal.h>
+#include <Wire.h>
+
+// timer contants
+#define WIRE_SERVICE 3
+
+// checkNodes() timer variables
+int iCount;
+int iTime1;
+int iTime2;
 
 // buttons 
 // analogue pin
@@ -68,39 +77,47 @@ void lcdUpdate()
 }
 
 /*
-void lcdInit() {
-  int iThermTemp = thermocouple.readCelsius();
-  int iProgTemp = buttons.getTemp();
-  // set up the LCD's number of columns and rows: 
-  lcd.setCursor(0, 0);
-  // temperature is a global variable
-  String strTemp;
-  formatTemp(iThermTemp, strTemp);
-  lcd.print("TEMPERATURA: " + strTemp);
-  formatTemp(iProgTemp, strTemp);
-  strTemp = "TEMP. PROG.: " + strTemp;
-  lcd.setCursor(0, 1);
-  lcd.print(strTemp);
-} 
-
-void lcdUpdate2() {
-  // same as lcdInit() except only update the values
-  int iThermTemp = thermocouple.readCelsius();
-  int iProgTemp = buttons.getTemp();
-  // set up the LCD's number of columns and rows: 
-  lcd.setCursor(13, 0);
-  // temperature is a global variable
-  String strTemp;
-  formatTemp(iThermTemp, strTemp);
-  lcd.print(strTemp);
-  formatTemp(iProgTemp, strTemp);
-  strTemp = strTemp;
-  lcd.setCursor(13, 1);
-  lcd.print(strTemp);
-}
+void receive()
+Receive wire request.
 */
+void receive()
+{
+  Wire.requestFrom(2, 5);    // request 3 bytes from slave device #2
+  while (Wire.available())   // slave may send less than requested
+  {
+    char c = Wire.read(); // receive a byte as character
+    Serial.print(c);         // print the character
+  }
+  delay(500);
+}
+
+/*
+void send()
+Send wire request.
+*/
+void send()
+{
+  //Serial.println("Trying to send...");
+  Wire.beginTransmission(2); // transmit to device #2
+  Wire.write("readTemp() ");           // sends 10 bytes
+  Wire.endTransmission();    // stop transmitting
+}
+
+void checkNodes()
+{
+  iTime2 = millis() / 1000;
+  if(iTime2 - iTime1 >= WIRE_SERVICE) {
+    Serial.println("Trying to receive and send...");
+    receive(); // receive one request
+    send(); // send another one
+    iTime1 = millis() / 1000; 
+  }   
+}
+
 void setup()
 {
+  Wire.begin();        // join i2c bus (address optional for master)
+  send(); // send initial request
   Serial.begin(9600);
   // add nodes
   // Buttons::addNode(int iMn, int iMx, int iSt, int iDx)
@@ -117,14 +134,17 @@ void setup()
   
   lcd.begin(16, 2);
   lcdUpdate();
+  
+  // checkButtons() init timer
+  iTime1 = millis() / 1000;
 }
 
 void loop()
 {
-    // checkNodes();
+    checkNodes();
     buttons.checkButtons();
     if(buttons.changed()) {
-      int iVal = buttons.setNodeVal();fs
+      int iVal = buttons.setNodeVal();
       // pass node data on to where it is dealt with
       // dealWithNodeData(iVal, buttons.getNodePos());
       // settemperature = iVal;
