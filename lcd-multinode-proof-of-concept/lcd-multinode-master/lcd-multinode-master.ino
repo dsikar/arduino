@@ -82,6 +82,7 @@ Receive wire request.
 */
 void receive()
 {
+  Serial.println("Receiving readTemp() reply...");
   Wire.requestFrom(2, 5);    // request 3 bytes from slave device #2
   while (Wire.available())   // slave may send less than requested
   {
@@ -97,7 +98,7 @@ Send wire request.
 */
 void send()
 {
-  //Serial.println("Trying to send...");
+  Serial.println("Sending readTemp() request...");
   Wire.beginTransmission(2); // transmit to device #2
   Wire.write("readTemp() ");           // sends 10 bytes
   Wire.endTransmission();    // stop transmitting
@@ -106,9 +107,10 @@ void send()
 void checkNodes()
 {
   iTime2 = millis() / 1000;
+  // TODO add bit shifting to read reply
   if(iTime2 - iTime1 >= WIRE_SERVICE) {
-    Serial.println("Trying to receive and send...");
     receive(); // receive one request
+    delay(100);
     send(); // send another one
     iTime1 = millis() / 1000; 
   }   
