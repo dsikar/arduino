@@ -53,6 +53,32 @@ String pad(int iVal) {
 }
 
 /*
+uint16_t getTemp()
+Get temperature from slave node.
+*/
+uint16_t getTemp()
+{
+  Wire.requestFrom(2, 2);    // request 2 bytes from slave device #2
+  uint16_t iVal = 0xffff;
+  byte bHigh;
+  byte bLow;
+  while(Wire.available())    // slave may send less than requested
+  {
+    //  int iVal = (bHigh << 8) | bLow ; 
+    uint8_t c = Wire.read(); // receive a byte as character
+    if(iVal == 0xffff)
+    {
+        iVal = 0;
+        bHigh = c;
+    } else {
+        bLow = c;
+       iVal = (bHigh << 8) | bLow;  
+    }
+  }
+  return iVal; 
+}
+
+/*
 void lcdUpdate()
 Update a hypothetical display.
 */
@@ -109,9 +135,11 @@ void checkNodes()
   iTime2 = millis() / 1000;
   // TODO add bit shifting to read reply
   if(iTime2 - iTime1 >= WIRE_SERVICE) {
-    receive(); // receive one request
-    delay(100);
-    send(); // send another one
+    //receive(); // receive one request
+    //delay(100);
+    //send(); // send another one
+    uint16_t iVal = getTemp();
+    Serial.println(pad(iVal));   
     iTime1 = millis() / 1000; 
   }   
 }
