@@ -3,6 +3,13 @@
 #include <LiquidCrystal.h>
 #include <Wire.h>
 
+/****************************
+  
+  TODO
+  1. Send change temp to node
+  2. Cleanup master node code e.g. ambiguous variable names for Buttons and Wire slaves nodes
+  
+****************************/  
 // timer contants
 #define WIRE_SERVICE 3
 
@@ -10,6 +17,10 @@
 int iCount;
 int iTime1;
 int iTime2;
+// Values received from nodes; we will not use
+// indexes 0 and 1, only 2, 3 and 4 to match
+// Wire slave nodes' numbering
+int iNode[6] = {0, 0, 0, 0, 0, 0};
 
 // buttons 
 // analogue pin
@@ -53,12 +64,12 @@ String pad(int iVal) {
 }
 
 /*
-uint16_t getTemp()
+String getTemp()
 Get temperature from slave node.
 */
-uint16_t getTemp()
+void getTemp(int iNodeNumber)
 {
-  Wire.requestFrom(2, 2);    // request 2 bytes from slave device #2
+  Wire.requestFrom(iNodeNumber, 2);    // request 2 bytes from slave device iNode
   uint16_t iVal = 0xffff;
   byte bHigh;
   byte bLow;
@@ -75,31 +86,34 @@ uint16_t getTemp()
        iVal = (bHigh << 8) | bLow;  
     }
   }
-  return iVal; 
+  iNode[iNodeNumber] = iVal; 
 }
 
 /*
 void lcdUpdate()
 Update a hypothetical display.
 */
-void lcdUpdate()
+void lcdUpdate(int iLine)
 {
-  String strLine1 = "TMP  XXX XXX XXX";
-  int iNodePos = buttons.getNodePos();
-  String sel = (iNodePos == 1 ? "*" : " ");
-  int iVal1 = buttons.getNodeVal(1);
-  String strLine2 = "PRG " + sel + pad(iVal1);
-  sel = (iNodePos == 2 ? "*" : " ");
-  int iVal2 = buttons.getNodeVal(2);
-  strLine2 += sel + pad(iVal2);
-  int iVal3 = buttons.getNodeVal(3);  
-  sel = (iNodePos == 3 ? "*" : " ");
-  strLine2 += sel + pad(iVal3);
-  //Serial.println(strRes); 
-  lcd.setCursor(0, 0);
-  lcd.print(strLine1); 
-  lcd.setCursor(0, 1);
-  lcd.print(strLine2);  
+  if(iLine == 1) // update line 1 
+  {
+    String strLine1 = "TMP  " + pad(iNode[2]) + " " + pad(iNode[3]) + " " + pad(iNode[4]);
+      lcd.setCursor(0, (iLine - 1));
+      lcd.print(strLine1);
+  } else {
+    int iNodePos = buttons.getNodePos();
+    String sel = (iNodePos == 1 ? "*" : " ");
+    int iVal1 = buttons.getNodeVal(1);
+    String strLine2 = "PRG " + sel + pad(iVal1);
+    sel = (iNodePos == 2 ? "*" : " ");
+    int iVal2 = buttons.getNodeVal(2);
+    strLine2 += sel + pad(iVal2);
+    int iVal3 = buttons.getNodeVal(3);  
+    sel = (iNodePos == 3 ? "*" : " ");
+    strLine2 += sel + pad(iVal3); 
+    lcd.setCursor(0, (iLine - 1));
+    lcd.print(strLine2);    
+  }  
 }
 
 /*
@@ -138,8 +152,10 @@ void checkNodes()
     //receive(); // receive one request
     //delay(100);
     //send(); // send another one
-    uint16_t iVal = getTemp();
-    Serial.println(pad(iVal));   
+    // get temp from I2C slave node 2
+    getTemp(2);
+    lcdUpdate(1); // update LCD line 1
+    Serial.println(pad(iNode[2]));   
     iTime1 = millis() / 1000; 
   }   
 }
@@ -163,7 +179,8 @@ void setup()
   buttons.addNode(iMn, iMx, iSt, iDx);
   
   lcd.begin(16, 2);
-  lcdUpdate();
+  lcdUpdate(1); // update line 1
+  lcdUpdate(2); // update line 2
   
   // checkButtons() init timer
   iTime1 = millis() / 1000;
@@ -180,6 +197,6 @@ void loop()
       // settemperature = iVal;
       // etc
       // for the time being, update what is shown in the Serial Monitor
-      lcdUpdate();
+      lcdUpdate(2);
     } 
 }
