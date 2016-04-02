@@ -22,23 +22,20 @@ void receiveEvent(int howMany)
 
 void requestEvent()
 {
-  Serial.print("Received requestEvent, sending readTemp()"); 
-  int iTemp = readTemp();
-  Serial.println(iTemp);
-  String strTemp = String(iTemp);
-  Wire.write("Hello."); // respond with message of 3 bytes 
+  uint16_t iVar = readTemp();
+  // bit shifting
+  byte bHigh = (iVar >> 8);
+  byte bLow = iVar & 0xfff;
+  Wire.write(bHigh); 
+  Wire.write(bLow);
 }
 
-int readTemp() 
+uint16_t readTemp() 
 {
   val = analogRead(tempPin);
   float mv = ( val/1024.0)*5000; 
   float cel = mv/10;
-  Serial.print("TEMPRATURE = ");
-  Serial.print(cel);
-  Serial.print("*C");
-  Serial.println();
-  int iTemp = cel;
+  uint16_t iTemp = cel;
   return iTemp;
 }
 
@@ -49,8 +46,8 @@ void setTemp()
 
 void loop()
 {
-  delay(100);
-  /*
+  // delay(100);
+
   val = analogRead(tempPin);
   float mv = ( val/1024.0)*5000; 
   float cel = mv/10;
@@ -62,6 +59,4 @@ void loop()
   Serial.println();
   delay(1000);
 
-
-*/
 }
