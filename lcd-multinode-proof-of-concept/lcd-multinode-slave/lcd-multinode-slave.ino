@@ -13,11 +13,34 @@ void setup()
 
 void receiveEvent(int howMany)
 {
+  /*
   while(1 < Wire.available()) // loop through all but the last
   {
     char c = Wire.read(); // receive byte as a character
     Serial.print(c);         // print the character
   }
+  */
+  // uint16_t ~ expecting to receive 2 bytes
+  uint16_t iVal = 0xffff;
+  byte bHigh;
+  byte bLow;
+  while(Wire.available())    // slave may send less than requested
+  {
+    //  int iVal = (bHigh << 8) | bLow ; 
+    uint8_t c = Wire.read(); // receive a byte as character
+    if(iVal == 0xffff)
+    {
+        iVal = 0;
+        bHigh = c;
+    } else {
+        bLow = c;
+       iVal = (bHigh << 8) | bLow;  
+    }
+  }
+  Serial.print("Received val from master = ");
+  Serial.println(iVal);
+  Serial.print("Expected var howMany = ");
+  Serial.println(howMany);  
 }
 
 void requestEvent()
