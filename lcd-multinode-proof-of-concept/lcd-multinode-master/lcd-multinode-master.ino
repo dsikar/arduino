@@ -7,7 +7,7 @@
   
   TODO
   1. Send change temp to node
-  2. Cleanup master node code e.g. ambiguous variable names for Buttons and Wire slaves nodes
+  2. Cleanup master node code e.g. remove ambiguous variable names for Buttons and Wire slaves nodes
   
 ****************************/  
 // timer contants
