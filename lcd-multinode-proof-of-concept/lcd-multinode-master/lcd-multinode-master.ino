@@ -21,6 +21,7 @@ int iTime2;
 // indexes 0 and 1, only 2, 3 and 4 to match
 // Wire slave nodes' numbering
 int iNode[6] = {0, 0, 0, 0, 0, 0};
+// Ignoring 0 and 1, use offset;
 
 // buttons 
 // analogue pin
@@ -64,10 +65,10 @@ String pad(int iVal) {
 }
 
 /*
-String getTemp()
-Get temperature from slave node.
+String receiveNodeVal()
+Get val from slave node.
 */
-void getTemp(int iNodeNumber)
+void receiveNodeVal(int iNodeNumber)
 {
   Wire.requestFrom(iNodeNumber, 2);    // request 2 bytes from slave device iNode
   uint16_t iVal = 0xffff;
@@ -133,17 +134,25 @@ void receive()
 }
 
 /*
-void send()
-Send wire request.
+void sendNodeVal(int iVal)
+Send value to node.
 */
-void send()
+void sendNodeVal(int iVal, int iNodeNumber)
 {
-  Serial.println("Sending readTemp() request...");
-  Wire.beginTransmission(2); // transmit to device #2
-  Wire.write("readTemp() ");           // sends 10 bytes
+  uint16_t iVar = iVal;
+  // bit shifting
+  byte bHigh = (iVar >> 8);
+  byte bLow = iVar & 0xfff;
+  Wire.beginTransmission(iNodeNumber); // transmit to device #2
+  Wire.write(bHigh); 
+  Wire.write(bLow);
   Wire.endTransmission();    // stop transmitting
 }
 
+/*
+void checkNodes()
+Get the values (e.g. temperature) stored in nodes
+*/
 void checkNodes()
 {
   iTime2 = millis() / 1000;
@@ -152,18 +161,22 @@ void checkNodes()
     //receive(); // receive one request
     //delay(100);
     //send(); // send another one
-    // get temp from I2C slave node 2
-    getTemp(2);
-    lcdUpdate(1); // update LCD line 1
-    Serial.println(pad(iNode[2]));   
+    // get val from I2C slave node 2
+    receiveNodeVal(2);
+    // commment in when nodes are hooked up and ready
+    // receiveNodeVal(3);
+    // receiveNodeVal(4);
+    lcdUpdate(1); // update LCD line 1   
     iTime1 = millis() / 1000; 
   }   
 }
 
 void setup()
 {
-  Wire.begin();        // join i2c bus (address optional for master)
-  send(); // send initial request
+  Wire.begin(); // join i2c bus (address optional for master)
+  // TODO
+  // Initial values (stored in eeprom must be sent to nodes
+  // at start up.
   Serial.begin(9600);
   // add nodes
   // Buttons::addNode(int iMn, int iMx, int iSt, int iDx)
@@ -192,11 +205,10 @@ void loop()
     buttons.checkButtons();
     if(buttons.changed()) {
       int iVal = buttons.setNodeVal();
-      // pass node data on to where it is dealt with
-      // dealWithNodeData(iVal, buttons.getNodePos());
-      // settemperature = iVal;
-      // etc
-      // for the time being, update what is shown in the Serial Monitor
+      // Magic number 1, iNodePos is base 1, add one
+      // to match slave node numbering
+      int iNodePos = buttons.getNodePos() + 1; 
+      sendNodeVal(iVal, iNodePos);
       lcdUpdate(2);
     } 
 }
