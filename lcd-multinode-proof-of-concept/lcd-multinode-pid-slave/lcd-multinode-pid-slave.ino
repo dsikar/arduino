@@ -28,6 +28,9 @@ double temperature;
 double settemperature;  
 double output;  // needed for pid for column heater
 
+// Prog. temp sent from master
+double dTempVar;
+
 // timer contants
 #define PID_SERVICE_INTERVAL 2 // check PID every 2 seconds
 #define ERROR_CHECK_INTERVAL 5 // check for error conditions when count reaches 5 (ten seconds)
@@ -77,12 +80,18 @@ void receiveEvent(int howMany)
        iVal = (bHigh << 8) | bLow;  
     }
   }
-  // PID temperature
-  settemperature = iVal;
+  // Store PID temperature
+  dTempVar = iVal;
+  
   Serial.print("Received val from master = ");
   Serial.println(iVal);
   Serial.print("Expected var howMany = ");
   Serial.println(howMany);  
+}
+
+double getTemp()
+{
+ return dTempVar; 
 }
 
 void requestEvent()
@@ -113,7 +122,7 @@ void setup() {
 
   // get last stored temperature from EEPROM
   
-  settemperature = buttons.initTemp();
+  settemperature = getTemp();
   myPID.SetMode(AUTOMATIC); 
   
   // PID avg, count and timer;
@@ -129,14 +138,10 @@ void loop() {
   // redundant as master requests events
   // TODO add serial.print to debug
   while(iFlagError == 0) {
-    
-    if(buttons.changedTemp()) {
-      int iTemp = buttons.getTemp();
-      // pass user defined temperature to PID object 
-      settemperature = iTemp;
-    }  
-    // temperatureMonitor();   
-  } 
+    // settemperature = iTemp;
+    // temperature set by master
+    temperatureMonitor();     
+  }  
 }
 
 void temperatureMonitor() {
@@ -215,7 +220,7 @@ void servicePID() {
     Serial.print("TEMP: ");
     Serial.println(temperature);
     Serial.print("TEMP. PROG: ");
-    Serial.println(getTemp());  
+    Serial.println(settemperature);  
     Serial.print("PID output: ");
     Serial.println(output); 
   }
