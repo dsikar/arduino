@@ -54,6 +54,10 @@ Adafruit_MAX31855 thermocouple(CLK, CS, DO);
 // initialise PID object
 PID myPID(&temperature, &output, &settemperature,2.5,0.2,0, DIRECT);    // Kp,Ki,Kd values generated from autotune sketch run previously 
 
+/*
+void receiveEvent(int howMany)
+Receive message from master, howMany specifying number of bytes transmitted.
+*/
 void receiveEvent(int howMany)
 {
   /*
@@ -89,11 +93,19 @@ void receiveEvent(int howMany)
   Serial.println(howMany);  
 }
 
+/*
+double getTemp()
+Return temperature to be set.
+*/
 double getTemp()
 {
  return dTempVar; 
 }
 
+/*
+void requestEvent()
+Send thermocouple reading to master.
+*/
 void requestEvent()
 {
   // TODO add jsoknit function definitions
@@ -144,6 +156,10 @@ void loop() {
   }  
 }
 
+/*
+void temperatureMonitor()
+Service PID at a given interval
+*/
 void temperatureMonitor() {
 
   iTime2 = millis() / 1000;
@@ -200,12 +216,19 @@ void temperatureMonitor() {
 // int iThermTemp = thermocouple.readCelsius();
 // int iProgTemp = buttons.getTemp();
 
-
+/*
+void lcdThermocoupleError(){
+Set thermocouple error state.
+*/
 void lcdThermocoupleError(){
   ;
   // set error state
 }
 
+/*
+void servicePID()
+Service PID.
+*/
 void servicePID() {
   temperature=thermocouple.readCelsius();
   myPID.Compute();
@@ -226,6 +249,10 @@ void servicePID() {
   }
 }
 
+/*
+void raiseError()
+Flag thermocouple error.
+*/
 void raiseError(){
  iFlagError = 1;
  lcdThermocoupleError();
