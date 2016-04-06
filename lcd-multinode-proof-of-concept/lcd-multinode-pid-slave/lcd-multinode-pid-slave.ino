@@ -5,7 +5,7 @@
 #include "Adafruit_MAX31855.h"
 
 // Serial debug, set to 1 for serial debugging
-#define SERIAL_DEBUG 0
+#define SERIAL_DEBUG 1
 
 // Slave node number
 #define SLAVE_NODE 2
@@ -246,6 +246,8 @@ void servicePID() {
     Serial.println(settemperature);  
     Serial.print("PID output: ");
     Serial.println(output); 
+    Serial.print("dTempVar: ");
+    Serial.println(dTempVar); 
   }
 }
 
