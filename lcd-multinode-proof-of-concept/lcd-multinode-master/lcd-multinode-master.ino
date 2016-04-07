@@ -1,4 +1,6 @@
 #include <Buttons.h>
+// For Due boards; use Buttons branch due-no-eeprom
+// and commment out line below.
 #include <EEPROM.h>
 #include <LiquidCrystal.h>
 #include <Wire.h>
@@ -6,8 +8,7 @@
 /****************************
   
   TODO
-  1. Send change temp to node
-  2. Cleanup master node code e.g. remove ambiguous variable names for Buttons and Wire slaves nodes
+  1. Cleanup master node code e.g. remove ambiguous variable names for Buttons and Wire slaves nodes
   
 ****************************/  
 // timer contants
