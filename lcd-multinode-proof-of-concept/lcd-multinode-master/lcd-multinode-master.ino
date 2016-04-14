@@ -1,7 +1,7 @@
 #include <Buttons.h>
-// For Due boards; use arduino-libraries Buttons branch due-no-eeprom
-// and commment out line below.
-#include <EEPROM.h>
+// For Due boards; use due-no-eeprom lcd-multinode-master 
+// and Buttons due-no-eeprom git branch
+// #include <EEPROM.h>
 #include <LiquidCrystal.h>
 #include <Wire.h>
 
@@ -13,6 +13,9 @@
 ****************************/  
 // timer contants
 #define WIRE_SERVICE 3
+
+// Serial debug, set to 1 for serial debugging
+#define SERIAL_DEBUG 0
 
 // checkNodes() timer variables
 int iCount;
@@ -30,11 +33,14 @@ int iPin = 0;
 // digital noise level
 int iNoise = 25;
 // AD conversion value for switching nodes
-int iSwitchSelect = 160;
+// Due showing higher analogRead(iPin) values
+// might be due to higher resolution
+// see master branch from Uno levels
+int iSwitchSelect = 215;
 // AD conversion value for decrementing node value
-int iSwitchDec = 260;
+int iSwitchDec = 378;
 // AD conversion value for incrementing node value
-int iSwitchInc = 440;
+int iSwitchInc = 649;
 // Number of nodes
 int iNodes = 3;
 
@@ -178,7 +184,9 @@ void setup()
   // TODO
   // Initial values (stored in eeprom must be sent to nodes
   // at start up.
-  Serial.begin(9600);
+  if(SERIAL_DEBUG){
+    Serial.begin(9600);
+  }
   // add nodes
   // Buttons::addNode(int iMn, int iMx, int iSt, int iDx)
   // Node attributes, minimum and maximum values, step and index (base 1).
@@ -212,4 +220,8 @@ void loop()
       sendNodeVal(iVal, iNodePos);
       lcdUpdate(2);
     } 
+    if(SERIAL_DEBUG)
+    {
+      Serial.println(analogRead(iPin)); 
+    }
 }
