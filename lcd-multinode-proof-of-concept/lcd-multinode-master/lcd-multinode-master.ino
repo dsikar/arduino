@@ -1,6 +1,5 @@
 #include <Buttons.h>
-// For Due boards; use arduino-libraries Buttons branch due-no-eeprom
-// and commment out line below.
+// For Due boards; use due-no-eeprom here and on arduino-libraries/Buttons branch 
 #include <EEPROM.h>
 #include <LiquidCrystal.h>
 #include <Wire.h>
