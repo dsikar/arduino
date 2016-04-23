@@ -5,7 +5,7 @@
 #include "Adafruit_MAX31855.h"
 
 /*
-  After hearing from the creatir himself that it is possible
+  After hearing from the creator himself that it is possible
   to work with three PID instances in a single sketch
   https://groups.google.com/forum/#!topic/diy-pid-control/IrdhZUh6tcM
   I'll give it a go.
