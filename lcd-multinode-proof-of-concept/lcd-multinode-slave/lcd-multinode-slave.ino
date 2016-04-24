@@ -76,7 +76,7 @@ void loop()
   float cel = mv/10;
   float farh = (cel*9)/5 + 32;
   
-  Serial.print("TEMPRATURE = ");
+  Serial.print("TEMPERATURE = ");
   Serial.print(cel);
   Serial.print("*C");
   Serial.println();
