@@ -42,17 +42,23 @@ void Parse(String content) {
   // Master requested oven temperature
   if(id == 4) {
     setTemperatureReading(id);
-    Serial.print("\n*** Master requested oven temperature, sending JSON string: ");   
+    Serial.print("\n*** Received function call ");
+    Serial.print(content);    
+    Serial.print (" - Master requested oven temperature, sending JSON string: ");   
   } 
   // Master requested injector temperature
   if(id == 5) {
     setTemperatureReading(id);
-    Serial.print("\n*** Master requested injector temperature, sending JSON string: ");
+    Serial.print("\n*** Received function call ");
+    Serial.print(content);    
+    Serial.print (" - Master requested injector temperature, sending JSON string: ");
   } 
     // Master requested column temperature
   if(id == 6) {
     setTemperatureReading(id);
-    Serial.print("\n*** Master requested column temperature, sending JSON string: ");
+    Serial.print("\n*** Received function call ");;
+    Serial.print(content);    
+    Serial.print (" - Master requested column temperature, sending JSON string: ");
   } 
 }
 
