@@ -2,24 +2,65 @@
 #include <ArduinoJson.h>
 
 // MASTER
-
-  StaticJsonBuffer<200> jsonBuffer;
-  JsonObject& root = jsonBuffer.createObject();
   
 // The Slave node we will be talking to
 int iWireNode = 2;
 
-void receiveNodeVal(int iNodeNumber)
+/*
+Parse json content.
+@param content Json content.
+*/
+void Parse(String content) {  
+  int str_len = content.length() + 1;
+  char char_array[str_len];
+  content.toCharArray(char_array, str_len);
+  StaticJsonBuffer<200> jsonBuffer;
+  JsonObject& root = jsonBuffer.parseObject(char_array);
+  int id = root["id"];  
+  // Requesting oven temperature
+  if(id == 4) {
+    int iTemp = root["retval"];
+    Serial.print("\n*** Requested oven temperature, received string: ");
+    Serial.print(content);
+    Serial.print(" extracted temperature: ");
+    Serial.print(iTemp);  
+    Serial.println(" ***");   
+  } 
+  // Requesting injector temperature
+  if(id == 5) {
+    int iTemp = root["retval"];
+    Serial.print("\n*** Requested injector temperature, received string: ");
+    Serial.print(content);
+    Serial.print(" extracted temperature: ");
+    Serial.print(iTemp);  
+    Serial.println(" ***");   
+  }
+  // Requesting column temperature
+  if(id == 6) {
+    int iTemp = root["retval"];
+    Serial.print("\n*** Requested column temperature, received string: ");
+    Serial.print(content);
+    Serial.print(" extracted temperature: ");
+    Serial.print(iTemp);  
+    Serial.println(" ***");   
+  }  
+}
+
+/*
+Receives a value from node.
+@param iNodeNumber The node number we want the value from.
+@param iBytes The number of expected bytes.
+*/
+void receiveNodeVal(int iNodeNumber, int iBytes)
 {
   String strRetVal;
-  Wire.requestFrom(iNodeNumber, 5);    // request 20 bytes from slave device iNode
-  while(Wire.available())    // slave may send less than requested
+  Wire.requestFrom(iNodeNumber, iBytes); 
+  while(Wire.available())   
   {
-    //  int iVal = (bHigh << 8) | bLow ; 
-    char c = Wire.read(); // receive a byte as character
+    char c = Wire.read();
     strRetVal += c;
   }
-  Serial.println(strRetVal);
+  Parse(strRetVal);
 }
 
 /*
@@ -29,12 +70,13 @@ TODO - Change iVal to char cJson
 */
 void sendNodeVal(int iVal, int iNodeNumber)
 {
-  // monitoring string
-  //String strSend;
+  StaticJsonBuffer<200> jsonBuffer;
+  JsonObject& root = jsonBuffer.createObject();
   char c;
-  // create an ArduinoJson object
   root["id"] = iNodeNumber;
-  root["arg"] = iVal;
+  if(iVal != NULL){
+    root["arg"] = iVal;
+  }
   char cJson[200];
   root.printTo(cJson, sizeof(cJson)); 
   String strSend = cJson; 
@@ -45,7 +87,9 @@ void sendNodeVal(int iVal, int iNodeNumber)
       //strSend += c;
   }  
   Wire.endTransmission();    // stop transmitting
-  Serial.println(strSend);
+  Serial.print("\n*** Sending request ");
+  Serial.print(strSend);
+  Serial.println(" ***");
 }
 
 void setup() {
@@ -57,14 +101,25 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  delay(2000);
+  delay(3000);
   // call function id 1 passing argument value of 150;
   sendNodeVal(150, 1);
-  delay(2000);
-  // call function id 1 passing argument value of 150;
+  
+  delay(3000);
   sendNodeVal(250, 2);
-  delay(2000);
-  // call function id 1 passing argument value of 150;
+  
+  delay(3000);
   sendNodeVal(350, 3);  
-  receiveNodeVal(2);
+
+  delay(3000);
+  sendNodeVal(NULL, 4);    
+  receiveNodeVal(2, 21);
+  
+  delay(3000);
+  sendNodeVal(NULL, 5);    
+  receiveNodeVal(2, 21);
+  
+  delay(3000);  
+  sendNodeVal(NULL, 6);    
+  receiveNodeVal(2, 21);  
 }
