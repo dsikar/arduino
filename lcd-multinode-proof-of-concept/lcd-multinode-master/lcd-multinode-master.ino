@@ -4,6 +4,7 @@
 // #include <EEPROM.h>
 #include <LiquidCrystal.h>
 #include <Wire.h>
+#include <ArduinoJson.h>
 
 /****************************
   
@@ -43,6 +44,8 @@ int iSwitchDec = 378;
 int iSwitchInc = 649;
 // Number of nodes
 int iNodes = 3;
+// The Slave node we will be talking to
+int iWireNode = 2;
 
 /*
 NOTE
@@ -131,8 +134,8 @@ Receive wire request.
 void receive()
 {
   Serial.println("Receiving readTemp() reply...");
-  Wire.requestFrom(2, 5);    // request 3 bytes from slave device #2
-  while (Wire.available())   // slave may send less than requested
+  Wire.requestFrom(iWireNode, 5);    // request 3 bytes from slave device #2
+  while (Wire.available()) // slave may send less than requested
   {
     char c = Wire.read(); // receive a byte as character
     Serial.print(c);         // print the character
@@ -142,17 +145,22 @@ void receive()
 
 /*
 void sendNodeVal(int iVal)
-Send value to node.
+Send Jsoknit string to node.
+TODO - Change iVal to char cJson
 */
 void sendNodeVal(int iVal, int iNodeNumber)
 {
-  uint16_t iVar = iVal;
-  // bit shifting
-  byte bHigh = (iVar >> 8);
-  byte bLow = iVar & 0xfff;
-  Wire.beginTransmission(iNodeNumber); // transmit to device #2
-  Wire.write(bHigh); 
-  Wire.write(bLow);
+  // create an ArduinoJson object
+  StaticJsonBuffer<200> jsonBuffer;
+  JsonObject& root = jsonBuffer.createObject();
+  root["id"] = iNodeNumber;
+  root["arg"] = iVal;
+  char cJson[200];
+  root.printTo(cJson, sizeof(cJson));  
+  Wire.beginTransmission(iWireNode); // transmit to device #2
+  for(int i = 0; i < sizeof(cJson); i++) {
+      Wire.write(cJson[i]);
+  }  
   Wire.endTransmission();    // stop transmitting
 }
 
@@ -165,14 +173,7 @@ void checkNodes()
   iTime2 = millis() / 1000;
   // TODO add bit shifting to read reply
   if(iTime2 - iTime1 >= WIRE_SERVICE) {
-    //receive(); // receive one request
-    //delay(100);
-    //send(); // send another one
-    // get val from I2C slave node 2
-    receiveNodeVal(2);
-    // commment in when nodes are hooked up and ready
-    // receiveNodeVal(3);
-    // receiveNodeVal(4);
+    receiveNodeVal(iWireNode);
     lcdUpdate(1); // update LCD line 1   
     iTime1 = millis() / 1000; 
   }   
@@ -190,14 +191,14 @@ void setup()
   // add nodes
   // Buttons::addNode(int iMn, int iMx, int iSt, int iDx)
   // Node attributes, minimum and maximum values, step and index (base 1).
-  int iMn = 0; int iMx = 220; int iSt = 5; int iDx = 1;
+  int iMn = 20; int iMx = 220; int iSt = 5; int iDx = 1;
   // furness thermocouple
   buttons.addNode(iMn, iMx, iSt, iDx);
   // injector thermocouple
   iMn = 20; iMx = 300; iSt = 5; iDx = 2;
   buttons.addNode(iMn, iMx, iSt, iDx); 
   // column thermocouple
-  iMn = 10; iMx = 400; iSt = 5; iDx = 3;
+  iMn = 20; iMx = 400; iSt = 5; iDx = 3;
   buttons.addNode(iMn, iMx, iSt, iDx);
   
   lcd.begin(16, 2);
@@ -215,7 +216,7 @@ void loop()
     if(buttons.changed()) {
       int iVal = buttons.setNodeVal();
       // Magic number 1, iNodePos is base 1, add one
-      // to match slave node numbering
+      // to match PID controller
       int iNodePos = buttons.getNodePos() + 1; 
       sendNodeVal(iVal, iNodePos);
       lcdUpdate(2);
