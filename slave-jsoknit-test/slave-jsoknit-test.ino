@@ -1,8 +1,6 @@
 #include <Wire.h>
 #include <ArduinoJson.h>
 
-int val;
-int tempPin = 0;
 char cJson[200];
 
 void Parse(String content) {  

@@ -3,6 +3,7 @@
 #include <SPI.h>
 #include <PID_v1.h>
 #include "Adafruit_MAX31855.h"
+#include <ArduinoJson.h>
 
 /*
   After hearing from the creator himself that it is possible
@@ -10,11 +11,15 @@
   https://groups.google.com/forum/#!topic/diy-pid-control/IrdhZUh6tcM
   I'll give it a go.
 */
+
 // Serial debug, set to 1 for serial debugging
 #define SERIAL_DEBUG 1
 
 // Slave node number
 #define SLAVE_NODE 2
+
+// Response buffer
+char cJson[200];
 
 // SPI interface IO digital pins for the MAX31855
 #define DO1    0
@@ -76,46 +81,114 @@ PID myPID1(&temperature1, &output1, &settemperature1, 2.5, 0.2 , 0, DIRECT);    
 PID myPID2(&temperature2, &output2, &settemperature2, 2.5, 0.2 , 0, DIRECT);
 PID myPID3(&temperature3, &output3, &settemperature3, 2.5, 0.2 , 0, DIRECT);
 
-/*
-void receiveEvent(int howMany)
-Receive message from master, howMany specifying number of bytes transmitted.
-*/
-void receiveEvent(int howMany)
-{
-  /*
-  while(1 < Wire.available()) // loop through all but the last
-  {
-    char c = Wire.read(); // receive byte as a character
-    Serial.print(c);         // print the character
-  }
-  */
-  // uint16_t ~ expecting to receive 2 bytes
-  uint16_t iVal = 0xffff;
-  byte bHigh;
-  byte bLow;
-  while(Wire.available())    // slave may send less than requested
-  {
-    //  int iVal = (bHigh << 8) | bLow ; 
-    uint8_t c = Wire.read(); // receive a byte as character
-    if(iVal == 0xffff)
-    {
-        iVal = 0;
-        bHigh = c;
-    } else {
-        bLow = c;
-       iVal = (bHigh << 8) | bLow;  
+void Parse(String content) {  
+  int str_len = content.length() + 1;
+  char char_array[str_len];
+  content.toCharArray(char_array, str_len);
+  StaticJsonBuffer<200> jsonBuffer;
+  JsonObject& root = jsonBuffer.parseObject(char_array);
+  int id = root["id"];
+  if(id == 1) {
+    int iTemp = root["arg"];
+    if(SERIAL_DEBUG) {
+      Serial.print("\n*** Received function call ");
+      Serial.print(content);
+      Serial.print(" setOvenTemperature");
+      Serial.print(", setting temperature to ");
+      Serial.print(iTemp);
+      Serial.print(" ***\n");
     }
   }
-  // Store PID temperature
-  dTempVar = iVal;
-  
-  Serial.print("Received val from master = ");
-  Serial.println(iVal);
-  Serial.print("Expected var howMany = ");
-  Serial.println(howMany);  
-  
-  // need jsoknit parser here e.g. { set heater 2 temp etc }
-  
+  if(id == 2) {
+    int iTemp = root["arg"];
+    if(SERIAL_DEBUG) {    
+      Serial.print("\n*** Received function call ");
+      Serial.print(content);
+      Serial.print(" setInjectorTemperature");
+      Serial.print(", setting temperature to ");
+      Serial.print(iTemp);
+      Serial.print(" ***\n");  
+    }  
+  }
+  if(id == 3) {
+    int iTemp = root["arg"];
+    if(SERIAL_DEBUG) {    
+      Serial.print("\n*** Received function call ");
+      Serial.print(content);
+      Serial.print(" setColumnTemperature");
+      Serial.print(", setting temperature to ");
+      Serial.print(iTemp);
+      Serial.print(" ***\n");   
+    } 
+  }  
+  // Master requested oven temperature
+  if(id == 4) {
+    setTemperatureReading(id);
+    if(SERIAL_DEBUG) {    
+      Serial.print("\n*** Received function call ");
+      Serial.print(content);    
+      Serial.print (" - Master requested oven temperature, sending JSON string: "); 
+    }  
+  } 
+  // Master requested injector temperature
+  if(id == 5) {
+    setTemperatureReading(id);
+    if(SERIAL_DEBUG) {
+      Serial.print("\n*** Received function call ");
+      Serial.print(content);    
+      Serial.print (" - Master requested injector temperature, sending JSON string: ");
+    }
+  } 
+    // Master requested column temperature
+  if(id == 6) {
+    setTemperatureReading(id);
+    if(SERIAL_DEBUG) {
+      Serial.print("\n*** Received function call ");;
+      Serial.print(content);    
+      Serial.print (" - Master requested column temperature, sending JSON string: ");
+    }
+  } 
+}
+
+/*
+Set return json string.
+@param id Temperature PID controller id.
+*/
+void setTemperatureReading(int id)
+{
+    StaticJsonBuffer<200> jsonBufferReply;
+    JsonObject& rootReply = jsonBufferReply.createObject();
+    rootReply["id"] = id; // 4
+    rootReply["retval"] = id * 78; // readTemp(relatedTo4);
+    rootReply.printTo(cJson, sizeof(cJson));
+}
+
+void receiveEvent(int howMany)
+{
+  String strRecVal;
+  while(Wire.available())    // slave may send less than requested
+  {
+    char c = Wire.read(); // receive byte as character
+    strRecVal += c;
+  }
+  Parse(strRecVal);
+}
+
+/*
+Master requests event.
+Send stored sJson back.
+*/
+void requestEvent()
+{
+  String sJson = cJson; // convert char array to string
+  for(int i = 0; i < sJson.length(); i++) {
+    char inChar = sJson[i];
+    Wire.write(inChar);
+  } 
+  if(SERIAL_DEBUG){
+    Serial.print(sJson);
+    Serial.print(" ***\n");  
+  }  
 }
 
 /*
@@ -127,32 +200,17 @@ double getTemp(int i)
  return dTempVar; 
 }
 
-/*
-void requestEvent()
-Send thermocouple reading to master.
-*/
-void requestEvent()
-{
-  // TODO add jsoknit function definitions
-  // with request send via receiveEvent
-  uint16_t iVar = thermocouple1.readCelsius(); // add thermocouple2 and thermocouple3
-  // bit shifting
-  byte bHigh = (iVar >> 8);
-  byte bLow = iVar & 0xfff;
-  Wire.write(bHigh); 
-  Wire.write(bLow);
-}
-
 void setup() {
   
   if(SERIAL_DEBUG){
     Serial.begin(9600);
   }
-  
-  Wire.begin(2);                // join i2c bus with address #2
-  Wire.onReceive(receiveEvent); // register events
+  // This Wire slave node.
+  int iWireSlaveNode = 2;
+  Wire.begin(iWireSlaveNode); 
+  // Register events.
+  Wire.onReceive(receiveEvent); 
   Wire.onRequest(requestEvent); 
-  // Serial.begin(9600);
   
   // to control the heating element
   pinMode(mosfetDrive1,OUTPUT);
@@ -181,11 +239,15 @@ void setup() {
 void loop() {
   // redundant as master requests events
   // TODO add serial.print to debug
+  // Leave this out until I2C is working
+  /*
   while(iFlagError == 0) {
     // settemperature = iTemp;
     // temperature set by master
     temperatureMonitor();     
-  }  
+  } 
+ */
+; 
 }
 
 /*

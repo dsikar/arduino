@@ -8,7 +8,7 @@
   
   TODO
   1. Cleanup master node code e.g. remove ambiguous variable names for Buttons and Wire slaves nodes
-  
+
 ****************************/  
 // timer contants
 #define WIRE_SERVICE 3
@@ -47,7 +47,6 @@ Arrays in Buttons.h need dimensioning e.g.
 if other than 3 nodes are required, 
 Button.h int arrays will need adjusting.
 */
-
 Buttons buttons(iPin, iNoise, iSwitchSelect, iSwitchInc, iSwitchDec, iNodes);
 
 // LCD
