@@ -210,21 +210,21 @@ void checkNodes()
     //  {"id":4}
     makeRemoteCall(NULL, 4);  
     // Delays to give I2C time to adjust. 
-    delay(20); 
+    delay(50); 
     // receive 21 bytes of data from slave node 2.
     // {"id":4,"retval":312} 
     listenRemoteCallReply(2, 21);
-    delay(20);
+    delay(50);
     // Make function call id == 5 on slave node 2.
     makeRemoteCall(NULL, 5);
-    delay(20);    
+    delay(50);    
     listenRemoteCallReply(2, 21);
-    delay(20); 
+    delay(50); 
     // Make function call id == 6 on slave node 2.
     makeRemoteCall(NULL, 6);
-    delay(20);    
+    delay(50);    
     listenRemoteCallReply(2, 21);
-    delay(20);  
+    delay(50);  
     lcdUpdate(iLCDLine1); // update LCD line with temperatures read from node PIDs   
     iTime1 = millis() / 1000; 
   }   
@@ -266,8 +266,6 @@ void loop()
 {
     
     checkNodes();
-    
-    /*
     buttons.checkButtons();
     if(buttons.changed()) {
       int iVal = buttons.setNodeVal();
@@ -279,5 +277,4 @@ void loop()
       makeRemoteCall(iVal, iPIDPos);
       lcdUpdate(iLCDLine2);
     } 
-    */
 }
