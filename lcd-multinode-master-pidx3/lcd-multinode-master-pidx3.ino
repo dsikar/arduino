@@ -151,7 +151,6 @@ void Parse(String content) {
   // Requested injector temperature
   if(id == iFnIdxReadInjectorTemp) {
     iInjectorTemp = root["retval"];
-    // iNode[3] = iTemp;
     if(SERIAL_DEBUG) {    
       Serial.print("\n*** Requested injector temperature, received string: ");
       Serial.print(content);
@@ -162,8 +161,7 @@ void Parse(String content) {
   }
   // Requested column temperature
   if(id == iFnIdxReadColumnTemp) {
-    iColumnTemp = root["retval"];
-    // iNode[4] = iTemp;
+    iColumnTemp = root["retval"];    
     if(SERIAL_DEBUG) {    
       Serial.print("\n*** Requested column temperature, received string: ");
       Serial.print(content);
@@ -214,7 +212,7 @@ void checkNodes()
   if(iTime2 - iTime1 >= WIRE_SERVICE) {
     // Make function call id == 4 on slave node 2.
     //  {"id":4}
-    makeRemoteCall(4, NULL);
+    makeRemoteCall(iFnIdxReadOvenTemp, NULL);
     if(SERIAL_DEBUG) {   
       // Delays needed to stop Serial Monitor from freezing. 
       delay(50);
@@ -226,7 +224,7 @@ void checkNodes()
       delay(50);
     }
     // Make function call id == 5 on slave node 2.
-    makeRemoteCall(5, NULL);
+    makeRemoteCall(iFnIdxReadInjectorTemp, NULL);
     if(SERIAL_DEBUG) { 
       delay(50);    
     }
@@ -235,7 +233,7 @@ void checkNodes()
       delay(50);
     } 
     // Make function call id == 6 on slave node 2.
-    makeRemoteCall(6, NULL);
+    makeRemoteCall(iFnIdxReadColumnTemp, NULL);
     if(SERIAL_DEBUG) { 
       delay(50);    
     }
