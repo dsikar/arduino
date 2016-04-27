@@ -9,22 +9,13 @@
 // Serial debug. Set to 1 to debug.
 #define SERIAL_DEBUG 0
 
-// timer contants
+// Timer contants - seconds between data exchange.
 #define WIRE_SERVICE 3
-
-// Wire slave PID jsoknit read functions.
-// See slave's libdef.h
-// TODO remove magic numbers 4, 5 and 6.
 
 // checkNodes() timer variables
 int iCount;
 int iTime1;
 int iTime2;
-// Values received from nodes; we will not use
-// indexes 0 and 1, only 2, 3 and 4 to match
-// Wire slave nodes' numbering
-// int iNode[6] = {0, 0, 0, 0, 0, 0};
-// Ignoring 0 and 1, use offset;
 // Temperature global variables.
 int iOvenTemp, iInjectorTemp, iColumnTemp;
 // libdef.h function indexes.
@@ -87,8 +78,8 @@ String pad(int iVal) {
 /*
 Make remote function call by sending
 Json string to node.
-@param iVal The value to be sent as function argument.
 @param iFunctionID the function to be called on slave node.
+@param iVal The value to be sent as function argument.
 */
 void makeRemoteCall(int iFunctionId, int iVal)
 {
