@@ -6,7 +6,7 @@
 #include <ArduinoJson.h>
 
 // Serial debug. Set to 1 to debug.
-#define SERIAL_DEBUG 1
+#define SERIAL_DEBUG 0
 
 // timer contants
 #define WIRE_SERVICE 3
@@ -40,7 +40,8 @@ int iSwitchInc = 440;
 int iPIDNodes = 3;
 // The Wire slave node we will be talking to.
 int iWireSlaveNode = 2;
-
+// The maximum number of bytes expected in any I2C data exchange.
+int iMaxExpectedBytes = 21;
 /*
 Initialize Buttons (temporary switches) object.
 NOTE:
@@ -111,10 +112,10 @@ Listen to the node's reply made with makeRemoteCall
 @param iNodeNumber The node number we want the value from.
 @param iBytes The number of expected bytes.
 */
-void listenRemoteCallReply(int iNodeNumber, int iBytes)
+void listenRemoteCallReply(int iNodeNumber, int iMaxExpectedBytes)
 {
   String strRetVal;
-  Wire.requestFrom(iNodeNumber, iBytes); 
+  Wire.requestFrom(iNodeNumber, iMaxExpectedBytes); 
   while(Wire.available())   
   {
     char c = Wire.read();
@@ -208,23 +209,35 @@ void checkNodes()
   if(iTime2 - iTime1 >= WIRE_SERVICE) {
     // Make function call id == 4 on slave node 2.
     //  {"id":4}
-    makeRemoteCall(NULL, 4);  
-    // Delays to give I2C time to adjust. 
-    delay(50); 
+    makeRemoteCall(NULL, 4);
+    if(SERIAL_DEBUG) {   
+      // Delays needed to stop Serial Monitor from freezing. 
+      delay(50);
+    } 
     // receive 21 bytes of data from slave node 2.
     // {"id":4,"retval":312} 
-    listenRemoteCallReply(2, 21);
-    delay(50);
+    listenRemoteCallReply(iWireSlaveNode, iMaxExpectedBytes);
+    if(SERIAL_DEBUG) { 
+      delay(50);
+    }
     // Make function call id == 5 on slave node 2.
     makeRemoteCall(NULL, 5);
-    delay(50);    
-    listenRemoteCallReply(2, 21);
-    delay(50); 
+    if(SERIAL_DEBUG) { 
+      delay(50);    
+    }
+    listenRemoteCallReply(iWireSlaveNode, iMaxExpectedBytes);
+    if(SERIAL_DEBUG) { 
+      delay(50);
+    } 
     // Make function call id == 6 on slave node 2.
     makeRemoteCall(NULL, 6);
-    delay(50);    
-    listenRemoteCallReply(2, 21);
-    delay(50);  
+    if(SERIAL_DEBUG) { 
+      delay(50);    
+    }
+    listenRemoteCallReply(iWireSlaveNode, iMaxExpectedBytes);
+    if(SERIAL_DEBUG) { 
+      delay(50);  
+    }
     lcdUpdate(iLCDLine1); // update LCD line with temperatures read from node PIDs   
     iTime1 = millis() / 1000; 
   }   
