@@ -1,5 +1,6 @@
 #include <Buttons.h>
-// For Due boards; use due-no-eeprom here and on arduino-libraries/Buttons branch 
+// For Due boards; use due-no-eeprom branch on arduino-libraries/Buttons
+// and comment out line below.
 #include <EEPROM.h>
 #include <LiquidCrystal.h>
 #include <Wire.h>
@@ -22,8 +23,17 @@ int iTime2;
 // Values received from nodes; we will not use
 // indexes 0 and 1, only 2, 3 and 4 to match
 // Wire slave nodes' numbering
-int iNode[6] = {0, 0, 0, 0, 0, 0};
+// int iNode[6] = {0, 0, 0, 0, 0, 0};
 // Ignoring 0 and 1, use offset;
+// Temperature global variables.
+int iOvenTemp, iInjectorTemp, iColumnTemp;
+// libdef.h function indexes.
+int iFnIdxSetOvenTemp = 1;
+int iFnIdxSetInjectorTemp = 2;
+int iFnIdxSetColumnTemp = 3;
+int iFnIdxReadOvenTemp = 4;
+int iFnIdxReadInjectorTemp = 5;
+int iFnIdxReadColumnTemp = 6;
 
 // Buttons (temporary switches).
 // Analog pin.
@@ -39,7 +49,7 @@ int iSwitchInc = 440;
 // Number of PID nodes managed by Wire slave node.
 int iPIDNodes = 3;
 // The Wire slave node we will be talking to.
-int iWireSlaveNode = 2;
+int iWireSlavePIDx3Node = 2;
 // The maximum number of bytes expected in any I2C data exchange.
 int iMaxExpectedBytes = 21;
 /*
@@ -80,7 +90,7 @@ Json string to node.
 @param iVal The value to be sent as function argument.
 @param iFunctionID the function to be called on slave node.
 */
-void makeRemoteCall(int iVal, int iFunctionId)
+void makeRemoteCall(int iFunctionId, int iVal)
 {
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject& root = jsonBuffer.createObject();
@@ -93,7 +103,7 @@ void makeRemoteCall(int iVal, int iFunctionId)
   root.printTo(cJson, sizeof(cJson)); 
   String strSend = cJson; 
   // Begin transmission to slave device.
-  Wire.beginTransmission(iWireSlaveNode); 
+  Wire.beginTransmission(iWireSlavePIDx3Node); 
   for(int i = 0; i < strSend.length(); i++) {
       c = strSend[i];
       Wire.write(c);
@@ -108,7 +118,7 @@ void makeRemoteCall(int iVal, int iFunctionId)
 }
 
 /*
-Listen to the node's reply made with makeRemoteCall
+Listen to the node's reply made with makeRemoteCall.
 @param iNodeNumber The node number we want the value from.
 @param iBytes The number of expected bytes.
 */
@@ -136,38 +146,38 @@ void Parse(String content) {
   JsonObject& root = jsonBuffer.parseObject(char_array);
   int id = root["id"];  
   // Requested oven temperature
-  if(id == 4) {
-    int iTemp = root["retval"];
-    iNode[2] = iTemp;
+  if(id == iFnIdxReadOvenTemp) {
+    // Need isNan error check.
+    iOvenTemp = root["retval"];
     if(SERIAL_DEBUG) {
       Serial.print("\n*** Requested oven temperature, received string: ");
       Serial.print(content);
       Serial.print(" extracted temperature: ");
-      Serial.print(iTemp);  
+      Serial.print(iOvenTemp);  
       Serial.println(" ***");
     }   
   } 
   // Requested injector temperature
-  if(id == 5) {
-    int iTemp = root["retval"];
-    iNode[3] = iTemp;
+  if(id == iFnIdxReadInjectorTemp) {
+    iInjectorTemp = root["retval"];
+    // iNode[3] = iTemp;
     if(SERIAL_DEBUG) {    
       Serial.print("\n*** Requested injector temperature, received string: ");
       Serial.print(content);
       Serial.print(" extracted temperature: ");
-      Serial.print(iTemp);  
+      Serial.print(iInjectorTemp);  
       Serial.println(" ***");  
     }
   }
   // Requested column temperature
-  if(id == 6) {
-    int iTemp = root["retval"];
-    iNode[4] = iTemp;
+  if(id == iFnIdxReadColumnTemp) {
+    iColumnTemp = root["retval"];
+    // iNode[4] = iTemp;
     if(SERIAL_DEBUG) {    
       Serial.print("\n*** Requested column temperature, received string: ");
       Serial.print(content);
       Serial.print(" extracted temperature: ");
-      Serial.print(iTemp);  
+      Serial.print(iColumnTemp);  
       Serial.println(" ***");   
     }
   }  
@@ -181,10 +191,13 @@ void lcdUpdate(int iLine)
 {
   if(iLine == iLCDLine1) // update line 1 
   {
-    String strLine1 = "TMP  " + pad(iNode[2]) + " " + pad(iNode[3]) + " " + pad(iNode[4]);
+    String strLine1 = "TMP  " + pad(iOvenTemp) + " " + pad(iInjectorTemp) + " " + pad(iColumnTemp);
+      // iLine - 1 because of 0 indexed LCD lines.
       lcd.setCursor(0, (iLine - 1));
       lcd.print(strLine1);
   } else {
+    // Note getNodePos and getNodeVal are not related to Wire nodes.
+    // They're related to the PID controller temperatures displayed on LCD.
     int iNodePos = buttons.getNodePos();
     String sel = (iNodePos == 1 ? "*" : " ");
     int iVal1 = buttons.getNodeVal(1);
@@ -195,13 +208,14 @@ void lcdUpdate(int iLine)
     int iVal3 = buttons.getNodeVal(3);  
     sel = (iNodePos == 3 ? "*" : " ");
     strLine2 += sel + pad(iVal3); 
+    // iLine - 1 because of 0 indexed LCD lines.
     lcd.setCursor(0, (iLine - 1));
     lcd.print(strLine2);    
   }  
 }
 
 /*
-Check values read by node.
+Code to check data from nodes goes here.
 */
 void checkNodes()
 {
@@ -209,32 +223,32 @@ void checkNodes()
   if(iTime2 - iTime1 >= WIRE_SERVICE) {
     // Make function call id == 4 on slave node 2.
     //  {"id":4}
-    makeRemoteCall(NULL, 4);
+    makeRemoteCall(4, NULL);
     if(SERIAL_DEBUG) {   
       // Delays needed to stop Serial Monitor from freezing. 
       delay(50);
     } 
     // receive 21 bytes of data from slave node 2.
     // {"id":4,"retval":312} 
-    listenRemoteCallReply(iWireSlaveNode, iMaxExpectedBytes);
+    listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
     if(SERIAL_DEBUG) { 
       delay(50);
     }
     // Make function call id == 5 on slave node 2.
-    makeRemoteCall(NULL, 5);
+    makeRemoteCall(5, NULL);
     if(SERIAL_DEBUG) { 
       delay(50);    
     }
-    listenRemoteCallReply(iWireSlaveNode, iMaxExpectedBytes);
+    listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
     if(SERIAL_DEBUG) { 
       delay(50);
     } 
     // Make function call id == 6 on slave node 2.
-    makeRemoteCall(NULL, 6);
+    makeRemoteCall(6, NULL);
     if(SERIAL_DEBUG) { 
       delay(50);    
     }
-    listenRemoteCallReply(iWireSlaveNode, iMaxExpectedBytes);
+    listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
     if(SERIAL_DEBUG) { 
       delay(50);  
     }
@@ -243,6 +257,9 @@ void checkNodes()
   }   
 }
 
+/*
+Set up.
+*/
 void setup()
 {
   // Join i2c bus (address optional for master).
@@ -251,15 +268,17 @@ void setup()
   // add nodes
   // Buttons::addNode(int iMn, int iMx, int iSt, int iDx)
   // Node attributes, minimum and maximum values, step and index (base 1).
-  int iMn = 0; int iMx = 220; int iSt = 5; int iDx = 1;
+  int iMn = 0; int iMx = 220; int iSt = 1; int iDx = 1;
   // furness thermocouple
   buttons.addNode(iMn, iMx, iSt, iDx);
   // injector thermocouple
-  iMn = 20; iMx = 300; iSt = 5; iDx = 2;
+  iMn = 20; iMx = 300; iSt = 1; iDx = 2;
   buttons.addNode(iMn, iMx, iSt, iDx); 
   // column thermocouple
-  iMn = 10; iMx = 400; iSt = 5; iDx = 3;
+  iMn = 10; iMx = 400; iSt = 1; iDx = 3;
   buttons.addNode(iMn, iMx, iSt, iDx);
+  
+  tempStartUp();
   
   lcd.begin(16, 2);
   lcdUpdate(iLCDLine1); 
@@ -267,17 +286,39 @@ void setup()
   
   // Start checkButtons() timer.
   iTime1 = millis() / 1000;
-  
-  // Need start up routine here:
-  // 1. Get values stored in eeprom
-  int iTemp = buttons.getNodeVal(1);
-  
-  // 2. Set temperatures based on 1.
 }
 
+/* 
+PID temperature controllers' start up routine.
+*/
+void tempStartUp() 
+{ 
+  // Read PID controllers' temperatures.
+  makeRemoteCall(iFnIdxReadOvenTemp, NULL);
+  listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
+  
+  makeRemoteCall(iFnIdxReadInjectorTemp, NULL);
+  listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
+  
+  makeRemoteCall(iFnIdxReadColumnTemp, NULL);
+  listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
+  
+  // Set PID controllers, Temperatures.
+  int iTemp = buttons.getNodeVal(iFnIdxSetOvenTemp);
+  makeRemoteCall(iFnIdxSetOvenTemp, iTemp);
+  
+  iTemp = buttons.getNodeVal(iFnIdxSetInjectorTemp);
+  makeRemoteCall(iFnIdxSetInjectorTemp, iTemp);
+  
+  iTemp = buttons.getNodeVal(iFnIdxSetColumnTemp);
+  makeRemoteCall(iFnIdxSetColumnTemp, iTemp);  
+}
+
+/*
+Main loop.
+*/
 void loop()
 {
-    
     checkNodes();
     buttons.checkButtons();
     if(buttons.changed()) {
@@ -285,9 +326,10 @@ void loop()
       // Magic number 1, iNodePos is base 1, add one
       // to match PID  position in slave node
       int iPIDPos = buttons.getNodePos() + 1; 
-      // Note iPIDPos matches the function ids to set temperatures.
+      // Note iPIDPos matches the function ids to set temperatures on each of 
+      // the Wire slave's PID nodes.
       // See libdef.h on slave node.
-      makeRemoteCall(iVal, iPIDPos);
+      makeRemoteCall(iPIDPos, iVal);
       lcdUpdate(iLCDLine2);
     } 
 }
