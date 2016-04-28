@@ -36,7 +36,7 @@ char cJson[200];
 #define IDX_INJECTOR 1
 #define IDX_COLUMN 2
 
-// Create the temperature objects, defining the pins used for communication.
+// MAX31855 object array.
 MAX31855 *temp[3] = {new MAX31855(MISO, CSoven, SCK), new MAX31855(MISO, CSinjector, SCK), new MAX31855(MISO, CScolumn, SCK)};
 
 // Thermocouple error constants.
@@ -64,15 +64,11 @@ int iFnIdxReadOvenTemp = 4;
 int iFnIdxReadInjectorTemp = 5;
 int iFnIdxReadColumnTemp = 6;
 
-// Prog. temp sent from master
-double dTempVar;
-
 // timer contants
 #define PID_SERVICE_INTERVAL 2 // check PID every 2 seconds
 #define ERROR_CHECK_INTERVAL 5 // check for error conditions when count reaches 5 (ten seconds)
 
-// PID service counter
-int iCount;
+// PID service counters.
 int iTime1;
 int iTime2;
 
@@ -179,17 +175,7 @@ void readPIDTemperature(int id, int iTemp)
     JsonObject& rootReply = jsonBufferReply.createObject();
     rootReply["id"] = id;
     rootReply["retval"] = iTemp;
-    rootReply.printTo(cJson, sizeof(cJson));
-    if(SERIAL_DEBUG) {       
-      String sJson = cJson;
-      Serial.print("\n*** Json string inside readPIDTemperature: ");;
-      Serial.print(sJson);    
-      Serial.print (" ***\n");
-      Serial.print("id = ");
-      Serial.print(id);
-      Serial.print(", iTemp = ");
-      Serial.println(iTemp);   
-    }    
+    rootReply.printTo(cJson, sizeof(cJson));   
 }
 
 void receiveEvent(int howMany)
@@ -221,7 +207,6 @@ void requestEvent()
 }
 
 void setup() {
-  Serial.begin(9600);
   if(SERIAL_DEBUG){
     Serial.begin(9600);
   }
@@ -244,7 +229,6 @@ void setup() {
   // PID avg, count and timer;
   iTime1 = millis() / 1000;
   iAvgPID = 0;
-  iCount = 1;
   
   // reset error flag
   iFlagError = 0;
@@ -296,14 +280,6 @@ void temperatureMonitor() {
     serviceOvenPID();
     serviceInjectorPID();
     serviceColumnPID();
-
-    iCount++;
-    
-    if(SERIAL_DEBUG){
-      Serial.print("iCount = ");
-      Serial.println(iCount);  
-      Serial.println("");  
-    }
     
     // Store reference time and temperature for deltas. Leaving it out for now.
     // if(iCount == 1){dTemp[0] = ovenThermocouple.readCelsius();} 
@@ -338,9 +314,6 @@ void temperatureMonitor() {
   }
   */
 }
-
-// int iThermTemp = thermocouple.readCelsius();
-// int iProgTemp = buttons.getTemp();
 
 /*
 void lcdThermocoupleError(){
