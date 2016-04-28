@@ -1,58 +1,61 @@
 #include <Wire.h>
 #include <LiquidCrystal.h>
-#include <SPI.h>
 #include <PID_v1.h>
-#include "Adafruit_MAX31855.h"
+#include <MAX31855.h>
 #include <ArduinoJson.h>
-
-/*
-  After hearing from the creator himself that it is possible
-  to work with three PID instances in a single sketch
-  https://groups.google.com/forum/#!topic/diy-pid-control/IrdhZUh6tcM
-  I'll give it a go.
-*/
 
 // Serial debug, set to 1 for serial debugging.
 #define SERIAL_DEBUG 0
 
-// Slave node number
+// Slave node number.
 #define SLAVE_NODE 2
 
-// Response buffer
+// Json reply buffer.
 char cJson[200];
 
-// SPI interface IO digital pins for the MAX31855
-#define ovenDO    0
-#define ovenCS    1
-#define ovenCLK   2
+// SPI interface IO digital pins for the MAX31855.
+// Note: On UNO cannot use 0 and 1 (RX, TX).
 
-#define DO2    3
-#define CS2    4
-#define CLK2   5
+// UNO pinout.
+/*
+#define MISO 2 // A.K.A. DO pin.
+#define SCK  3
+#define CSoven  4
+#define CSinjector  5
+#define CScolumn  6
+*/
+// DUE pinout.
+#define MISO 22 // A.K.A. DO pin.
+#define SCK  24
+#define CSoven  26
+#define CSinjector  28
+#define CScolumn  30
 
-#define DO3    6
-#define CS3    7
-#define CLK3   8
+// Human readable MAX31855 array indexes.
+#define IDX_OVEN 0
+#define IDX_INJECTOR 1
+#define IDX_COLUMN 2
 
-// Thermocouple error constants
+// Create the temperature objects, defining the pins used for communication.
+MAX31855 *temp[3] = {new MAX31855(MISO, CSoven, SCK), new MAX31855(MISO, CSinjector, SCK), new MAX31855(MISO, CScolumn, SCK)};
+
+// Thermocouple error constants.
 // If the average PID output is greater than
 #define MAX_ERROR_PID_AVG 130
 // but the temperature rises less than
 #define MIN_ERROR_TEMP_DELTA 20
-// an error will be raise
+// an error will be raised.
 
 // PID variables
 // PWM pins to drive opto-couplers
-const int ovenMosfetDrive = 9;
-const int mosfetDrive2 = 10;
-const int mosfetDrive3 = 11;
+const int ovenMosfetPin = 9;
+const int injectorMosfetPin = 10;
+const int columnMosfetPin = 11;
 
 double ovenTemperature, setOvenTemperature, ovenPIDOutput;
-double temperature2, settemperature2, output2;
-double temperature3, settemperature3, output3;
+double injectorTemperature, setInjectorTemperature, injectorPIDOutput;
+double columnTemperature, setColumnTemperature, columnPIDOutput;
 
-// Temperature global int variables.
-int iOvenTemp, iInjectorTemp, iColumnTemp;
 // libdef.h function indexes.
 int iFnIdxSetOvenTemp = 1;
 int iFnIdxSetInjectorTemp = 2;
@@ -81,15 +84,10 @@ double dTempDelta;
 // Error flag
 int iFlagError;
 
-// initialise thermocouple object
-Adafruit_MAX31855 ovenThermocouple(ovenCLK, ovenCS, ovenDO);
-Adafruit_MAX31855 thermocouple2(CLK2, CS2, DO2);
-Adafruit_MAX31855 thermocouple3(CLK3, CS3, DO3);
-
-// initialise PID object
+// Initialise PID objects.
 PID ovenPID(&ovenTemperature, &ovenPIDOutput, &setOvenTemperature, 2.5, 0.2 , 0, DIRECT);    // Kp,Ki,Kd values generated from autotune sketch run previously 
-PID myPID2(&temperature2, &output2, &settemperature2, 2.5, 0.2 , 0, DIRECT);
-PID myPID3(&temperature3, &output3, &settemperature3, 2.5, 0.2 , 0, DIRECT);
+PID injectorPID(&injectorTemperature, &injectorPIDOutput, &setInjectorTemperature, 2.5, 0.2 , 0, DIRECT);
+PID columnPID(&columnTemperature, &columnPIDOutput, &setColumnTemperature, 2.5, 0.2 , 0, DIRECT);
 
 void Parse(String content) {  
   int str_len = content.length() + 1;
@@ -100,8 +98,8 @@ void Parse(String content) {
   int id = root["id"];
   if(id == iFnIdxSetOvenTemp) {
     int iTemp = root["arg"];
-    // Set PID object temperature
-    ovenTemperature = iTemp;
+    // Set PID oven temperature
+    setOvenTemperature = iTemp;
     if(SERIAL_DEBUG) {
       Serial.print("\n*** Received function call ");
       Serial.print(content);
@@ -113,6 +111,7 @@ void Parse(String content) {
   }
   if(id == iFnIdxSetInjectorTemp) {
     int iTemp = root["arg"];
+    setInjectorTemperature = iTemp;
     if(SERIAL_DEBUG) {    
       Serial.print("\n*** Received function call ");
       Serial.print(content);
@@ -124,6 +123,7 @@ void Parse(String content) {
   }
   if(id == iFnIdxSetColumnTemp) {
     int iTemp = root["arg"];
+    setColumnTemperature = iTemp;
     if(SERIAL_DEBUG) {    
       Serial.print("\n*** Received function call ");
       Serial.print(content);
@@ -135,7 +135,6 @@ void Parse(String content) {
   }  
   // Master requested oven temperature
   if(id == iFnIdxReadOvenTemp) {
-    //readTemperature(id);
     // Convert float to int.
     int iTemp = ovenTemperature;
     readPIDTemperature(id, iTemp);
@@ -147,7 +146,8 @@ void Parse(String content) {
   } 
   // Master requested injector temperature
   if(id == iFnIdxReadInjectorTemp) {
-    //readTemperature(id);
+    int iTemp = injectorTemperature;
+    readPIDTemperature(id, iTemp);
     if(SERIAL_DEBUG) {
       Serial.print("\n*** Received function call ");
       Serial.print(content);    
@@ -157,8 +157,9 @@ void Parse(String content) {
   // Master requested column temperature
   if(id == iFnIdxReadColumnTemp) {
     // Convert float to int.
-    //int iTemp = columnTemperature;
-    //readTemperature(id, iTemp);
+    int iTemp = columnTemperature; // for now, later change to columnTemperature;
+    readPIDTemperature(id, iTemp);
+    iTemp = 250;
     if(SERIAL_DEBUG) {
       Serial.print("\n*** Received function call ");;
       Serial.print(content);    
@@ -168,7 +169,7 @@ void Parse(String content) {
 }
 
 /*
-Set return json string.
+Set json string reply as requested by master node.
 @param id Temperature PID controller id.
 @param iTemp Thermocouple temperature as read by MAX31855
 */
@@ -179,6 +180,16 @@ void readPIDTemperature(int id, int iTemp)
     rootReply["id"] = id;
     rootReply["retval"] = iTemp;
     rootReply.printTo(cJson, sizeof(cJson));
+    if(SERIAL_DEBUG) {       
+      String sJson = cJson;
+      Serial.print("\n*** Json string inside readPIDTemperature: ");;
+      Serial.print(sJson);    
+      Serial.print (" ***\n");
+      Serial.print("id = ");
+      Serial.print(id);
+      Serial.print(", iTemp = ");
+      Serial.println(iTemp);   
+    }    
 }
 
 void receiveEvent(int howMany)
@@ -206,20 +217,11 @@ void requestEvent()
   if(SERIAL_DEBUG){
     Serial.print(sJson);
     Serial.print(" ***\n");  
-  }  
-}
-
-/*
-double getTemp()
-Return temperature to be set.
-*/
-double getTemp(int i)
-{
- return dTempVar; 
+  } 
 }
 
 void setup() {
-  
+  Serial.begin(9600);
   if(SERIAL_DEBUG){
     Serial.begin(9600);
   }
@@ -230,20 +232,14 @@ void setup() {
   Wire.onReceive(receiveEvent); 
   Wire.onRequest(requestEvent); 
   
-  // to control the heating element
-  pinMode(ovenMosfetDrive,OUTPUT);
-  pinMode(mosfetDrive2,OUTPUT);
-  pinMode(mosfetDrive3,OUTPUT);
+  // Output to control heating elements.
+  pinMode(ovenMosfetPin,OUTPUT);
+  pinMode(injectorMosfetPin,OUTPUT);
+  pinMode(columnMosfetPin,OUTPUT);
 
-  // get last stored temperature from EEPROM
-  // might be better to let master node deal with 
-  // initial values
-  setOvenTemperature = getTemp(1);
-  settemperature2 = getTemp(2);
-  settemperature3 = getTemp(3);
   ovenPID.SetMode(AUTOMATIC); 
-  myPID2.SetMode(AUTOMATIC); 
-  myPID3.SetMode(AUTOMATIC); 
+  injectorPID.SetMode(AUTOMATIC); 
+  columnPID.SetMode(AUTOMATIC); 
   
   // PID avg, count and timer;
   iTime1 = millis() / 1000;
@@ -254,12 +250,35 @@ void setup() {
   iFlagError = 0;
 }
 
+/*
+Main loop.
+*/
 void loop() {
   while(iFlagError == 0) {
-    // settemperature = iTemp;
-    // temperature set by master
     temperatureMonitor();     
   } 
+}
+
+// Print the temperature, or the type of fault
+void printTemperature(double temperature) {
+  switch ((int) temperature) {
+    case FAULT_OPEN:
+      Serial.print("FAULT_OPEN");
+      break;
+    case FAULT_SHORT_GND:
+      Serial.print("FAULT_SHORT_GND");
+      break;
+    case FAULT_SHORT_VCC:
+      Serial.print("FAULT_SHORT_VCC");
+      break;
+    case NO_MAX31855:
+      Serial.print("NO_MAX31855");
+      break;
+    default:
+      Serial.print(temperature);
+      break;
+  }
+  Serial.print(" ");
 }
 
 /*
@@ -270,14 +289,13 @@ void temperatureMonitor() {
 
   iTime2 = millis() / 1000;
   if(iTime2 - iTime1 >= PID_SERVICE_INTERVAL) {
-
     // keep track of PID output
     iAvgPID += ovenPIDOutput;  
     // Service the PID
     // Starting with PID1.
     serviceOvenPID();
-    // servicePID2();
-    // servicePID3();
+    serviceInjectorPID();
+    serviceColumnPID();
 
     iCount++;
     
@@ -337,79 +355,83 @@ void lcdThermocoupleError(){
 Service Oven PID.
 */
 void serviceOvenPID() {
-  ovenTemperature=ovenThermocouple.readCelsius();
+  // TODO - Add error handling.
+  ovenTemperature = (*temp[IDX_OVEN]).readThermocouple(CELSIUS);
   ovenPID.Compute();
+  // Leave out for now.
+  /*
   if(isnan(ovenPIDOutput)) {
     if(SERIAL_DEBUG){
-      Serial.println("Output1 == nan");
+      Serial.println("ovenTemperature == nan");
     }
+    // TODO Report error to LCD.
     raiseError();
   }
-  analogWrite(ovenMosfetDrive, ovenPIDOutput);
+  */
+  analogWrite(ovenMosfetPin, ovenPIDOutput);
   if(SERIAL_DEBUG){
-    Serial.print("TEMP1: ");
+    Serial.print("ovenTemperature: ");
     Serial.println(ovenTemperature);
-    Serial.print("TEMP. PROG: ");
+    Serial.print("setOvenTemperature: ");
     Serial.println(setOvenTemperature);  
-    Serial.print("PID output: ");
+    Serial.print("ovenPIDOutput: ");
     Serial.println(ovenPIDOutput); 
-    Serial.print("dTempVar: ");
-    Serial.println(dTempVar); 
   }
 }
 
 /*
-void servicePID2()
-Service PID.
+Service Injector PID.
 */
-void servicePID2() {
-  temperature2=thermocouple2.readCelsius();
-  myPID2.Compute();
-  if(isnan(output2)) {
+void serviceInjectorPID() {
+  // TODO - Add error handling.
+  injectorTemperature = (*temp[IDX_INJECTOR]).readThermocouple(CELSIUS);
+  injectorPID.Compute();
+  // Leave out for now.
+  /*
+  if(isnan(injectorPIDOutput)) {
     if(SERIAL_DEBUG){
       Serial.println("Output2 == nan");
     }
     raiseError();
   }
-  analogWrite(mosfetDrive2, output2);
+  */
+  analogWrite(injectorMosfetPin, injectorPIDOutput);
   if(SERIAL_DEBUG){
-    Serial.print("TEMP2: ");
-    Serial.println(temperature2);
-    Serial.print("TEMP2. PROG: ");
-    Serial.println(settemperature2);  
-    Serial.print("PID output2: ");
-    Serial.println(output2); 
-    Serial.print("dTempVar2: ");
-    Serial.println(dTempVar); 
+    Serial.print("injectorTemperature: ");
+    Serial.println(injectorTemperature);
+    Serial.print("setInjectorTemperature: ");
+    Serial.println(setInjectorTemperature);  
+    Serial.print("injectorPIDOutput: ");
+    Serial.println(injectorPIDOutput); 
   }
 }
 
 /*
-void servicePID3()
-Service PID3.
+Service Column PID.
 */
-void servicePID3() {
-  temperature3=thermocouple3.readCelsius();
-  myPID3.Compute();
-  if(isnan(output3)) {
+void serviceColumnPID() {
+  // TODO - Add error handling.
+  columnTemperature = (*temp[IDX_COLUMN]).readThermocouple(CELSIUS);
+  columnPID.Compute();
+  // Leave out for now.
+  /*
+  if(isnan(injectorPIDOutput)) {
     if(SERIAL_DEBUG){
-      Serial.println("Output3 == nan");
+      Serial.println("Output2 == nan");
     }
     raiseError();
   }
-  analogWrite(mosfetDrive3, output3);
+  */
+  analogWrite(columnMosfetPin, columnPIDOutput);
   if(SERIAL_DEBUG){
-    Serial.print("TEMP3: ");
-    Serial.println(temperature3);
-    Serial.print("TEMP3. PROG: ");
-    Serial.println(settemperature3);  
-    Serial.print("PID output3: ");
-    Serial.println(output3); 
-    Serial.print("dTempVar3: ");
-    Serial.println(dTempVar); 
+    Serial.print("columnTemperature: ");
+    Serial.println(columnTemperature);
+    Serial.print("setColumnTemperature: ");
+    Serial.println(setColumnTemperature);  
+    Serial.print("columnPIDOutput: ");
+    Serial.println(columnPIDOutput); 
   }
 }
-
 /*
 void raiseError()
 Flag thermocouple error.
