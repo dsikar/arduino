@@ -312,9 +312,7 @@ void loop()
     buttons.checkButtons();
     if(buttons.changed()) {
       int iVal = buttons.setNodeVal();
-      // Magic number 1, iNodePos is base 1, add one
-      // to match PID  position in slave node
-      int iPIDPos = buttons.getNodePos() + 1; 
+      int iPIDPos = buttons.getNodePos(); 
       // Note iPIDPos matches the function ids to set temperatures on each of 
       // the Wire slave's PID nodes.
       // See libdef.h on slave node.
