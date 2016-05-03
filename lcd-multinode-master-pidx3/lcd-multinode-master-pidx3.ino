@@ -1,7 +1,7 @@
 #include <Buttons.h>
 // For Due boards; use due-no-eeprom branch on arduino-libraries/Buttons
 // and comment out line below.
-#include <EEPROM.h>
+// #include <EEPROM.h>
 #include <LiquidCrystal.h>
 #include <Wire.h>
 #include <ArduinoJson.h>
@@ -43,6 +43,7 @@ int iPIDNodes = 3;
 int iWireSlavePIDx3Node = 2;
 // The maximum number of bytes expected in any I2C data exchange.
 int iMaxExpectedBytes = 21;
+
 /*
 Initialize Buttons (temporary switches) object.
 NOTE:

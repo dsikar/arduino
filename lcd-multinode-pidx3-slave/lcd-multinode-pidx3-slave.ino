@@ -3,6 +3,7 @@
 #include <PID_v1.h>
 #include <MAX31855.h>
 #include <ArduinoJson.h>
+#include "libdef.h"
 
 // Serial debug, set to 1 for serial debugging.
 #define SERIAL_DEBUG 0
@@ -17,19 +18,22 @@ char cJson[200];
 // Note: On UNO cannot use 0 and 1 (RX, TX).
 
 // UNO pinout.
-/*
 #define MISO 2 // A.K.A. DO pin.
 #define SCK  3
 #define CSoven  4
 #define CSinjector  5
 #define CScolumn  6
-*/
+
 // DUE pinout.
+/*
 #define MISO 22 // A.K.A. DO pin.
 #define SCK  24
 #define CSoven  26
 #define CSinjector  28
 #define CScolumn  30
+*/
+
+// TODO fix sensor order: COL, VAP, DET
 
 // Human readable MAX31855 array indexes.
 #define IDX_OVEN 0
@@ -51,6 +55,12 @@ MAX31855 *temp[3] = {new MAX31855(MISO, CSoven, SCK), new MAX31855(MISO, CSinjec
 const int ovenMosfetPin = 9;
 const int injectorMosfetPin = 10;
 const int columnMosfetPin = 11;
+
+// Prog. vs Real Temp Delta vars and contant
+#define OVEN_DELTA_PIN 7
+#define VAP_DELTA_PIN 8
+#define DET_DELTA_PIN 12
+const double fDeltaPc = 0.03; // If real temperature is 3% of prog temperature, good.
 
 double ovenTemperature, setOvenTemperature, ovenPIDOutput;
 double injectorTemperature, setInjectorTemperature, injectorPIDOutput;
@@ -206,7 +216,17 @@ void requestEvent()
   } 
 }
 
+void tempDeltas()
+{
+    ovenTempDelta();
+}
+void ovenTempDelta()
+{
+  //if(
+}
+
 void setup() {
+  Serial.begin(9600);
   if(SERIAL_DEBUG){
     Serial.begin(9600);
   }
@@ -221,6 +241,11 @@ void setup() {
   pinMode(ovenMosfetPin,OUTPUT);
   pinMode(injectorMosfetPin,OUTPUT);
   pinMode(columnMosfetPin,OUTPUT);
+  
+  // Temperature delta LEDs
+  pinMode(OVEN_DELTA_PIN,OUTPUT);
+  pinMode(VAP_DELTA_PIN,OUTPUT);
+  pinMode(DET_DELTA_PIN,OUTPUT);
 
   ovenPID.SetMode(AUTOMATIC); 
   injectorPID.SetMode(AUTOMATIC); 
