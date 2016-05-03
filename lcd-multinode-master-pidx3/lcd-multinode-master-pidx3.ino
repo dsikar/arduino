@@ -1,7 +1,7 @@
 #include <Buttons.h>
 // For Due boards; use due-no-eeprom branch on arduino-libraries/Buttons
 // and comment out line below.
-// #include <EEPROM.h>
+#include <EEPROM.h>
 #include <LiquidCrystal.h>
 #include <Wire.h>
 #include <ArduinoJson.h>
@@ -262,10 +262,10 @@ void setup()
   // furness thermocouple
   buttons.addNode(iMn, iMx, iSt, iDx);
   // injector thermocouple
-  iMn = 20; iMx = 300; iSt = 1; iDx = 2;
+  iMn = 1; iMx = 300; iSt = 1; iDx = 2;
   buttons.addNode(iMn, iMx, iSt, iDx); 
   // column thermocouple
-  iMn = 10; iMx = 400; iSt = 1; iDx = 3;
+  iMn = 1; iMx = 400; iSt = 1; iDx = 3;
   buttons.addNode(iMn, iMx, iSt, iDx);
   
   tempStartUp();

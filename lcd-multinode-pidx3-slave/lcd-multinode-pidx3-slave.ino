@@ -3,7 +3,8 @@
 #include <PID_v1.h>
 #include <MAX31855.h>
 #include <ArduinoJson.h>
-#include "libdef.h"
+// not enough memory, excluding libdef.h
+// #include libdef.h
 
 // Serial debug, set to 1 for serial debugging.
 #define SERIAL_DEBUG 0
@@ -43,24 +44,18 @@ char cJson[200];
 // MAX31855 object array.
 MAX31855 *temp[3] = {new MAX31855(MISO, CSoven, SCK), new MAX31855(MISO, CSinjector, SCK), new MAX31855(MISO, CScolumn, SCK)};
 
-// Thermocouple error constants.
-// If the average PID output is greater than
-#define MAX_ERROR_PID_AVG 130
-// but the temperature rises less than
-#define MIN_ERROR_TEMP_DELTA 20
-// an error will be raised.
-
 // PID variables
 // PWM pins to drive opto-couplers
 const int ovenMosfetPin = 9;
 const int injectorMosfetPin = 10;
 const int columnMosfetPin = 11;
 
-// Prog. vs Real Temp Delta vars and contant
+// LED pins.
 #define OVEN_DELTA_PIN 7
-#define VAP_DELTA_PIN 8
-#define DET_DELTA_PIN 12
-const double fDeltaPc = 0.03; // If real temperature is 3% of prog temperature, good.
+#define INJECTOR_DELTA_PIN 8
+#define COLUMN_DELTA_PIN 12
+// Minimum temperature delta % that lights up "Temp. reached" LED.
+const double fDeltaPc = 5.0;
 
 double ovenTemperature, setOvenTemperature, ovenPIDOutput;
 double injectorTemperature, setInjectorTemperature, injectorPIDOutput;
@@ -76,25 +71,65 @@ int iFnIdxReadColumnTemp = 6;
 
 // timer contants
 #define PID_SERVICE_INTERVAL 2 // check PID every 2 seconds
-#define ERROR_CHECK_INTERVAL 5 // check for error conditions when count reaches 5 (ten seconds)
 
 // PID service counters.
 int iTime1;
 int iTime2;
-
-// temperature variables
-double dTemp[3];
-int iAvgPID;
-double dTempDelta;
-
-// Error flag
-int iFlagError;
 
 // Initialise PID objects.
 PID ovenPID(&ovenTemperature, &ovenPIDOutput, &setOvenTemperature, 2.5, 0.2 , 0, DIRECT);    // Kp,Ki,Kd values generated from autotune sketch run previously 
 PID injectorPID(&injectorTemperature, &injectorPIDOutput, &setInjectorTemperature, 2.5, 0.2 , 0, DIRECT);
 PID columnPID(&columnTemperature, &columnPIDOutput, &setColumnTemperature, 2.5, 0.2 , 0, DIRECT);
 
+/*
+Return temperature delta percentage as a positive number.
+@param dTemp1 Base temperature.
+@oaram dTemp2 Temperature to be compared with.
+*/
+double tempDeltaPc(double dTemp1, double dTemp2)
+{
+  // Example; dTemp1 = 19.75, dTemp2 = 20.00, return value = 1.25(%).
+  // TODO handle division by 0.
+  if(dTemp2 == 0 && dTemp1 == 0) {
+      return 0;
+  }
+  double dPcDiff = ((dTemp1 / dTemp2) - 1) * 100;
+  if (dPcDiff < 0) {
+    dPcDiff *= -1;
+  }
+  return dPcDiff;
+}
+
+/*
+Light LED if temperature delta is near enough.
+@param dRealTemp What is being read by thermocouple.
+@param dSetTemp The temperature required.
+@param iPin The pin number to be set to high or low.
+*/
+void setTemperatureDeltas(double dRealTemp, double dSetTemp, int iPin)
+{
+  if(tempDeltaPc(dRealTemp, dSetTemp) <= fDeltaPc)
+  {
+     digitalWrite(iPin, HIGH);
+  } else {
+      digitalWrite(iPin, LOW);
+  }
+}
+
+/*
+Check temperature deltas for all three PIDs.
+*/
+void checkTempDeltas()
+{
+  setTemperatureDeltas(ovenTemperature, setOvenTemperature, OVEN_DELTA_PIN);
+  setTemperatureDeltas(injectorTemperature, setInjectorTemperature, INJECTOR_DELTA_PIN);
+  setTemperatureDeltas(columnTemperature, setColumnTemperature, COLUMN_DELTA_PIN);
+}
+
+/*
+Parse JSON content.
+@param content The JSON content to be parsed.
+*/
 void Parse(String content) {  
   int str_len = content.length() + 1;
   char char_array[str_len];
@@ -165,7 +200,6 @@ void Parse(String content) {
     // Convert float to int.
     int iTemp = columnTemperature; // for now, later change to columnTemperature;
     readPIDTemperature(id, iTemp);
-    iTemp = 250;
     if(SERIAL_DEBUG) {
       Serial.print("\n*** Received function call ");;
       Serial.print(content);    
@@ -216,17 +250,7 @@ void requestEvent()
   } 
 }
 
-void tempDeltas()
-{
-    ovenTempDelta();
-}
-void ovenTempDelta()
-{
-  //if(
-}
-
 void setup() {
-  Serial.begin(9600);
   if(SERIAL_DEBUG){
     Serial.begin(9600);
   }
@@ -244,8 +268,8 @@ void setup() {
   
   // Temperature delta LEDs
   pinMode(OVEN_DELTA_PIN,OUTPUT);
-  pinMode(VAP_DELTA_PIN,OUTPUT);
-  pinMode(DET_DELTA_PIN,OUTPUT);
+  pinMode(INJECTOR_DELTA_PIN,OUTPUT);
+  pinMode(COLUMN_DELTA_PIN,OUTPUT);
 
   ovenPID.SetMode(AUTOMATIC); 
   injectorPID.SetMode(AUTOMATIC); 
@@ -253,41 +277,13 @@ void setup() {
   
   // PID avg, count and timer;
   iTime1 = millis() / 1000;
-  iAvgPID = 0;
-  
-  // reset error flag
-  iFlagError = 0;
 }
 
 /*
 Main loop.
 */
 void loop() {
-  while(iFlagError == 0) {
     temperatureMonitor();     
-  } 
-}
-
-// Print the temperature, or the type of fault
-void printTemperature(double temperature) {
-  switch ((int) temperature) {
-    case FAULT_OPEN:
-      Serial.print("FAULT_OPEN");
-      break;
-    case FAULT_SHORT_GND:
-      Serial.print("FAULT_SHORT_GND");
-      break;
-    case FAULT_SHORT_VCC:
-      Serial.print("FAULT_SHORT_VCC");
-      break;
-    case NO_MAX31855:
-      Serial.print("NO_MAX31855");
-      break;
-    default:
-      Serial.print(temperature);
-      break;
-  }
-  Serial.print(" ");
 }
 
 /*
@@ -298,55 +294,17 @@ void temperatureMonitor() {
 
   iTime2 = millis() / 1000;
   if(iTime2 - iTime1 >= PID_SERVICE_INTERVAL) {
-    // keep track of PID output
-    iAvgPID += ovenPIDOutput;  
-    // Service the PID
-    // Starting with PID1.
+    // Service PIDs
     serviceOvenPID();
     serviceInjectorPID();
     serviceColumnPID();
     
+    // Turn temp. monitor LEDs on and off as called for.
+    checkTempDeltas();
     // Store reference time and temperature for deltas. Leaving it out for now.
     // if(iCount == 1){dTemp[0] = ovenThermocouple.readCelsius();} 
     iTime1 = millis() / 1000; 
   }
-  
-  // ERROR CHECKING SWITCHED OFF
-  /*
-  if(iCount == ERROR_CHECK_INTERVAL) {
-       // get average output over last 5 PID services
-       iAvgPID /= ERROR_CHECK_INTERVAL;
-       dTempDelta = thermocouple.readCelsius() - dTemp1;
-
-       if(SERIAL_DEBUG){
-         Serial.println("Count == 5, Checking deltas");
-         Serial.print("iAvgPID = ");
-         Serial.println(iAvgPID);
-         Serial.print("dTempDelta = ");
-         Serial.println(dTempDelta);
-       }
-       
-       if(iAvgPID > MAX_ERROR_PID_AVG && dTempDelta < MIN_ERROR_TEMP_DELTA) {
-         // ERROR - sending current but element not responding
-         // switch off the element and raise error
-         settemperature = 0; 
-         servicePID(); 
-         raiseError();
-       }
-       
-       iCount = 0;
-       iAvgPID = 0;
-  }
-  */
-}
-
-/*
-void lcdThermocoupleError(){
-Set thermocouple error state.
-*/
-void lcdThermocoupleError(){
-  ;
-  // set error state
 }
 
 /*
@@ -356,16 +314,6 @@ void serviceOvenPID() {
   // TODO - Add error handling.
   ovenTemperature = (*temp[IDX_OVEN]).readThermocouple(CELSIUS);
   ovenPID.Compute();
-  // Leave out for now.
-  /*
-  if(isnan(ovenPIDOutput)) {
-    if(SERIAL_DEBUG){
-      Serial.println("ovenTemperature == nan");
-    }
-    // TODO Report error to LCD.
-    raiseError();
-  }
-  */
   analogWrite(ovenMosfetPin, ovenPIDOutput);
   if(SERIAL_DEBUG){
     Serial.print("ovenTemperature: ");
@@ -384,15 +332,6 @@ void serviceInjectorPID() {
   // TODO - Add error handling.
   injectorTemperature = (*temp[IDX_INJECTOR]).readThermocouple(CELSIUS);
   injectorPID.Compute();
-  // Leave out for now.
-  /*
-  if(isnan(injectorPIDOutput)) {
-    if(SERIAL_DEBUG){
-      Serial.println("Output2 == nan");
-    }
-    raiseError();
-  }
-  */
   analogWrite(injectorMosfetPin, injectorPIDOutput);
   if(SERIAL_DEBUG){
     Serial.print("injectorTemperature: ");
@@ -411,15 +350,6 @@ void serviceColumnPID() {
   // TODO - Add error handling.
   columnTemperature = (*temp[IDX_COLUMN]).readThermocouple(CELSIUS);
   columnPID.Compute();
-  // Leave out for now.
-  /*
-  if(isnan(injectorPIDOutput)) {
-    if(SERIAL_DEBUG){
-      Serial.println("Output2 == nan");
-    }
-    raiseError();
-  }
-  */
   analogWrite(columnMosfetPin, columnPIDOutput);
   if(SERIAL_DEBUG){
     Serial.print("columnTemperature: ");
@@ -430,11 +360,3 @@ void serviceColumnPID() {
     Serial.println(columnPIDOutput); 
   }
 }
-/*
-void raiseError()
-Flag thermocouple error.
-*/
-void raiseError(){
- iFlagError = 1;
- lcdThermocoupleError();
-} 
