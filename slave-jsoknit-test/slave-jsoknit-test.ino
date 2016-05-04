@@ -68,8 +68,8 @@ void setTemperatureReading(int id)
 {
     StaticJsonBuffer<200> jsonBufferReply;
     JsonObject& rootReply = jsonBufferReply.createObject();
-    rootReply["id"] = id; // 4
-    rootReply["retval"] = id * 78; // readTemp(relatedTo4);
+    rootReply["id"] = id; // id = 4, 5 or 6.
+    rootReply["retval"] = id * 78; // Mock 3-digit temperature.
     rootReply.printTo(cJson, sizeof(cJson));
 }
 void setup()
@@ -102,9 +102,8 @@ void requestEvent()
   for(int i = 0; i < sJson.length(); i++) {
     char inChar = sJson[i];
     Wire.write(inChar);
-  } 
-  Serial.print(sJson);
-  Serial.print(" ***\n");    
+  }    
+  Serial.println(sJson);
 }
 
 

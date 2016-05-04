@@ -7,7 +7,7 @@
 #include <ArduinoJson.h>
 
 // Serial debug. Set to 1 to debug.
-#define SERIAL_DEBUG 0
+#define SERIAL_DEBUG 1
 
 // Timer contants - seconds between data exchange.
 #define WIRE_SERVICE 3

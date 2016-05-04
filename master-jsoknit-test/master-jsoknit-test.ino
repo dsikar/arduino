@@ -105,21 +105,24 @@ void loop() {
   // call function id 1 passing argument value of 150;
   sendNodeVal(150, 1);
   
-  delay(3000);
+  //delay(45); 
   sendNodeVal(250, 2);
   
-  delay(3000);
+  //delay(45); 
   sendNodeVal(350, 3);  
 
-  delay(3000);
-  sendNodeVal(NULL, 4);    
+  //delay(75); 
+  sendNodeVal(NULL, 4);
+  delay(100);  
   receiveNodeVal(2, 21);
-  
-  delay(3000);
+ 
+  //delay(75); 
   sendNodeVal(NULL, 5);    
+  delay(100);
   receiveNodeVal(2, 21);
   
-  delay(3000);  
-  sendNodeVal(NULL, 6);    
+  //delay(75);   
+  sendNodeVal(NULL, 6);
+  delay(100);  
   receiveNodeVal(2, 21);  
 }
