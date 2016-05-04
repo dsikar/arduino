@@ -58,9 +58,12 @@ void receiveNodeVal(int iNodeNumber, int iBytes)
   while(Wire.available())   
   {
     char c = Wire.read();
+    Serial.print(c); 
     strRetVal += c;
   }
   Parse(strRetVal);
+  Serial.print(" *** here.\n");
+  Serial.println(strRetVal);
 }
 
 /*
@@ -100,20 +103,12 @@ void loop() {
   delay(3000);
   // call function id 1 passing argument value of 150;
   sendNodeVal(150, 1);
-  
   sendNodeVal(250, 2);
-  
-  sendNodeVal(350, 3);  
-
+  sendNodeVal(350, 3); 
   sendNodeVal(NULL, 4);
-  delay(100);  
   receiveNodeVal(2, 21);
- 
   sendNodeVal(NULL, 5);    
-  delay(100);
-  receiveNodeVal(2, 21);
-     
-  sendNodeVal(NULL, 6);
-  delay(100);  
+  receiveNodeVal(2, 21);   
+  sendNodeVal(NULL, 6); 
   receiveNodeVal(2, 21);  
 }

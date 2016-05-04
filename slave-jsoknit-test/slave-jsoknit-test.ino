@@ -3,6 +3,8 @@
 
 char cJson[200];
 
+#define SERIAL_DEBUG 0
+
 void Parse(String content) {  
   int str_len = content.length() + 1;
   char char_array[str_len];
@@ -12,51 +14,63 @@ void Parse(String content) {
   int id = root["id"];
   if(id == 1) {
     int iTemp = root["arg"];
-    Serial.print("\n*** Received function call ");
-    Serial.print(content);
-    Serial.print(" setOvenTemperature");
-    Serial.print(", setting temperature to ");
-    Serial.print(iTemp);
-    Serial.print(" ***\n");
+    if(SERIAL_DEBUG) {
+      Serial.print("\n*** Received function call ");
+      Serial.print(content);
+      Serial.print(" setOvenTemperature");
+      Serial.print(", setting temperature to ");
+      Serial.print(iTemp);
+      Serial.print(" ***\n");
+    }
   }
   if(id == 2) {
     int iTemp = root["arg"];
-    Serial.print("\n*** Received function call ");
-    Serial.print(content);
-    Serial.print(" setInjectorTemperature");
-    Serial.print(", setting temperature to ");
-    Serial.print(iTemp);
-    Serial.print(" ***\n");    
+    if(SERIAL_DEBUG) {    
+      Serial.print("\n*** Received function call ");
+      Serial.print(content);
+      Serial.print(" setInjectorTemperature");
+      Serial.print(", setting temperature to ");
+      Serial.print(iTemp);
+      Serial.print(" ***\n");    
+    }
   }
   if(id == 3) {
     int iTemp = root["arg"];
-    Serial.print("\n*** Received function call ");
-    Serial.print(content);
-    Serial.print(" setColumnTemperature");
-    Serial.print(", setting temperature to ");
-    Serial.print(iTemp);
-    Serial.print(" ***\n");    
+    if(SERIAL_DEBUG) {    
+      Serial.print("\n*** Received function call ");
+      Serial.print(content);
+      Serial.print(" setColumnTemperature");
+      Serial.print(", setting temperature to ");
+      Serial.print(iTemp);
+      Serial.print(" ***\n"); 
+    }   
   }  
   // Master requested oven temperature
   if(id == 4) {
     setTemperatureReading(id);
-    Serial.print("\n*** Received function call ");
-    Serial.print(content);    
-    Serial.print (" - Master requested oven temperature, sending JSON string: ");   
+    if(SERIAL_DEBUG) {
+      Serial.print("\n*** Received function call ");
+      Serial.print(content);    
+      Serial.print (" - Master requested oven temperature, sending JSON string: ");   
+    }
   } 
   // Master requested injector temperature
   if(id == 5) {
     setTemperatureReading(id);
-    Serial.print("\n*** Received function call ");
-    Serial.print(content);    
-    Serial.print (" - Master requested injector temperature, sending JSON string: ");
+    if(SERIAL_DEBUG) {    
+      Serial.print("\n*** Received function call ");
+      Serial.print(content);    
+      Serial.print (" - Master requested injector temperature, sending JSON string: ");
+    }
   } 
     // Master requested column temperature
   if(id == 6) {
     setTemperatureReading(id);
-    Serial.print("\n*** Received function call ");;
-    Serial.print(content);    
-    Serial.print (" - Master requested column temperature, sending JSON string: ");
+    if(SERIAL_DEBUG) {    
+      Serial.print("\n*** Received function call ");;
+      Serial.print(content);    
+      Serial.print (" - Master requested column temperature, sending JSON string: ");
+    }
   } 
 }
 
@@ -66,18 +80,20 @@ Set return json string.
 */
 void setTemperatureReading(int id)
 {
-    StaticJsonBuffer<200> jsonBufferReply;
-    JsonObject& rootReply = jsonBufferReply.createObject();
-    rootReply["id"] = id; // id = 4, 5 or 6.
-    rootReply["retval"] = id * 78; // Mock 3-digit temperature.
-    rootReply.printTo(cJson, sizeof(cJson));
+  StaticJsonBuffer<200> jsonBufferReply;
+  JsonObject& rootReply = jsonBufferReply.createObject();
+  rootReply["id"] = id; // id = 4, 5 or 6.
+  rootReply["retval"] = id * 78; // Mock 3-digit temperature.
+  rootReply.printTo(cJson, sizeof(cJson));
 }
 void setup()
 {
   Wire.begin(2);                // join i2c bus with address #2
   Wire.onReceive(receiveEvent); // register event
   Wire.onRequest(requestEvent); 
-  Serial.begin(9600);
+  if(SERIAL_DEBUG) {
+    Serial.begin(9600);
+  }
 }
 
 void receiveEvent(int howMany)
@@ -98,16 +114,14 @@ Send stored sJson back.
 */
 void requestEvent()
 {
-  String sJson = cJson; // convert char array to string
-  for(int i = 0; i < sJson.length(); i++) {
-    char inChar = sJson[i];
-    Wire.write(inChar);
-  }    
-  Serial.println(sJson);
+  Wire.write(cJson);
+  if(SERIAL_DEBUG) {
+    Serial.println(sJson);
+  }
 }
 
 
 void loop()
 {
-  ;
+  delay(100);
 }

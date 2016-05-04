@@ -239,14 +239,9 @@ Send stored sJson back.
 */
 void requestEvent()
 {
-  String sJson = cJson; // convert char array to string
-  for(int i = 0; i < sJson.length(); i++) {
-    char inChar = sJson[i];
-    Wire.write(inChar);
-  } 
+  Wire.write(cJson);
   if(SERIAL_DEBUG){
-    Serial.print(sJson);
-    Serial.print(" ***\n");  
+    Serial.println(cJson);
   } 
 }
 
@@ -283,7 +278,8 @@ void setup() {
 Main loop.
 */
 void loop() {
-    temperatureMonitor();     
+  delay(100);
+  temperatureMonitor();     
 }
 
 /*

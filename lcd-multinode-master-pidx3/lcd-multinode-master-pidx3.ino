@@ -7,7 +7,7 @@
 #include <ArduinoJson.h>
 
 // Serial debug. Set to 1 to debug.
-#define SERIAL_DEBUG 1
+#define SERIAL_DEBUG 0
 
 // Timer contants - seconds between data exchange.
 #define WIRE_SERVICE 3
@@ -208,43 +208,19 @@ void lcdUpdate(int iLine)
 Code to check data from nodes goes here.
 */
 void checkNodes()
-{
-  iTime2 = millis() / 1000;
-  if(iTime2 - iTime1 >= WIRE_SERVICE) {
-    // Make function call id == 4 on slave node 2.
-    //  {"id":4}
-    makeRemoteCall(iFnIdxReadOvenTemp, NULL);
-    if(SERIAL_DEBUG) {   
-      // Delays needed to stop Serial Monitor from freezing. 
-      delay(50);
-    } 
-    // receive 21 bytes of data from slave node 2.
-    // {"id":4,"retval":312} 
-    listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
-    if(SERIAL_DEBUG) { 
-      delay(50);
-    }
-    // Make function call id == 5 on slave node 2.
-    makeRemoteCall(iFnIdxReadInjectorTemp, NULL);
-    if(SERIAL_DEBUG) { 
-      delay(50);    
-    }
-    listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
-    if(SERIAL_DEBUG) { 
-      delay(50);
-    } 
-    // Make function call id == 6 on slave node 2.
-    makeRemoteCall(iFnIdxReadColumnTemp, NULL);
-    if(SERIAL_DEBUG) { 
-      delay(50);    
-    }
-    listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
-    if(SERIAL_DEBUG) { 
-      delay(50);  
-    }
-    lcdUpdate(iLCDLine1); // update LCD line with temperatures read from node PIDs   
-    iTime1 = millis() / 1000; 
-  }   
+{ 
+  // Make function call id == 4 on slave node 2.
+  //  {"id":4}
+  makeRemoteCall(iFnIdxReadOvenTemp, NULL);
+  delay(50);
+  listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
+  makeRemoteCall(iFnIdxReadInjectorTemp, NULL);
+  delay(50);  
+  listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);   
+  makeRemoteCall(iFnIdxReadColumnTemp, NULL);
+  delay(50);  
+  listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
+  lcdUpdate(iLCDLine1); // update LCD line with temperatures read from node PIDs   
 }
 
 /*
@@ -254,7 +230,9 @@ void setup()
 {
   // Join i2c bus (address optional for master).
   Wire.begin(); 
-  Serial.begin(9600);
+  if(SERIAL_DEBUG) {
+    Serial.begin(9600);
+  }
   // add nodes
   // Buttons::addNode(int iMn, int iMx, int iSt, int iDx)
   // Node attributes, minimum and maximum values, step and index (base 1).
@@ -273,9 +251,6 @@ void setup()
   lcd.begin(16, 2);
   lcdUpdate(iLCDLine1); 
   lcdUpdate(iLCDLine2);
-  
-  // Start checkButtons() timer.
-  iTime1 = millis() / 1000;
 }
 
 /* 
@@ -285,14 +260,15 @@ void tempStartUp()
 { 
   // Read PID controllers' temperatures.
   makeRemoteCall(iFnIdxReadOvenTemp, NULL);
+  delay(50);
   listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
-  
   makeRemoteCall(iFnIdxReadInjectorTemp, NULL);
+  delay(50);
   listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
-  
   makeRemoteCall(iFnIdxReadColumnTemp, NULL);
+  delay(50);
   listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
-  
+ 
   // Set PID controllers, Temperatures.
   int iTemp = buttons.getNodeVal(iFnIdxSetOvenTemp);
   makeRemoteCall(iFnIdxSetOvenTemp, iTemp);
@@ -301,23 +277,24 @@ void tempStartUp()
   makeRemoteCall(iFnIdxSetInjectorTemp, iTemp);
   
   iTemp = buttons.getNodeVal(iFnIdxSetColumnTemp);
-  makeRemoteCall(iFnIdxSetColumnTemp, iTemp);  
+  makeRemoteCall(iFnIdxSetColumnTemp, iTemp); 
+  // delay(5000);  
 }
 
 /*
 Main loop.
 */
 void loop()
-{
-    checkNodes();
-    buttons.checkButtons();
-    if(buttons.changed()) {
-      int iVal = buttons.setNodeVal();
-      int iPIDPos = buttons.getNodePos(); 
-      // Note iPIDPos matches the function ids to set temperatures on each of 
-      // the Wire slave's PID nodes.
-      // See libdef.h on slave node.
-      makeRemoteCall(iPIDPos, iVal);
-      lcdUpdate(iLCDLine2);
-    } 
+{ 
+  checkNodes();   
+  buttons.checkButtons();
+  if(buttons.changed()) {
+    int iVal = buttons.setNodeVal();
+    int iPIDPos = buttons.getNodePos(); 
+    // Note iPIDPos matches the function ids to set temperatures on each of 
+    // the Wire slave's PID nodes.
+    // See libdef.h on slave node.
+    makeRemoteCall(iPIDPos, iVal);
+    lcdUpdate(iLCDLine2);
+  } 
 }
