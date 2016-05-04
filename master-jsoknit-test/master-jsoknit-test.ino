@@ -66,7 +66,6 @@ void receiveNodeVal(int iNodeNumber, int iBytes)
 /*
 void sendNodeVal(int iVal)
 Send Jsoknit string to node.
-TODO - Change iVal to char cJson
 */
 void sendNodeVal(int iVal, int iNodeNumber)
 {
@@ -84,7 +83,6 @@ void sendNodeVal(int iVal, int iNodeNumber)
   for(int i = 0; i < strSend.length(); i++) {
       c = strSend[i];
       Wire.write(c);
-      //strSend += c;
   }  
   Wire.endTransmission();    // stop transmitting
   Serial.print("\n*** Sending request ");
@@ -99,29 +97,22 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
   delay(3000);
   // call function id 1 passing argument value of 150;
   sendNodeVal(150, 1);
   
-  //delay(45); 
   sendNodeVal(250, 2);
   
-  //delay(45); 
   sendNodeVal(350, 3);  
 
-  //delay(75); 
   sendNodeVal(NULL, 4);
   delay(100);  
   receiveNodeVal(2, 21);
  
-  //delay(75); 
   sendNodeVal(NULL, 5);    
   delay(100);
   receiveNodeVal(2, 21);
-  
-  //delay(75);   
+     
   sendNodeVal(NULL, 6);
   delay(100);  
   receiveNodeVal(2, 21);  
