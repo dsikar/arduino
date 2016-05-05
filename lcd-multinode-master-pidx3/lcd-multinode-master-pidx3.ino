@@ -63,6 +63,7 @@ Buttons buttons(iPin, iNoise, iSwitchSelect, iSwitchInc, iSwitchDec, iPIDNodes);
 int iLCDLine1 = 1;
 int iLCDLine2 = 2;
 // Initialize the library with the numbers of the interface pins.
+// TODO Change to 8, 9, 10, 11, 12, 13 to match connector on PCB
 LiquidCrystal lcd(4, 5, 6, 7, 8, 9);
 
 /*
