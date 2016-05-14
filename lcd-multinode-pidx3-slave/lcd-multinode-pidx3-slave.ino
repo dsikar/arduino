@@ -19,11 +19,11 @@ char cJson[200];
 // Note: On UNO cannot use 0 and 1 (RX, TX).
 
 // UNO pinout.
-#define MISO 2 // A.K.A. DO pin.
-#define SCK  3
-#define CSoven  4
+#define MISO 4 // A.K.A. DO pin.
+#define SCK  2
+#define CSoven  3
 #define CSinjector  5
-#define CScolumn  6
+#define CScolumn  7
 
 // DUE pinout.
 /*
@@ -48,12 +48,12 @@ MAX31855 *temp[3] = {new MAX31855(MISO, CSoven, SCK), new MAX31855(MISO, CSinjec
 // PWM pins to drive opto-couplers
 const int ovenMosfetPin = 9;
 const int injectorMosfetPin = 10;
-const int columnMosfetPin = 11;
+const int columnMosfetPin = 6;
 
 // LED pins.
-#define OVEN_DELTA_PIN 7
-#define INJECTOR_DELTA_PIN 8
-#define COLUMN_DELTA_PIN 12
+#define OVEN_DELTA_PIN 13
+#define INJECTOR_DELTA_PIN 12
+#define COLUMN_DELTA_PIN 11
 // Minimum temperature delta % that lights up "Temp. reached" LED.
 const double fDeltaPc = 5.0;
 
@@ -101,7 +101,7 @@ double tempDeltaPc(double dTemp1, double dTemp2)
 }
 
 /*
-Light LED if temperature delta is near enough.
+Light LED if temperature current is running through heater.
 @param dRealTemp What is being read by thermocouple.
 @param dSetTemp The temperature required.
 @param iPin The pin number to be set to high or low.
@@ -110,9 +110,9 @@ void setTemperatureDeltas(double dRealTemp, double dSetTemp, int iPin)
 {
   if(tempDeltaPc(dRealTemp, dSetTemp) <= fDeltaPc)
   {
-     digitalWrite(iPin, HIGH);
+     digitalWrite(iPin, LOW);
   } else {
-      digitalWrite(iPin, LOW);
+      digitalWrite(iPin, HIGH);
   }
 }
 
@@ -308,7 +308,7 @@ Service Oven PID.
 */
 void serviceOvenPID() {
   // TODO - Add error handling.
-  ovenTemperature = (*temp[IDX_OVEN]).readThermocouple(CELSIUS);
+  ovenTemperature = (*temp[IDX_OVEN]).readThermocouple(CELSIUS); 
   ovenPID.Compute();
   analogWrite(ovenMosfetPin, ovenPIDOutput);
   if(SERIAL_DEBUG){

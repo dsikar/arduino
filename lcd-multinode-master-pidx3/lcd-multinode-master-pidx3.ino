@@ -6,14 +6,16 @@
 #include <Wire.h>
 #include <ArduinoJson.h>
 
+// TODO add interrupt on top of A0.
+
 // Serial debug. Set to 1 to debug.
 #define SERIAL_DEBUG 0
 
 // Timer contants - seconds between data exchange.
 #define WIRE_SERVICE 3
 
-// checkNodes() timer variables
-int iCount;
+// checkNode() timer variables
+int iCount = 0;
 int iTime1;
 int iTime2;
 // Temperature global variables.
@@ -63,7 +65,7 @@ Buttons buttons(iPin, iNoise, iSwitchSelect, iSwitchInc, iSwitchDec, iPIDNodes);
 int iLCDLine1 = 1;
 int iLCDLine2 = 2;
 // Initialize the library with the numbers of the interface pins.
-LiquidCrystal lcd(4, 5, 6, 7, 8, 9);
+LiquidCrystal lcd(8, 9, 10, 11, 12, 13);
 
 /*
 Left pad with 0's if need be to format number with 3 digits.
@@ -205,26 +207,39 @@ void lcdUpdate(int iLine)
 }
 
 /*
-Code to check data from nodes goes here.
+Check data from slave node.
 */
-void checkNodes()
+void checkNode()
 { 
-  // Make function call id == 4 on slave node 2.
-  //  {"id":4}
-  makeRemoteCall(iFnIdxReadOvenTemp, NULL);
-  delay(50);
-  listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
-  makeRemoteCall(iFnIdxReadInjectorTemp, NULL);
-  delay(50);  
-  listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);   
-  makeRemoteCall(iFnIdxReadColumnTemp, NULL);
-  delay(50);  
-  listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
-  lcdUpdate(iLCDLine1); // update LCD line with temperatures read from node PIDs   
+  // In practice, split the checks to make temporary
+  // switches more responsive.
+  switch (iCount) {
+    case 0:
+      // Make function call id == 4 on slave node 2.
+      //  {"id":4}
+      makeRemoteCall(iFnIdxReadOvenTemp, NULL);
+      delay(50);
+      listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
+      break;
+    case 1:
+      makeRemoteCall(iFnIdxReadInjectorTemp, NULL);
+      delay(50);  
+      listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes); 
+      break;
+    case 2:
+      makeRemoteCall(iFnIdxReadColumnTemp, NULL);
+      delay(50);  
+      listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
+      break;
+  }
+  // Update LCD line temperatures read from node PIDs.
+  lcdUpdate(iLCDLine1); 
+  iCount++;
+  if(iCount > 2) {iCount = 0;}
 }
 
 /*
-Set up.
+Set up routine.
 */
 void setup()
 {
@@ -258,7 +273,15 @@ PID temperature controllers' start up routine.
 */
 void tempStartUp() 
 { 
+  // Give slave node time to wake up.
+  delay(2000);
+
   // Read PID controllers' temperatures.
+  // Each checkNode() call retrieve one PID from the three.
+  checkNode();
+  checkNode();
+  checkNode();
+  /*
   makeRemoteCall(iFnIdxReadOvenTemp, NULL);
   delay(50);
   listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
@@ -268,7 +291,8 @@ void tempStartUp()
   makeRemoteCall(iFnIdxReadColumnTemp, NULL);
   delay(50);
   listenRemoteCallReply(iWireSlavePIDx3Node, iMaxExpectedBytes);
- 
+  */
+  
   // Set PID controllers, Temperatures.
   int iTemp = buttons.getNodeVal(iFnIdxSetOvenTemp);
   makeRemoteCall(iFnIdxSetOvenTemp, iTemp);
@@ -277,8 +301,7 @@ void tempStartUp()
   makeRemoteCall(iFnIdxSetInjectorTemp, iTemp);
   
   iTemp = buttons.getNodeVal(iFnIdxSetColumnTemp);
-  makeRemoteCall(iFnIdxSetColumnTemp, iTemp); 
-  // delay(5000);  
+  makeRemoteCall(iFnIdxSetColumnTemp, iTemp);  
 }
 
 /*
@@ -286,7 +309,7 @@ Main loop.
 */
 void loop()
 { 
-  checkNodes();   
+  checkNode();   
   buttons.checkButtons();
   if(buttons.changed()) {
     int iVal = buttons.setNodeVal();
