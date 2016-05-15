@@ -34,8 +34,6 @@ char cJson[200];
 #define CScolumn  30
 */
 
-// TODO fix sensor order: COL, VAP, DET
-
 // Human readable MAX31855 array indexes.
 #define IDX_OVEN 0
 #define IDX_INJECTOR 1
