@@ -52,8 +52,6 @@ const int columnMosfetPin = 6;
 #define OVEN_DELTA_PIN 13
 #define INJECTOR_DELTA_PIN 12
 #define COLUMN_DELTA_PIN 11
-// Minimum temperature delta % that lights up "Temp. reached" LED.
-const double fDeltaPc = 5.0;
 
 double ovenTemperature, setOvenTemperature, ovenPIDOutput;
 double injectorTemperature, setInjectorTemperature, injectorPIDOutput;
@@ -80,37 +78,17 @@ PID injectorPID(&injectorTemperature, &injectorPIDOutput, &setInjectorTemperatur
 PID columnPID(&columnTemperature, &columnPIDOutput, &setColumnTemperature, 2.5, 0.2 , 0, DIRECT);
 
 /*
-Return temperature delta percentage as a positive number.
-@param dTemp1 Base temperature.
-@oaram dTemp2 Temperature to be compared with.
-*/
-double tempDeltaPc(double dTemp1, double dTemp2)
-{
-  // Example; dTemp1 = 19.75, dTemp2 = 20.00, return value = 1.25(%).
-  // TODO handle division by 0.
-  if(dTemp2 == 0 && dTemp1 == 0) {
-      return 0;
-  }
-  double dPcDiff = ((dTemp1 / dTemp2) - 1) * 100;
-  if (dPcDiff < 0) {
-    dPcDiff *= -1;
-  }
-  return dPcDiff;
-}
-
-/*
-Light LED if temperature current is running through heater.
-@param dRealTemp What is being read by thermocouple.
-@param dSetTemp The temperature required.
+Light LED if current is running through heater.
+@param pidOutput Output sent to opto-coupler.
 @param iPin The pin number to be set to high or low.
 */
-void setTemperatureDeltas(double dRealTemp, double dSetTemp, int iPin)
+void setTemperatureDeltas(double pidOutput, int iPin)
 {
-  if(tempDeltaPc(dRealTemp, dSetTemp) <= fDeltaPc)
+  if(pidOutput > 0)
   {
-     digitalWrite(iPin, LOW);
+     digitalWrite(iPin, HIGH);
   } else {
-      digitalWrite(iPin, HIGH);
+      digitalWrite(iPin, LOW);
   }
 }
 
@@ -119,9 +97,9 @@ Check temperature deltas for all three PIDs.
 */
 void checkTempDeltas()
 {
-  setTemperatureDeltas(ovenTemperature, setOvenTemperature, OVEN_DELTA_PIN);
-  setTemperatureDeltas(injectorTemperature, setInjectorTemperature, INJECTOR_DELTA_PIN);
-  setTemperatureDeltas(columnTemperature, setColumnTemperature, COLUMN_DELTA_PIN);
+  setTemperatureDeltas(ovenPIDOutput, OVEN_DELTA_PIN);
+  setTemperatureDeltas(injectorPIDOutput, INJECTOR_DELTA_PIN);
+  setTemperatureDeltas(columnPIDOutput, COLUMN_DELTA_PIN);
 }
 
 /*
