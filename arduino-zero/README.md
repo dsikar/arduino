@@ -1,11 +1,11 @@
-Arduino Zero, the $1 Arduino.
+$1 Arduino programmer a.k.a RDNO Zero.
 ==============
 
-Welcome to yesterday. Introducing the new generation of has-beens, the Arduino Zero. This fingerprint size (depending on the size of your thumb) device provides the following features:  
+This device provides the following features:  
 
 * Ability to burn a bootloader to an Atmega328p SMD.  
 * Ability to upload code to an Atmega328p SMD.
-* 5 output pins: PD0, PD1, D8, D9 and D10.  
+* 5 output pins: D0, D1, D11, D12 and D13.  
 
 To burn the bootloader and upload code, [follow these steps] (https://github.com/dsikar/arduino/tree/master/lcd-multinode-master-pidx3#notes-on-configuring-the-arduino-on-a-breadboard).   
 
