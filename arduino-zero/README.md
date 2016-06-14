@@ -20,16 +20,16 @@ The connectors on the board, from left to right, match the SL1 connector in the 
 
 # Gallery
 
-Burning the bootloader:
+Burning the bootloader:  
 ![Burning the bootloader](images/ArduinoZeroBootloader.jpg)
 
-Uploading code:
+Uploading code:  
 ![Uploading code](images/ArduinoZeroCodeUpload.jpg)
 
-Blink example:
+Blink example:  
 ![Blink example](images/ArduinoZeroBlink.jpg)
 
-Bluetooth LED:
+Bluetooth LED:  
 ![Bluetooth LED](images/ArduinoZeroJsoknitBluetoothLED.jpg)
 
 
