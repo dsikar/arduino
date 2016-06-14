@@ -6,7 +6,7 @@ This device provides the following features:
 * Ability to burn a bootloader and upload code to an ATmega328 TQFP-32 device.
 * 5 output pins: D0, D1, D11, D12 and D13.  
 
-To burn the bootloader and upload code, [follow these steps] (https://github.com/dsikar/arduino/tree/master/lcd-multinode-master-pidx3#notes-on-configuring-the-arduino-on-a-breadboard), changing the Due board option for Uno, basically turning the ATmega328 TQFP-32 into a feature-limited UNO, hence the name RDNO 0.
+To burn the bootloader and upload code, [follow these steps] (https://github.com/dsikar/arduino/tree/master/lcd-multinode-master-pidx3#notes-on-configuring-the-arduino-on-a-breadboard), changing the Due board option for Uno, basically turning the ATmega328 TQFP-32 into a feature-limited Uno, hence the name RDNO 0.
 
 Notice that when burning the bootloader, SCK, MOSI, MISO and RESET pins need to be wired. When uploading code, the required pins are RX, TX and RESET. In both cases, Ground and +5V need to be wired.  
 
