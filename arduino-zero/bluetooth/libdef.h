@@ -1,0 +1,1 @@
+const char *libdef ="{\"libdef\":{\"def\":\"833cd4e3\",\"app\":\"Led switch\"},\"function\":[{\"id\":1, \"label\":\"Led On\", \"type\":\"button\", \"call\":\"ledOn\"},{\"id\":2, \"label\":\"Led Off\", \"type\":\"button\", \"call\":\"ledOff\"}]}";
