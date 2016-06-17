@@ -251,14 +251,14 @@ void setup()
   // add nodes
   // Buttons::addNode(int iMn, int iMx, int iSt, int iDx)
   // Node attributes, minimum and maximum values, step and index (base 1).
-  int iMn = 0; int iMx = 220; int iSt = 1; int iDx = 1;
+  int iMn = 0; int iMx = 290; int iSt = 1; int iDx = 1;
   // furness thermocouple
   buttons.addNode(iMn, iMx, iSt, iDx);
   // injector thermocouple
-  iMn = 1; iMx = 300; iSt = 1; iDx = 2;
+  iMn = 1; iMx = 290; iSt = 1; iDx = 2;
   buttons.addNode(iMn, iMx, iSt, iDx); 
   // column thermocouple
-  iMn = 1; iMx = 400; iSt = 1; iDx = 3;
+  iMn = 1; iMx = 290; iSt = 1; iDx = 3;
   buttons.addNode(iMn, iMx, iSt, iDx);
   
   tempStartUp();
