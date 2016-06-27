@@ -81,6 +81,9 @@ avrdude: Expected signature for ATMEGA328P is 1E 95 14
 
 To fix this new error, in the appropriate IDE dependant section of avrdude.conf file, **0x14** is changed to  **0x0F** then the sketch will upload ok.  
 
+Real life implementation using CADSoft Eagle:  
+![Board](images/PIDx3.png) 
+
 
 
 
