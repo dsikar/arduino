@@ -45,7 +45,7 @@ struct MenuItem
 MenuItem menuItem[4] = {{4,3,3,4,4,0,10,10}, // magic numbers, start at array position 1
                        {0,1,0,0,0,0,10,25}, // on off
                        {0,108,0,0,0,0,10,40}, // speeds                       
-                       {0,3,0,0,0,0,10,55}}; // cycles
+                       {0,301,0,0,0,0,10,55}}; // distance // add cycles later 
                                              // up down
                                              // manual/prog
 
@@ -112,8 +112,10 @@ void render(void) {
             // speeds[(menuItem[i].encoderValue / iEncStep)]  
             u8g2.drawStr( menuItem[i].xPos, menuItem[i].yPos, buf); 
             break;  
+      // distances
       case 3: 
-            sprintf(buf, "[%d]", (menuItem[i].encoderValue / iEncStep));   
+            strcpy_P(buf, (char*)pgm_read_word(&(distance_table[menuItem[i].encoderValue / iEncStep])));
+            // sprintf(buf, "[%d]", (menuItem[i].encoderValue / iEncStep));   
             u8g2.drawStr( menuItem[i].xPos, menuItem[i].yPos, buf);
             break;
       case 0:
