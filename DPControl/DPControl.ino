@@ -5,6 +5,8 @@
 #include "StepperPins.h"
 #include <TimerOne.h>
 
+// NB ADD U8g2lib and TimerOne via Tools > Include libraries > Manage libraries
+
 // U8G2_SSD1306_128X64_NONAME_1_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 13, /* data=*/ 11, /* cs=*/ 10, /* dc=*/ 9, /* reset=*/ 8);
 U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clock=*/ 15 /* A4 */ , /* data=*/ 17 /* A2 */, /* CS=*/ 16 /* A3 */, /* reset=*/ U8X8_PIN_NONE);
 
@@ -29,10 +31,11 @@ struct MenuItem
 
 // Two menu items, first has two options, second has 4 options
 // (iEncStep * arrMax) + (iEncStep / 2);
-MenuItem menuItem[4] = {{4,3,3,4,4,0,10,10}, // magic numbers, start at array position 1 IMPORTANT: NEED TO +1 to array size menuItem[4] for every item added
-                       {0,1,0,0,0,0,10,25}, // on off
-                       {0,108,0,0,0,0,10,40}, // speeds                       
-                       {0,301,0,0,0,0,10,55}}; // distance covered // add cycles later 
+MenuItem menuItem[5] = {{4,3,3,4,4,0,10,10}, // magic numbers, start at array position 1 IMPORTANT: NEED TO +1 to array size menuItem[4] for every item added
+                       {0,1,0,0,0,0,9,19}, // on off
+                       {0,1,0,0,0,0,30,19}, // up down
+                       {0,108,0,0,0,0,55,19}}; // speeds                       
+                       // {0,301,0,0,0,0,10,55}}; // distance covered // add cycles later 
                        // {0,301,0,0,0,0,10,55}};    // start // up down
                        //{0,301,0,0,0,0,10,55}};  // end                      // manual/prog
 
@@ -75,8 +78,11 @@ int iMenuIdx = 0;
 void render(void) {
   // read state of digital pin
   char buf[15];
+
+  u8g2.setFont(u8g2_font_unifont_t_symbols);
+  // u8g2.drawGlyph(50, 20, 0x23f6);  /* dec 9731/hex 2603 Snowman */
   
-  u8g2.setFont(u8g2_font_pressstart2p_8u);  
+  // u8g2.setFont(u8g2_font_pcsenior_8f);  
   // Get asterisk position, stored as encoder value in first MenuItem struct
   int iMit = GetMenuIndexTrack(); 
   int menuArraySize = sizeof(menuItem) / sizeof(menuItem[0]);
@@ -85,22 +91,49 @@ void render(void) {
     switch(i)
     {
       case 1: 
-            sprintf(buf, "[%d]", (menuItem[i].encoderValue / ENCODER_STEP));   
-            u8g2.drawStr( menuItem[i].xPos, menuItem[i].yPos, buf); 
+            if((menuItem[i].encoderValue / ENCODER_STEP) == 0)
+            {
+              // paused
+              u8g2.drawGlyph(menuItem[i].xPos, menuItem[i].yPos, 0x23f8);  /* dec 9731/hex 2603 Snowman */
+            }
+            else
+            {
+              // active
+              u8g2.drawGlyph(menuItem[i].xPos, menuItem[i].yPos, 0x23f5);
+            }
+            //sprintf(buf, "[%d]", (menuItem[i].encoderValue / ENCODER_STEP));   
+            //u8g2.drawStr( menuItem[i].xPos, menuItem[i].yPos, buf); 
             break;
-      case 2:
+      case 2: 
+            if((menuItem[i].encoderValue / ENCODER_STEP) == 0)
+            {
+              // paused
+              u8g2.drawGlyph(menuItem[i].xPos, menuItem[i].yPos, 0x23f6);  /* dec 9731/hex 2603 Snowman */
+            }
+            else
+            {
+              // active
+              u8g2.drawGlyph(menuItem[i].xPos, menuItem[i].yPos, 0x23f7);
+            }
+            //sprintf(buf, "[%d]", (menuItem[i].encoderValue / ENCODER_STEP));   
+            //u8g2.drawStr( menuItem[i].xPos, menuItem[i].yPos, buf); 
+            break;            
+      case 3:
+            // Adjust speed
+            //adjustSpeed();
             // strcpy_P(buffer, (char*)pgm_read_word(&(string_table[i])));
             strcpy_P(buf, (char*)pgm_read_word(&(speed_table[menuItem[i].encoderValue / ENCODER_STEP])));
             // this line is breaking our code 
             // sprintf(buf, "[%s]", speeds[(menuItem[i].encoderValue / iEncStep)]); 
             // speeds[(menuItem[i].encoderValue / iEncStep)]  
-            u8g2.drawStr( menuItem[i].xPos, menuItem[i].yPos, buf); 
+            u8g2.drawStr( menuItem[i].xPos - 2, menuItem[i].yPos, buf); 
+            u8g2.drawStr( menuItem[i].xPos + 42, menuItem[i].yPos, "cm/m"); 
             break;  
       // distances
-      case 3: 
-            strcpy_P(buf, (char*)pgm_read_word(&(distance_table[menuItem[i].encoderValue / ENCODER_STEP])));
+      case 4: 
+            //strcpy_P(buf, (char*)pgm_read_word(&(distance_table[menuItem[i].encoderValue / ENCODER_STEP])));
             // sprintf(buf, "[%d]", (menuItem[i].encoderValue / iEncStep));   
-            u8g2.drawStr( menuItem[i].xPos, menuItem[i].yPos, buf);
+            //u8g2.drawStr( menuItem[i].xPos, menuItem[i].yPos, buf);
             break;
       case 0:
         break;
@@ -121,7 +154,7 @@ void render(void) {
     if(i == (menuItem[0].encoderValue / ENCODER_STEP))
     {
       // TODO make offsets variables      
-      u8g2.drawStr( menuItem[i].xPos - 7, menuItem[i].yPos + 2, "*"); 
+      u8g2.drawStr( menuItem[i].xPos - 5, menuItem[i].yPos, "*"); 
     }
   } 
   // debug encoded values
@@ -152,6 +185,10 @@ void render(void) {
 //  u8g2.drawStr( 100, 60, buf);  
 }
 
+void adjustSpeed(int iSpeed)
+{
+  Timer1.initialize(iSpeed);
+}
 void pushedButton(void)
 {
   static int buttonPushCounter = 1;   // counter for the number of button presses
@@ -239,6 +276,18 @@ void updateEncoder(){
   menuItem[iMit].lastEncoded = encoded;
   // update index
   if(menuItem[iMit].lastEncoderValue != menuItem[iMit].encoderValue) {
+    switch(iMit) 
+    { // TODO tidy up
+      case 3:
+        adjustSpeed(frequencies[menuItem[iMit].encoderValue]);
+        menuItem[iMit].lastEncoderValue = menuItem[iMit].encoderValue;
+        break;
+      case 0:
+      case 1:
+      case 2:
+        menuItem[iMit].lastEncoderValue = menuItem[iMit].encoderValue;
+        break;
+    }
     menuItem[iMit].lastEncoderValue = menuItem[iMit].encoderValue;
   }  
 }
@@ -268,11 +317,16 @@ void setup(void) {
   Timer1.attachInterrupt( timerIsr ); // attach the service routine here    
 }
 
+void checkPins(void) {
+  // Top pin
+  // Bottom pin
+}
 void loop(void) {
   u8g2.firstPage();
   do {
     pushedButton();
-    render();   
+    render(); 
+    //checkPins();  
   } while ( u8g2.nextPage() );
   // delay(50);
 }
@@ -282,8 +336,10 @@ void loop(void) {
 /// --------------------------
 void timerIsr()
 {
-    if(bOn == true) {
+    // if(bOn == true) { // TODO USE A BETTER SCHEME
+    if((menuItem[1].encoderValue / ENCODER_STEP) == 1)
+    {
       // Toggle LED at ISR Timer interval
-      digitalWrite( PWM_PIN, digitalRead( 13 ) ^ 1 );      
+      digitalWrite( PWM_PIN, digitalRead( PWM_PIN ) ^ 1 );      
     }
 }
