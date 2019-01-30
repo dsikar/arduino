@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include <U8g2lib.h>
 #include "LCDData.h"
+#include "StepperPins.h"
 #include <TimerOne.h>
 
 // U8G2_SSD1306_128X64_NONAME_1_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 13, /* data=*/ 11, /* cs=*/ 10, /* dc=*/ 9, /* reset=*/ 8);
@@ -49,10 +50,7 @@ MenuItem menuItem[4] = {{4,3,3,4,4,0,10,10}, // magic numbers, start at array po
 // Do not go above 14 NB this is in case there is a slight offset in read values, e.g. initial absolute value jumps from 0 to 2. TODO investigate jumps of 3.
 //int iAbsMax = (ENCODER_STEP * arrMax) + (ENCODER_STEP / 2);
 
-// ENCODER HANDLER
-#define encoderPin1 2
-#define encoderPin2 3
-#define encoderSwitchPin 4 //push button switch
+
 
 volatile int lastEncoded = 0;
 volatile long encoderValue = 0;
@@ -78,7 +76,7 @@ void render(void) {
   // read state of digital pin
   char buf[15];
   
-  u8g2.setFont(u8g2_font_ncenB08_tr);  
+  u8g2.setFont(u8g2_font_pressstart2p_8u);  
   // Get asterisk position, stored as encoder value in first MenuItem struct
   int iMit = GetMenuIndexTrack(); 
   int menuArraySize = sizeof(menuItem) / sizeof(menuItem[0]);
@@ -249,14 +247,18 @@ void setup(void) {
   u8g2.begin();
 
   // Encoder pins
-  pinMode(encoderPin1, INPUT);
-  
+  pinMode(encoderPin1, INPUT); 
   pinMode(encoderPin2, INPUT);
   pinMode(encoderSwitchPin,  INPUT);
  
   digitalWrite(encoderPin1, HIGH); //turn pullup resistor on
   digitalWrite(encoderPin2, HIGH); //turn pullup resistor on
   digitalWrite(encoderSwitchPin,  HIGH); //turn pullup resistor on
+
+  pinMode(BOTTOM_PIN, INPUT);
+  pinMode(TOP_PIN, INPUT);
+  pinMode(DIRECTION_PIN, OUTPUT); 
+  pinMode(PWM_PIN, OUTPUT);  
     
   // Encoder interrupts
   attachInterrupt(0, updateEncoder, CHANGE);
@@ -282,6 +284,6 @@ void timerIsr()
 {
     if(bOn == true) {
       // Toggle LED at ISR Timer interval
-      digitalWrite( 13, digitalRead( 13 ) ^ 1 );      
+      digitalWrite( PWM_PIN, digitalRead( 13 ) ^ 1 );      
     }
 }
