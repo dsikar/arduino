@@ -971,4 +971,4 @@ const char * const distance_table[] PROGMEM = {
 
 // STRINGS
 #define SPEED_RATE "cm/m"
-#define SPEED_RATE_OFFSET 42
+#define SPEED_RATE_OFFSET 39

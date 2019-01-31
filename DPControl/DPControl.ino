@@ -91,12 +91,12 @@ void render(void) {
       case START_STOP_INDEX: 
             if((menuItem[i].encoderValue / ENCODER_STEP) == 0)
             {
-              // paused
+              // we are paused
               u8g2.drawGlyph(LCD_START_STOP_X_POS, LCD_START_STOP_Y_POS, PAUSE_SYMBOL);  /* dec 9731/hex 2603 Snowman */
             }
             else
             {
-              // active
+              // we are moving
               u8g2.drawGlyph(LCD_START_STOP_X_POS, LCD_START_STOP_Y_POS, PLAY_SYMBOL);
             }
             //sprintf(buf, "[%d]", (menuItem[i].encoderValue / ENCODER_STEP));   
@@ -105,13 +105,15 @@ void render(void) {
       case UP_DOWN_INDEX: 
             if((menuItem[i].encoderValue / ENCODER_STEP) == 0)
             {
-              // paused
+              // we are going up
               u8g2.drawGlyph(LCD_UP_DOWN_X_POS, LCD_UP_DOWN_Y_POS, UP_SYMBOL);  /* dec 9731/hex 2603 Snowman */
+              digitalWrite(DIRECTION_PIN, HIGH);
             }
             else
             {
-              // active
+              // we are going down
               u8g2.drawGlyph(LCD_UP_DOWN_X_POS, LCD_UP_DOWN_Y_POS, DOWN_SYMBOL);
+              digitalWrite(DIRECTION_PIN, LOW);
             }
             break;            
       case SPEED_INDEX:
@@ -184,7 +186,8 @@ void render(void) {
 
 void adjustSpeed(int iSpeed)
 {
-  Timer1.initialize(iSpeed);
+  // For now do not adjust speed
+  // Timer1.initialize(iSpeed);
 }
 void pushedButton(void)
 {
@@ -276,7 +279,7 @@ void updateEncoder(){
     switch(iMit) 
     { // TODO tidy up
       case 3:
-        adjustSpeed(frequencies[menuItem[iMit].encoderValue]);
+        adjustSpeed(frequencies[menuItem[iMit].encoderValue / ENCODER_STEP]);
         menuItem[iMit].lastEncoderValue = menuItem[iMit].encoderValue;
         break;
       case 0:
@@ -305,6 +308,9 @@ void setup(void) {
   pinMode(TOP_PIN, INPUT);
   pinMode(DIRECTION_PIN, OUTPUT); 
   pinMode(PWM_PIN, OUTPUT);  
+
+  // Set direction - TODO read initial state from EEPROM
+  digitalWrite(PWM_PIN, HIGH); // we are pointing upwards
     
   // Encoder interrupts
   attachInterrupt(0, updateEncoder, CHANGE);
