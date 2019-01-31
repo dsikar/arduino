@@ -10,9 +10,6 @@
 // U8G2_SSD1306_128X64_NONAME_1_4W_SW_SPI u8g2(U8G2_R0, /* clock=*/ 13, /* data=*/ 11, /* cs=*/ 10, /* dc=*/ 9, /* reset=*/ 8);
 U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clock=*/ 15 /* A4 */ , /* data=*/ 17 /* A2 */, /* CS=*/ 16 /* A3 */, /* reset=*/ U8X8_PIN_NONE);
 
-// menu tracker
-int iMTracker = 0;
-
 // OUR GENERIC STRUCT
 struct MenuItem
 {
@@ -21,20 +18,21 @@ struct MenuItem
   //int iAbsMax; //  = (iEncStep * arrMax) + (iEncStep / 2); calculate
   //int arrMin; // should alway be 0
   int arrMax; // used to calculate iAbsMax
-  volatile int lastEncoded;
-  volatile long encoderValue;
-  long lastEncoderValue;
-  int encoded; 
+  volatile char lastEncoded;
+  volatile char encoderValue;
+  char lastEncoderValue;
+  char encoded; 
   byte xPos;
   byte yPos;        
 };
 
 // Two menu items, first has two options, second has 4 options
 // (iEncStep * arrMax) + (iEncStep / 2);
-MenuItem menuItem[5] = {{4,3,3,4,4,0,10,10}, // magic numbers, start at array position 1 IMPORTANT: NEED TO +1 to array size menuItem[4] for every item added
-                       {0,1,0,0,0,0,9,19}, // on off
-                       {0,1,0,0,0,0,30,19}, // up down
-                       {0,108,0,0,0,0,55,19}}; // speeds                       
+MenuItem menuItem[4] = {{4,3,3,4,4,0,10,10}, // magic numbers, start at array position 1 IMPORTANT: NEED TO +1 to array size menuItem[4] for every item added
+                                             // LCD_MENU_X_POS 10 LCD_MENU_Y_POS 10 // OUR ASTERISK SELECTED TRACKER
+                       {0,1,0,0,0,0,9,19}, // on off LCD_START_STOP_X_POS 9 LCD_START_STOP_Y_POS 19
+                       {0,1,0,0,0,0,30,19}, // up down  LCD_UP_DOWN_X_POS 30 LCD_UP_DOWN_Y_POS 19
+                       {0,108,0,0,0,0,55,19}}; // speeds LCD_SPEED_X_POS 30 LCD_SPEED_Y_POS 19                       
                        // {0,301,0,0,0,0,10,55}}; // distance covered // add cycles later 
                        // {0,301,0,0,0,0,10,55}};    // start // up down
                        //{0,301,0,0,0,0,10,55}};  // end                      // manual/prog
@@ -90,35 +88,33 @@ void render(void) {
   {
     switch(i)
     {
-      case 1: 
+      case START_STOP_INDEX: 
             if((menuItem[i].encoderValue / ENCODER_STEP) == 0)
             {
               // paused
-              u8g2.drawGlyph(menuItem[i].xPos, menuItem[i].yPos, 0x23f8);  /* dec 9731/hex 2603 Snowman */
+              u8g2.drawGlyph(LCD_START_STOP_X_POS, LCD_START_STOP_Y_POS, PAUSE_SYMBOL);  /* dec 9731/hex 2603 Snowman */
             }
             else
             {
               // active
-              u8g2.drawGlyph(menuItem[i].xPos, menuItem[i].yPos, 0x23f5);
+              u8g2.drawGlyph(LCD_START_STOP_X_POS, LCD_START_STOP_Y_POS, PLAY_SYMBOL);
             }
             //sprintf(buf, "[%d]", (menuItem[i].encoderValue / ENCODER_STEP));   
             //u8g2.drawStr( menuItem[i].xPos, menuItem[i].yPos, buf); 
             break;
-      case 2: 
+      case UP_DOWN_INDEX: 
             if((menuItem[i].encoderValue / ENCODER_STEP) == 0)
             {
               // paused
-              u8g2.drawGlyph(menuItem[i].xPos, menuItem[i].yPos, 0x23f6);  /* dec 9731/hex 2603 Snowman */
+              u8g2.drawGlyph(LCD_UP_DOWN_X_POS, LCD_UP_DOWN_Y_POS, UP_SYMBOL);  /* dec 9731/hex 2603 Snowman */
             }
             else
             {
               // active
-              u8g2.drawGlyph(menuItem[i].xPos, menuItem[i].yPos, 0x23f7);
+              u8g2.drawGlyph(LCD_UP_DOWN_X_POS, LCD_UP_DOWN_Y_POS, DOWN_SYMBOL);
             }
-            //sprintf(buf, "[%d]", (menuItem[i].encoderValue / ENCODER_STEP));   
-            //u8g2.drawStr( menuItem[i].xPos, menuItem[i].yPos, buf); 
             break;            
-      case 3:
+      case SPEED_INDEX:
             // Adjust speed
             //adjustSpeed();
             // strcpy_P(buffer, (char*)pgm_read_word(&(string_table[i])));
@@ -126,8 +122,8 @@ void render(void) {
             // this line is breaking our code 
             // sprintf(buf, "[%s]", speeds[(menuItem[i].encoderValue / iEncStep)]); 
             // speeds[(menuItem[i].encoderValue / iEncStep)]  
-            u8g2.drawStr( menuItem[i].xPos - 2, menuItem[i].yPos, buf); 
-            u8g2.drawStr( menuItem[i].xPos + 42, menuItem[i].yPos, "cm/m"); 
+            u8g2.drawStr( LCD_SPEED_X_POS, LCD_SPEED_Y_POS, buf); 
+            u8g2.drawStr( LCD_SPEED_X_POS + SPEED_RATE_OFFSET, LCD_SPEED_Y_POS, SPEED_RATE); 
             break;  
       // distances
       case 4: 
@@ -182,7 +178,8 @@ void render(void) {
 //  u8g2.drawStr( 100, 40, (bOn ? "On" : "Off")); 
 //  // debug button press
 //  sprintf(buf, "%d ",digitalRead(encoderSwitchPin));   
-//  u8g2.drawStr( 100, 60, buf);  
+//  u8g2.drawStr( 100, 60, buf); 
+ 
 }
 
 void adjustSpeed(int iSpeed)

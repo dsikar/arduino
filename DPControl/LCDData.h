@@ -942,3 +942,33 @@ const char * const distance_table[] PROGMEM = {
     distance_29_9,
     distance_30_0,
 };
+
+// INDEXES
+#define MENU_TRACKER_IDX 0
+#define START_STOP_INDEX 1
+#define UP_DOWN_INDEX 2
+#define SPEED_INDEX 3
+
+// LCD POSITIONING
+// MENU ASTERISK SELECTED TRACKER
+#define LCD_MENU_X_POS 10 
+#define LCD_MENU_Y_POS 10
+// START TOP 
+#define LCD_START_STOP_X_POS 9 
+#define LCD_START_STOP_Y_POS 19
+// UP DOWN
+#define LCD_UP_DOWN_X_POS 30 
+#define LCD_UP_DOWN_Y_POS 19
+// SPEED
+#define LCD_SPEED_X_POS 55 
+#define LCD_SPEED_Y_POS 19 
+
+// SPECIAL u8g2_font_unifont_t_symbols font group characters
+#define PAUSE_SYMBOL 0x23f8
+#define PLAY_SYMBOL 0x23f5
+#define UP_SYMBOL 0x23f6
+#define DOWN_SYMBOL 0x23f7
+
+// STRINGS
+#define SPEED_RATE "cm/m"
+#define SPEED_RATE_OFFSET 42
