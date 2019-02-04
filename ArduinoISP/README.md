@@ -50,15 +50,15 @@ Once ArduinoISP sketch has been loaded and edited, and IDE configured, Mega2560 
 4. Wiring the Mega2560 to the ATmega328P  
 
 Now that Mega2560 is configured to work as a programmer, the target ATmega328P can be wired to the Mega2560. Assuming ATmega328p will be initially powered by the Mega2560, wiring works as follows:  
-```
-Pin		Mega2560	ATmega328P
-5V		5V			5V
-GND		GND			GND
-RESET  	10			1
-MISO	50			18
-MOSI	51			17
-SCK		52			19
-```
+
+| Pin  | Mega2560 | ATmega328Pr |
+| ------------- | ------------- | ------------- |
+| 5V  | 5V  | 5V |
+| GND  | GND  | GND |
+| RESET  | 10  | 1 |
+| MISO  | 50  | 18 |
+| MOSI  | 51  | 17 |
+| SCK  | 52  | 19 |
 
 If using the Mega2560 ICSP header, then:  
 
