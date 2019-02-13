@@ -223,8 +223,8 @@ const char * const speed_table[] PROGMEM = {
     speed_107, 
     speed_108
 };
-// FREQUENCIES
-const uint16_t frequencies[]  PROGMEM  = { 
+// FREQUENCIES - different declaration
+const PROGMEM uint16_t frequencies[] = { 
     37500, 
     36764, 
     36057, 
@@ -943,11 +943,34 @@ const char * const distance_table[] PROGMEM = {
     distance_30_0,
 };
 
+// Moving some elements of menuItem struct to program memory
+
+#define TOTAL_MENU_ITEMS 4 //not required
+const unsigned int menuController[3] PROGMEM =  {3,10,10};
+const unsigned int menuStartPause[3] PROGMEM =  {1,9,19};
+const unsigned int menuUpDown[3] PROGMEM =      {1,30,19};
+const unsigned int menuSpeed[3] PROGMEM =       {108,55,19};
+const unsigned int menuEvenSpeed[3] PROGMEM =   {3,10,10}; 
+const unsigned int menuLocation[3] PROGMEM =    {3,10,10};
+const unsigned int menuStartPos[3] PROGMEM =    {3,10,10};
+const unsigned int menuEndPos[3] PROGMEM =      {3,10,10};
+const unsigned int menuManProg[3] PROGMEM =     {3,10,10};
+const unsigned int menuCycles[3] PROGMEM =      {3,10,10};
+
+const uint16_t * const menuItemProgMem[] PROGMEM = {   menuController, 
+                                                menuStartPause,
+                                                menuUpDown,                                                              
+                                                menuSpeed};
+
 // INDEXES
 #define MENU_TRACKER_IDX 0
 #define START_STOP_INDEX 1
 #define UP_DOWN_INDEX 2
 #define SPEED_INDEX 3
+
+#define ARR_MAX_INDEX 0
+#define X_POS_INDEX 1
+#define Y_POS_INDEX 2
 
 // LCD POSITIONING
 // MENU ASTERISK SELECTED TRACKER
@@ -970,5 +993,5 @@ const char * const distance_table[] PROGMEM = {
 #define DOWN_SYMBOL 0x23f7
 
 // STRINGS
-#define SPEED_RATE "cm/m"
+#define SPEED_RATE "cm/min"
 #define SPEED_RATE_OFFSET 39

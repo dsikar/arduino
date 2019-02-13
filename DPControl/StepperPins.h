@@ -5,6 +5,16 @@
 #define PWM_PIN 10
 
 // ENCODER HANDLER
-#define encoderPin1 2
-#define encoderPin2 3
-#define encoderSwitchPin 4 //push button switch
+#define ENCODER_PIN_1 2
+#define ENCODER_PIN_2 3
+#define ENCODER_SWITCH_PIN 4 //push button switch
+
+// JUNKED CODE
+      // no box for now
+//            if(iMenuIdx == START_STOP_INDEX){
+//              u8g2.setFontMode(1);  /* activate transparent font mode */
+//              u8g2.setDrawColor(1); /* color 1 for the box */
+//              u8g2.drawBox(0, 0, 20, 20);           
+//            }
+//            // draw a box
+//            u8g2.setDrawColor(2);
