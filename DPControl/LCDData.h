@@ -2,6 +2,7 @@
 
 #define ENCODER_STEP 4
 // SPEEDS
+#define SPEED_ARRAY_ENTRIES 109
 const char speed_0[] PROGMEM = " 0.50"; 
 const char speed_1[] PROGMEM = " 0.51"; 
 const char speed_2[] PROGMEM = " 0.52"; 
@@ -111,6 +112,7 @@ const char speed_105[] PROGMEM = "22.00";
 const char speed_106[] PROGMEM = "24.00"; 
 const char speed_107[] PROGMEM = "27.00"; 
 const char speed_108[] PROGMEM = "30.00";
+
 // REFERENCE ARRAY
 const char * const speed_table[] PROGMEM = { 
     speed_0, 
@@ -639,6 +641,7 @@ const char distance_29_9[] PROGMEM = "29.9";
 const char distance_30_0[] PROGMEM = "30.0";
 
 // DISTANCE ARRAY REFERENCE
+#define DISTANCE_ARRAY_ENTRIES 301
 const char * const distance_table[] PROGMEM = { 
     distance_0_0,
     distance_0_1,
@@ -940,39 +943,112 @@ const char * const distance_table[] PROGMEM = {
     distance_29_7,
     distance_29_8,
     distance_29_9,
-    distance_30_0,
+    distance_30_0
+};
+
+// CYCLES' ARRAYS
+const char cycles_0_1[] PROGMEM = " 1"; 
+const char cycles_0_2[] PROGMEM = " 2"; 
+const char cycles_0_3[] PROGMEM = " 3"; 
+const char cycles_0_4[] PROGMEM = " 4"; 
+const char cycles_0_5[] PROGMEM = " 5"; 
+const char cycles_0_6[] PROGMEM = " 6"; 
+const char cycles_0_7[] PROGMEM = " 7"; 
+const char cycles_0_8[] PROGMEM = " 8"; 
+const char cycles_0_9[] PROGMEM = " 9"; 
+const char cycles_1_0[] PROGMEM = "10"; 
+
+// CYCLES ARRAY REFERENCE
+#define CYCLES_ARRAY_ENTRIES 10
+const char * const cycles_table[] PROGMEM = { 
+    cycles_0_1,
+    cycles_0_2,
+    cycles_0_3,
+    cycles_0_4,
+    cycles_0_5,
+    cycles_0_6,
+    cycles_0_7,
+    cycles_0_8,
+    cycles_0_9,
+    cycles_1_0
+};
+
+#define MAN_PROG_ARRAY_ENTRIES 2
+const char man_prog_0[] PROGMEM = "Man"; 
+const char man_prog_1[] PROGMEM = "Prg"; 
+
+// REFERENCE ARRAY
+const char * const man_prog_table[] PROGMEM = { 
+    man_prog_0,
+    man_prog_1
 };
 
 // Moving some elements of menuItem struct to program memory
 
-#define TOTAL_MENU_ITEMS 4 //not required
-const unsigned int menuController[3] PROGMEM =  {3,10,10};
-const unsigned int menuStartPause[3] PROGMEM =  {1,9,19};
-const unsigned int menuUpDown[3] PROGMEM =      {1,30,19};
-const unsigned int menuSpeed[3] PROGMEM =       {108,55,19};
-const unsigned int menuEvenSpeed[3] PROGMEM =   {3,10,10}; 
-const unsigned int menuLocation[3] PROGMEM =    {3,10,10};
-const unsigned int menuStartPos[3] PROGMEM =    {3,10,10};
-const unsigned int menuEndPos[3] PROGMEM =      {3,10,10};
-const unsigned int menuManProg[3] PROGMEM =     {3,10,10};
-const unsigned int menuCycles[3] PROGMEM =      {3,10,10};
+// ADDING ITEMS:
+// 1. ADD ARRAY and update TOTAL_MENU_ITEMS to array size - 1
+// 2. Add new menu array to menuItemProgMem at correct position as has defined i.e. END_POS_INDEX
+// 3. Add entry in menuItem struct
 
-const uint16_t * const menuItemProgMem[] PROGMEM = {   menuController, 
-                                                menuStartPause,
-                                                menuUpDown,                                                              
-                                                menuSpeed};
+
+#define TOTAL_MENU_ITEMS 9 // array base 0 e.g. number of elements - 1
+// TODO - GET RID OF ALL MAGIC NUMBERS
+const unsigned int menuController[5] PROGMEM =  {TOTAL_MENU_ITEMS - 1,8, 9, 5, 0};  // x y asterisk x offset, asterisk y offset
+const unsigned int menuStartPause[5] PROGMEM =  {1,7,11, 5, 2}; // 2 array entries - 1 = 1
+const unsigned int menuUpDown[5] PROGMEM =      {1,28,11,8, 2};// same
+const unsigned int menuManProg[5] PROGMEM =     {MAN_PROG_ARRAY_ENTRIES - 1,55,9, 10, 0}; // 2 array entries // 55, 9, 10, 0};
+const unsigned int menuCycles[5] PROGMEM =      {CYCLES_ARRAY_ENTRIES - 1,97,9, 10, 0};
+const unsigned int menuUpSpeed[5] PROGMEM =     {SPEED_ARRAY_ENTRIES - 1,12, 19, 10, 0};
+const unsigned int menuDownSpeed[5] PROGMEM =   {SPEED_ARRAY_ENTRIES - 1,12,29, 10, 0}; 
+const unsigned int menuEndPos[5] PROGMEM =      {DISTANCE_ARRAY_ENTRIES - 1,12,39, 10  , 0}; // END_POS_INDEX 5
+const unsigned int menuStartPos[5] PROGMEM =    {DISTANCE_ARRAY_ENTRIES - 1,12,49, 10, 0}; // START_POS_INDEX 6
+const unsigned int menuPos[5] PROGMEM =    {301,10,10, 8, 0};
+
+
+// FORGOT TO ADD HERE
+const uint16_t * const menuItemProgMem[] PROGMEM = {   
+                                                    menuController, 
+                                                    menuStartPause,
+                                                    menuUpDown,
+                                                    menuManProg,                                                                                                           
+                                                    menuCycles,
+                                                    menuUpSpeed,                                                       
+                                                    menuDownSpeed,                                                    
+                                                    menuEndPos,
+                                                    menuStartPos
+                                                };
 
 // INDEXES
 #define MENU_TRACKER_IDX 0
 #define START_STOP_INDEX 1
 #define UP_DOWN_INDEX 2
-#define SPEED_INDEX 3
+#define MAN_PROG_INDEX 3
+#define CYCLES_INDEX 4
+#define UP_SPEED_INDEX 5
+#define DOWN_SPEED_INDEX 6
+#define END_POS_INDEX 7
+#define START_POS_INDEX 8
+#define POS_INDEX 9
+
+// SELECTED ASTERISK OFFSET INDEXES
+#define MENU_TRACKER_IDX 0
+#define START_STOP_INDEX 1
+#define UP_DOWN_INDEX 2
+#define MAN_PROG_INDEX 3
+#define CYCLES_INDEX 4
+#define UP_SPEED_INDEX 5
+#define DOWN_SPEED_INDEX 6
+#define END_POS_INDEX 7
+#define START_POS_INDEX 8
+#define POS_INDEX 9
 
 #define ARR_MAX_INDEX 0
 #define X_POS_INDEX 1
 #define Y_POS_INDEX 2
+#define ASTERISK_X_OFFSET_INDEX 3
+#define ASTERISK_Y_OFFSET_INDEX 4
 
-// LCD POSITIONING
+// LCD POSITIONING INCLUDING "SELECTED" *
 // MENU ASTERISK SELECTED TRACKER
 #define LCD_MENU_X_POS 10 
 #define LCD_MENU_Y_POS 10
@@ -994,4 +1070,5 @@ const uint16_t * const menuItemProgMem[] PROGMEM = {   menuController,
 
 // STRINGS
 #define SPEED_RATE "cm/min"
-#define SPEED_RATE_OFFSET 39
+#define DISTANCE_UNIT "cm"
+#define SPEED_RATE_OFFSET 42
