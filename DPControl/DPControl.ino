@@ -44,8 +44,7 @@ MenuItem menuItem[TOTAL_MENU_ITEMS] = {{4,4,4},  // LCD_MENU_X_POS 10 LCD_MENU_Y
                        {0,0,0}, // END_POS_INDEX
                        {0,0,0}, // START_POS_INDEX
                        {0,0,0}, // MAN_PROG_INDEX
-                       {0,0,0}}; // CYCLES_INDEX
-
+                       {0,0,0}}; // CYCLES_INDEX               
 
 // state machine variables
 // 1. Track if speed update is required
@@ -216,12 +215,27 @@ void render(void) {
       default:
         // do nothing
         break;  
+
+/*
+      // CASES TO ADD
+      case WRITE_TO_EEPROM:
+        break;
+
+      case READ_FROM_EEPROM:
+        break;
+
+      case SAVED_ADDRESS:
+        break;
+
+      case ACTION_OK:
+        break;
+*/          
     }
-    
+
+    // EXTRAS
     // if this is the current active item, print an asterisk to denote state 
     if(i == (menuItem[0].encoderValue / ENCODER_STEP))
-    {
-      // TODO make offsets variables  
+    { 
       x_pos = getMenuItemProgMemVal(i, X_POS_INDEX);
       y_pos = getMenuItemProgMemVal(i, Y_POS_INDEX);
       //Serial.println(x_pos);
@@ -230,6 +244,9 @@ void render(void) {
       u8g2.setFont(u8g2_font_pcsenior_8f);
       u8g2.drawStr(x_pos - asterisk_offset_x, y_pos - asterisk_offset_y , "*"); 
     }
+
+    // TODO PRINT ABSOLUTE LOCATION
+    
   } 
 }
 
@@ -333,7 +350,6 @@ void pushedButton(void)
  * update relevant index
  * 2. Control has been selected and is being updated
  * update relevantindex
- * TODO each control will have unique min and max pairs
 ***********************************************************/
 void SetMenuIndexTrack(bool bOn)
 {
@@ -409,6 +425,11 @@ void updateEncoder()
   menuItem[iMit].lastEncoded = encoded;
   // update index only if boolean flag (cheaper) has changed
   // we are going to update this in the menu renderer
+
+  // TODO IMPLEMENT STATE MACHINE AT THIS POINT E.G.
+  // updateStateMachine();
+  // 1. if we transitioned from running to stopped, save current location
+  
   if(menuItem[iMit].lastEncoderValue != menuItem[iMit].encoderValue) 
   {
     menuItem[iMit].lastEncoderValue = menuItem[iMit].encoderValue;
@@ -421,6 +442,7 @@ void updateEncoder()
     {
       bUpdateSpeed = true;
     }
+    
   }
 }
 
@@ -483,6 +505,10 @@ void setup(void) {
 
   Timer1.initialize(37500); // 37500 0,50 cm/min
   Timer1.attachInterrupt( timerIsr ); // attach the service routine here  
+
+  // TODOS 
+  // 1. SPLASH SCREEN
+  // 2. LOAD ABSOLUTE LOCATION FROM EEPROM
 }
 
 void loop(void) {
@@ -506,6 +532,8 @@ void timerIsr()
     if((menuItem[START_STOP_INDEX].encoderValue / ENCODER_STEP) == 1)
     {
       // Toggle LED at ISR Timer interval
-      digitalWrite( PWM_PIN, digitalRead( PWM_PIN ) ^ 1 );      
+      digitalWrite( PWM_PIN, digitalRead( PWM_PIN ) ^ 1 );    
+      // TODO ADD COUNTER
+      // IF GOING UP ADD, IF GOING DOWN SUBTRACT  
     }
 }
