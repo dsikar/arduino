@@ -9,13 +9,16 @@
 /*******************
  * DP Control v0.02
  * ROADMAP
- * 1. Add Absolute Position
+ * 1. Add Absolute Position OK
  *    based on number of steps i.e. 200 steps
- *    in either direction = 1.8mm advance / retraction
- * 2. Save Absolute Position to EEPROM on every play/pause transition
- * 3. Implement PROG mode
- * 4. Implement Save/Read saved progs
- * 5. Add up/icons for speed and location  e.g. v up, v down, d up, d down, abs pos
+ *    in either direction = 1.8mm advance / retraction OK
+ * 2. Save Absolute Position to EEPROM on every play/pause transition OK
+ * 3. Implement PROG mode * SKIP - JUST ONE PROG
+ * 4. Implement Save/Read saved progs * SKIP - JUST ONE PROG
+ * 5. Add up/icons for speed and location  e.g. v up, v d
+ * 6. Implement Programmed mode and cycles
+
+ NB EEPROM is only set after power cycle following uploading sketch
  ******************/
  
 // NB ADD U8g2lib and TimerOne via Tools > Include libraries > Manage libraries
@@ -33,9 +36,10 @@ U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clock=*/ 15 /* A4 */ , /* data=*/ 1
 // encoder and selected indexes
 struct MenuItem
 {
-  volatile char lastEncoded; // used for the selection pot wet to 
+  // keep track of selection pot selected options
+  volatile char lastEncoded;  
   volatile int encoderValue;
-  int lastEncoderValue;      
+  volatile int lastEncoderValue;      
 };
 
 MenuItem menuItem[TOTAL_MENU_ITEMS] = {{4,4,4},  // LCD_MENU_X_POS 10 LCD_MENU_Y_POS 10 // OUR ASTERISK SELECTED TRACKER 
@@ -57,7 +61,7 @@ bool bOn = false;
 // 3. Track current menu index 
 int iMenuIdx = 0;
 // 4. Absolute step count
-unsigned long lAbsoluteStepCount;
+unsigned int uiAbsoluteStepCount = 0;
 
 /**************************
  * 
@@ -83,7 +87,6 @@ unsigned long lAbsoluteStepCount;
   // 7. Up pos             uint 16
   // 8. Down pos           uint 16
    struct LCDState {
-    unsigned long lAbsoluteStepCount;
     int menuUpDown_EncoderValue;
     int menuManProg_EncoderValue;                                                                                                           
     int menuCycles_EncoderValue;
@@ -91,11 +94,11 @@ unsigned long lAbsoluteStepCount;
     int menuDownSpeed_EncoderValue;                                                    
     int menuEndPos_EncoderValue;
     int menuStartPos_EncoderValue;
+    int AbsoluteStepCount;    
   };
   
   // Populate struct objects
   LCDState lcd_state;
-  lcd_state.lAbsoluteStepCount = lAbsoluteStepCount;
   lcd_state.menuUpDown_EncoderValue = menuItem[UP_DOWN_INDEX].encoderValue;
   lcd_state.menuManProg_EncoderValue = menuItem[MAN_PROG_INDEX].encoderValue;
   lcd_state.menuCycles_EncoderValue = menuItem[CYCLES_INDEX].encoderValue;
@@ -103,6 +106,7 @@ unsigned long lAbsoluteStepCount;
   lcd_state.menuDownSpeed_EncoderValue = menuItem[DOWN_SPEED_INDEX].encoderValue;
   lcd_state.menuEndPos_EncoderValue = menuItem[END_POS_INDEX].encoderValue;
   lcd_state.menuStartPos_EncoderValue = menuItem[START_POS_INDEX].encoderValue;
+  lcd_state.AbsoluteStepCount = uiAbsoluteStepCount;
 
   // storage address
   int eeAddress = 0;
@@ -120,7 +124,6 @@ unsigned long lAbsoluteStepCount;
 void readConfigFromEEPROM()
 {
   struct LCDState {
-    unsigned long lAbsoluteStepCount;
     int menuUpDown_EncoderValue;
     int menuManProg_EncoderValue;                                                                                                           
     int menuCycles_EncoderValue;
@@ -128,6 +131,7 @@ void readConfigFromEEPROM()
     int menuDownSpeed_EncoderValue;                                                    
     int menuEndPos_EncoderValue;
     int menuStartPos_EncoderValue;
+    int AbsoluteStepCount;    
   };
 
   // LCD struct
@@ -139,14 +143,20 @@ void readConfigFromEEPROM()
   EEPROM.get(eeAddress, lcd_state);  
 
   // retrieve absolute position and populate menu struct objects
-  lAbsoluteStepCount = lcd_state.lAbsoluteStepCount;
   menuItem[UP_DOWN_INDEX].encoderValue = lcd_state.menuUpDown_EncoderValue;
   menuItem[MAN_PROG_INDEX].encoderValue = lcd_state.menuManProg_EncoderValue;
   menuItem[CYCLES_INDEX].encoderValue = lcd_state.menuCycles_EncoderValue;
   menuItem[UP_SPEED_INDEX].encoderValue = lcd_state.menuUpSpeed_EncoderValue;
   menuItem[DOWN_SPEED_INDEX].encoderValue = lcd_state.menuDownSpeed_EncoderValue;
   menuItem[END_POS_INDEX].encoderValue = lcd_state.menuEndPos_EncoderValue;
-  menuItem[START_POS_INDEX].encoderValue = lcd_state.menuStartPos_EncoderValue;  
+  menuItem[START_POS_INDEX].encoderValue = lcd_state.menuStartPos_EncoderValue; 
+  uiAbsoluteStepCount = lcd_state.AbsoluteStepCount; 
+  // EEPROM library initialisation bug.
+  // uiAbsoluteStepCount is 65535 when we expect 0
+  if(uiAbsoluteStepCount == 65535)
+  {
+    uiAbsoluteStepCount = 0;
+  }
 }
  
  
@@ -171,6 +181,8 @@ void render(void) {
       case START_STOP_INDEX: 
             x_pos = getMenuItemProgMemVal(START_STOP_INDEX, X_POS_INDEX);
             y_pos = getMenuItemProgMemVal(START_STOP_INDEX, Y_POS_INDEX);
+            // Add one in case encoder value is 3 i.e. encoder was turned but only 3 was registered
+            // instead of the expected 4
             if((menuItem[i].encoderValue / ENCODER_STEP) == 0)
             {
               // we are paused
@@ -345,10 +357,26 @@ void render(void) {
       u8g2.drawStr(x_pos - asterisk_offset_x, y_pos - asterisk_offset_y , "*"); 
     }
 
-    // TODO PRINT ABSOLUTE LOCATION
-    // This one has a different logic
-    // first we get the absolute location - this is the step counter
-    // idx = 
+    // Print absolute location
+    // 200 steps - 1.8mm
+    // 111.111 steps = 1mm
+    int iCurrentPos = uiAbsoluteStepCount / 111.111;
+    u8g2.setFont(u8g2_font_pcsenior_8f);    
+    if(uiAbsoluteStepCount == 0) // we don't know where we are, print question marks
+    {
+      //strcpy_P(buf, (char*)pgm_read_word(&cycles_table[idx]));
+      // sprintf(buf, "%07u", uiAbsoluteStepCount);
+      // hash defines
+      u8g2.drawStr(12, 59, NOT_CALIBRATED);
+      //u8g2.drawStr(44, 59, buf);        
+    }
+    else
+    {
+      strcpy_P(buf, (char*)pgm_read_word(&distance_table[iCurrentPos]));      
+      u8g2.drawStr(12, 59, buf);           
+    }
+    // print unit
+    u8g2.drawStr(12 + SPEED_RATE_OFFSET, 59, DISTANCE_UNIT);
   } 
 }
 
@@ -523,6 +551,9 @@ void updateEncoder()
       menuItem[iMit].encoderValue--;    
     } 
   }
+  // Correct if negative. Does not work. TODO
+  // menuItem[iMit].encoderValue = (menuItem[iMit].encoderValue < 0 ? 0 : menuItem[iMit].encoderValue);
+  
   // used for bitwise operations
   menuItem[iMit].lastEncoded = encoded;
   // update index only if boolean flag (cheaper) has changed
@@ -541,8 +572,19 @@ void updateEncoder()
       if((menuItem[START_STOP_INDEX].encoderValue / ENCODER_STEP) == 0) // we have i.e. it was 1 (play) now it's 0 (pause)
       {
         saveConfigToEEPROM();
-      }
+      }   
     }
+//    if(iMit == UP_DOWN_INDEX)
+//    {
+      // Check if we transitioned from down to up, if yes, we have an absolute position, initialise counter
+      // TODO change 0 for something sensible such as UP_INDEX 0
+      // TODO we need to change this when we check the pins, not here, this would cause a reset if we changed the menu from down to up
+//      if((menuItem[UP_DOWN_INDEX].encoderValue / ENCODER_STEP) == 0) // we have i.e. it was 1 (down) now it's 0 (up)
+//      {
+//        // 
+//        uiAbsoluteStepCount = STEP_COUNTER_RESET; // initialise at STEP_COUNTER_RESET (5) as a safeguard for extra interrupt driven steps decrementing counter
+//      }     
+//    }
     // Update State Machine
     menuItem[iMit].lastEncoderValue = menuItem[iMit].encoderValue;
     // special case, speed changes, as this calls a timer interrupt
@@ -596,6 +638,8 @@ void checkTopBottomLimits(void) {
       menuItem[START_STOP_INDEX].encoderValue = 0;
       // 2. Invert Up/Down Arrow
       menuItem[UP_DOWN_INDEX].encoderValue = ENCODER_STEP; // 4 e.g. second index of up down array (increments in counts of 4 most times.
+      // 3. We stopped, save state
+      saveConfigToEEPROM();
     }
   }
   if(digitalRead(BOTTOM_PIN) == HIGH)
@@ -605,8 +649,12 @@ void checkTopBottomLimits(void) {
     {
       // 1. We ARE going down - STOP!!!
       menuItem[START_STOP_INDEX].encoderValue = 0;
+      // reset counter
+      uiAbsoluteStepCount = STEP_COUNTER_RESET;
       // 2. Invert Up/Down Arrow
       menuItem[UP_DOWN_INDEX].encoderValue = 0; // 0 e.g. up down index of up down array (increments in counts of 4 most times.
+      // 3. We stopped, save state
+      saveConfigToEEPROM();
     }   
   }
 }
@@ -658,6 +706,38 @@ void loop(void) {
   // delay(50);
 }
 
+/****************************************
+ * updateCounter()
+ * keep track of the absolute step count
+ * 
+ ****************************************/
+ void updateCounter()
+ {
+    // What is the current state of counter?
+    // 1. If we are not moving, it does not matter
+    if((menuItem[START_STOP_INDEX].encoderValue / ENCODER_STEP) == PAUSED_INDEX)
+    {
+      return;
+    }
+    // 2. If counter == 0, we don't know where we are, don't do anything    
+    if(uiAbsoluteStepCount == 0)
+    {
+      return; 
+    }
+    // 3. We have a position, track if we are going up or down and update counter
+    if(uiAbsoluteStepCount > 0)
+    {
+      if((menuItem[UP_DOWN_INDEX].encoderValue / ENCODER_STEP) == UP_INDEX)
+      { // we are going up, increase count
+        uiAbsoluteStepCount++;
+      }
+      else
+      { // we are going down, decrease count
+        uiAbsoluteStepCount--;
+      }  
+    }
+ }
+ 
 /// --------------------------
 /// Custom ISR Timer Routine
 /// --------------------------
@@ -667,8 +747,13 @@ void timerIsr()
     if((menuItem[START_STOP_INDEX].encoderValue / ENCODER_STEP) == 1)
     {
       // Toggle LED at ISR Timer interval
-      digitalWrite( PWM_PIN, digitalRead( PWM_PIN ) ^ 1 );    
-      // TODO ADD COUNTER
-      // IF GOING UP ADD, IF GOING DOWN SUBTRACT  
+      byte pinState = digitalRead( PWM_PIN );
+      // digitalWrite( PWM_PIN, digitalRead( PWM_PIN ) ^ 1 );    
+      digitalWrite( PWM_PIN, pinState ^ 1 );  
+      if(pinState == HIGH)
+      {
+        // rising edge, add to position counter
+        updateCounter();        
+      }
     }
 }
