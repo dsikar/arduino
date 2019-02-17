@@ -8,12 +8,13 @@
 /*******************
  * DP Control v0.02
  * ROADMAP
- * 1. Add Location
+ * 1. Add Absolute Position
  *    based on number of steps i.e. 200 steps
  *    in either direction = 1.8mm advance / retraction
- * 2. Save Location to EEPROM on every play/pause transition
+ * 2. Save Absolute Position to EEPROM on every play/pause transition
  * 3. Implement PROG mode
  * 4. Implement Save/Read saved progs
+ * 5. Add up/icons for speed and location  e.g. v up, v down, d up, d down, abs pos
  ******************/
  
 // NB ADD U8g2lib and TimerOne via Tools > Include libraries > Manage libraries
