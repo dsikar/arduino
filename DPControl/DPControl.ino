@@ -16,7 +16,7 @@
  * 3. Implement PROG mode * SKIP - JUST ONE PROG
  * 4. Implement Save/Read saved progs * SKIP - JUST ONE PROG
  * 5. Add up/icons for speed and location  e.g. v up, v d
- * 6. Implement Programmed mode and cycles
+ * 6. Implement Programmed mode and cycles 
 
  NB EEPROM is only set after power cycle following uploading sketch
  ******************/
