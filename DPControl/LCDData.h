@@ -1,60 +1,5 @@
 #include <avr/pgmspace.h>
 
-// INDEXES
-#define MENU_TRACKER_IDX 0
-#define PAUSE_PLAY_INDEX 1
-#define UP_DOWN_INDEX 2
-#define MAN_PROG_INDEX 3
-#define CYCLES_INDEX 4
-#define UPWARD_SPEED_INDEX 5
-#define DOWN_SPEED_INDEX 6
-#define END_POS_INDEX 7
-#define START_POS_INDEX 8
-#define POS_INDEX 9
-
-// SELECTED ASTERISK OFFSET INDEXES
-//#define MENU_TRACKER_IDX 0
-//#define PAUSE_PLAY_INDEX 1
-//#define UP_DOWN_INDEX 2
-//#define MAN_PROG_INDEX 3
-//#define CYCLES_INDEX 4
-//#define UPWARD_SPEED_INDEX 5
-//#define DOWN_SPEED_INDEX 6
-//#define END_POS_INDEX 7
-//#define START_POS_INDEX 8
-//#define POS_INDEX 9
-
-#define ARR_MAX_INDEX 0
-#define X_POS_INDEX 1
-#define Y_POS_INDEX 2
-#define ASTERISK_X_OFFSET_INDEX 3
-#define ASTERISK_Y_OFFSET_INDEX 4
-
-// LCD POSITIONING INCLUDING "SELECTED" *
-// MENU ASTERISK SELECTED TRACKER
-#define LCD_MENU_X_POS 10 
-#define LCD_MENU_Y_POS 10
-// START TOP 
-#define LCD_START_STOP_X_POS 9 
-#define LCD_START_STOP_Y_POS 19
-// UP DOWN
-#define LCD_UP_DOWN_X_POS 30 
-#define LCD_UP_DOWN_Y_POS 19
-// SPEED
-#define LCD_SPEED_X_POS 55 
-#define LCD_SPEED_Y_POS 19 
-
-// SPECIAL u8g2_font_unifont_t_symbols font group characters
-#define PAUSE_SYMBOL 0x23f8
-#define PLAY_SYMBOL 0x23f5
-#define UP_SYMBOL 0x23f6
-#define DOWN_SYMBOL 0x23f7
-
-// STRINGS
-#define SPEED_RATE "cm/min"
-#define DISTANCE_UNIT "cm"
-#define SPEED_RATE_OFFSET 42
-
 #define ENCODER_STEP 4
 // SPEEDS
 #define SPEED_ARRAY_ENTRIES 109
@@ -697,6 +642,8 @@ const char distance_30_0[] PROGMEM = "30.0";
 
 // DISTANCE ARRAY REFERENCE
 #define DISTANCE_ARRAY_ENTRIES 301
+// NB array contains 301 entry 
+// address is unsigned int
 const char * const distance_table[] PROGMEM = { 
     distance_0_0,
     distance_0_1,
@@ -1038,43 +985,26 @@ const char * const man_prog_table[] PROGMEM = {
     man_prog_1
 };
 
-#define PAUSE_PLAY_ARRAY_ENTRIES 2
-// NB numerical values
-const PROGMEM uint16_t pause_play[] = { 
-    PAUSE_SYMBOL, 
-    PLAY_SYMBOL
-};
-
-#define UP_DOWN_ARRAY_ENTRIES 2
-// NB numerical values
-const PROGMEM uint16_t up_down[] = { 
-    UP_SYMBOL, 
-    DOWN_SYMBOL
-};
-
 // Moving some elements of menuItem struct to program memory
 
 // ADDING ITEMS:
-// 0.5 ADD lookup tables as applicable (2 for characters, one of numerical values)
-// 0.6 ADD constant for number of arrays
 // 1. ADD ARRAY and update TOTAL_MENU_ITEMS to array size - 1
 // 2. Add new menu array to menuItemProgMem at correct position as has defined i.e. END_POS_INDEX
 // 3. Add entry in menuItem struct
 
 
-#define TOTAL_MENU_ITEMS 10 // TODO - this value should be linked to menuItemProgMem, otherwise it is easy to overlook and error prone
-
-// TODO - GET RID OF ALL MAGIC NUMBERS          // TOTAL ENTRIES      X  Y  o1 02 - Total number of array entries, LCD x pos, LCD y POS, asterist offset X, asterisk offset y 
+#define TOTAL_MENU_ITEMS 9 // array base 0 e.g. number of elements - 1
+// TODO - GET RID OF ALL MAGIC NUMBERS
 const unsigned int menuController[5] PROGMEM =  {TOTAL_MENU_ITEMS - 1,8, 9, 5, 0};  // x y asterisk x offset, asterisk y offset
-const unsigned int menuStartPause[5] PROGMEM =  {PAUSE_PLAY_ARRAY_ENTRIES - 1,7,11, 5, 2}; // 2 array entries - 1 = 1
-const unsigned int menuUpDown[5] PROGMEM =      {UP_DOWN_ARRAY_ENTRIES - 1,28,11,8, 2};// same
+const unsigned int menuStartPause[5] PROGMEM =  {1,7,11, 5, 2}; // 2 array entries - 1 = 1
+const unsigned int menuUpDown[5] PROGMEM =      {1,28,11,8, 2};// same
 const unsigned int menuManProg[5] PROGMEM =     {MAN_PROG_ARRAY_ENTRIES - 1,55,9, 10, 0}; // 2 array entries // 55, 9, 10, 0};
 const unsigned int menuCycles[5] PROGMEM =      {CYCLES_ARRAY_ENTRIES - 1,97,9, 10, 0};
 const unsigned int menuUpSpeed[5] PROGMEM =     {SPEED_ARRAY_ENTRIES - 1,12, 19, 10, 0};
 const unsigned int menuDownSpeed[5] PROGMEM =   {SPEED_ARRAY_ENTRIES - 1,12,29, 10, 0}; 
-const unsigned int menuEndPos[5] PROGMEM =      {DISTANCE_ARRAY_ENTRIES - 1,12,39, 10  , 0}; // END_POS_INDEX 
-const unsigned int menuStartPos[5] PROGMEM =    {DISTANCE_ARRAY_ENTRIES - 1,12,49, 10, 0}; // START_POS_INDEX 
-const unsigned int menuPos[5] PROGMEM =         {DISTANCE_ARRAY_ENTRIES - 1,10,10, 8, 0}; // POSITION INDEX
+const unsigned int menuEndPos[5] PROGMEM =      {DISTANCE_ARRAY_ENTRIES - 1,12,39, 10  , 0}; // END_POS_INDEX 5
+const unsigned int menuStartPos[5] PROGMEM =    {DISTANCE_ARRAY_ENTRIES - 1,12,49, 10, 0}; // START_POS_INDEX 6
+const unsigned int menuPos[5] PROGMEM =    {301,10,10, 8, 0};
 
 
 // FORGOT TO ADD HERE
@@ -1087,6 +1017,60 @@ const uint16_t * const menuItemProgMem[] PROGMEM = {
                                                     menuUpSpeed,                                                       
                                                     menuDownSpeed,                                                    
                                                     menuEndPos,
-                                                    menuStartPos,
-                                                    menuPos
+                                                    menuStartPos
                                                 };
+
+// INDEXES
+#define MENU_TRACKER_IDX 0
+#define START_STOP_INDEX 1
+#define UP_DOWN_INDEX 2
+#define MAN_PROG_INDEX 3
+#define CYCLES_INDEX 4
+#define UP_SPEED_INDEX 5
+#define DOWN_SPEED_INDEX 6
+#define END_POS_INDEX 7
+#define START_POS_INDEX 8
+#define POS_INDEX 9
+
+// SELECTED ASTERISK OFFSET INDEXES
+#define MENU_TRACKER_IDX 0
+#define START_STOP_INDEX 1
+#define UP_DOWN_INDEX 2
+#define MAN_PROG_INDEX 3
+#define CYCLES_INDEX 4
+#define UP_SPEED_INDEX 5
+#define DOWN_SPEED_INDEX 6
+#define END_POS_INDEX 7
+#define START_POS_INDEX 8
+#define POS_INDEX 9
+
+#define ARR_MAX_INDEX 0
+#define X_POS_INDEX 1
+#define Y_POS_INDEX 2
+#define ASTERISK_X_OFFSET_INDEX 3
+#define ASTERISK_Y_OFFSET_INDEX 4
+
+// LCD POSITIONING INCLUDING "SELECTED" *
+// MENU ASTERISK SELECTED TRACKER
+#define LCD_MENU_X_POS 10 
+#define LCD_MENU_Y_POS 10
+// START TOP 
+#define LCD_START_STOP_X_POS 9 
+#define LCD_START_STOP_Y_POS 19
+// UP DOWN
+#define LCD_UP_DOWN_X_POS 30 
+#define LCD_UP_DOWN_Y_POS 19
+// SPEED
+#define LCD_SPEED_X_POS 55 
+#define LCD_SPEED_Y_POS 19 
+
+// SPECIAL u8g2_font_unifont_t_symbols font group characters
+#define PAUSE_SYMBOL 0x23f8
+#define PLAY_SYMBOL 0x23f5
+#define UP_SYMBOL 0x23f6
+#define DOWN_SYMBOL 0x23f7
+
+// STRINGS
+#define SPEED_RATE "cm/min"
+#define DISTANCE_UNIT "cm"
+#define SPEED_RATE_OFFSET 42

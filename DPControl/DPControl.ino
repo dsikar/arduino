@@ -4,6 +4,7 @@
 #include "LCDData.h"
 #include "StepperPins.h"
 #include <TimerOne.h>
+#include <EEPROM.h>
 
 /*******************
  * DP Control v0.02
@@ -40,13 +41,12 @@ struct MenuItem
 MenuItem menuItem[TOTAL_MENU_ITEMS] = {{4,4,4},  // LCD_MENU_X_POS 10 LCD_MENU_Y_POS 10 // OUR ASTERISK SELECTED TRACKER 
                        {0,0,0}, // on off LCD_START_STOP_X_POS 9 LCD_START_STOP_Y_POS 19
                        {0,0,0}, // up down  LCD_UP_DOWN_X_POS 30 LCD_UP_DOWN_Y_POS 19
-                       {0,0,0}, // UPWARD_SPEED_INDEX 
+                       {0,0,0}, // up speed LCD_SPEED_X_POS 30 LCD_SPEED_Y_POS 19 // (odd cycle) 
                        {0,0,0}, // DOWN_SPEED_INDEX                                                                     
                        {0,0,0}, // END_POS_INDEX
                        {0,0,0}, // START_POS_INDEX
                        {0,0,0}, // MAN_PROG_INDEX
-                       {0,0,0}, // CYCLES_INDEX               
-                       {0,0,0}}; // POSITION INDEX
+                       {0,0,0}}; // CYCLES_INDEX               
 
 // state machine variables
 // 1. Track if speed update is required
@@ -56,10 +56,100 @@ bool bUpdateSpeed;
 bool bOn = false;
 // 3. Track current menu index 
 int iMenuIdx = 0;
-// 4. Track absolute position
-// did this break our menu?
-// unsigned long lAbsoluteStepCounter = 0;
+// 4. Absolute step count
+unsigned long lAbsoluteStepCount;
 
+/**************************
+ * 
+ * saveConfigToEEPROM
+ * 
+ * Save LCD State to EEPROM
+ * 
+ *************************/
+
+ void saveConfigToEEPROM()
+ {
+  // Note we are saving and retrieving the lastEncoderValue for every menu item
+  // except index 0 (Menu Controller) and index 1 (start/stop) as we will always
+  // power up in pause mode
+  
+  // what we need to save  Data type  Note
+  // 1. Absolute position  unsigned long 
+  // 2. Up down state      byte
+  // 3. Prog/Man state     byte
+  // 4. Number of cycles   byte
+  // 5. Up speed           uint 16
+  // 6. Down speed         uint 16
+  // 7. Up pos             uint 16
+  // 8. Down pos           uint 16
+   struct LCDState {
+    unsigned long lAbsoluteStepCount;
+    int menuUpDown_EncoderValue;
+    int menuManProg_EncoderValue;                                                                                                           
+    int menuCycles_EncoderValue;
+    int menuUpSpeed_EncoderValue;                                                       
+    int menuDownSpeed_EncoderValue;                                                    
+    int menuEndPos_EncoderValue;
+    int menuStartPos_EncoderValue;
+  };
+  
+  // Populate struct objects
+  LCDState lcd_state;
+  lcd_state.lAbsoluteStepCount = lAbsoluteStepCount;
+  lcd_state.menuUpDown_EncoderValue = menuItem[UP_DOWN_INDEX].encoderValue;
+  lcd_state.menuManProg_EncoderValue = menuItem[MAN_PROG_INDEX].encoderValue;
+  lcd_state.menuCycles_EncoderValue = menuItem[CYCLES_INDEX].encoderValue;
+  lcd_state.menuUpSpeed_EncoderValue = menuItem[UP_SPEED_INDEX].encoderValue;
+  lcd_state.menuDownSpeed_EncoderValue = menuItem[DOWN_SPEED_INDEX].encoderValue;
+  lcd_state.menuEndPos_EncoderValue = menuItem[END_POS_INDEX].encoderValue;
+  lcd_state.menuStartPos_EncoderValue = menuItem[START_POS_INDEX].encoderValue;
+
+  // storage address
+  int eeAddress = 0;
+  // Store state - EEPROM library manages variable addresses
+  EEPROM.put(eeAddress, lcd_state);  
+}
+
+/****************************
+ * 
+ * readConfigFromEEPROM
+ * 
+ * Read LCD State from EEPROM
+ * 
+ ****************************/
+void readConfigFromEEPROM()
+{
+  struct LCDState {
+    unsigned long lAbsoluteStepCount;
+    int menuUpDown_EncoderValue;
+    int menuManProg_EncoderValue;                                                                                                           
+    int menuCycles_EncoderValue;
+    int menuUpSpeed_EncoderValue;                                                       
+    int menuDownSpeed_EncoderValue;                                                    
+    int menuEndPos_EncoderValue;
+    int menuStartPos_EncoderValue;
+  };
+
+  // LCD struct
+  LCDState lcd_state;
+
+  // storage address
+  int eeAddress = 0;
+  // get state - EEPROM library manages variable addresses
+  EEPROM.get(eeAddress, lcd_state);  
+
+  // retrieve absolute position and populate menu struct objects
+  lAbsoluteStepCount = lcd_state.lAbsoluteStepCount;
+  menuItem[UP_DOWN_INDEX].encoderValue = lcd_state.menuUpDown_EncoderValue;
+  menuItem[MAN_PROG_INDEX].encoderValue = lcd_state.menuManProg_EncoderValue;
+  menuItem[CYCLES_INDEX].encoderValue = lcd_state.menuCycles_EncoderValue;
+  menuItem[UP_SPEED_INDEX].encoderValue = lcd_state.menuUpSpeed_EncoderValue;
+  menuItem[DOWN_SPEED_INDEX].encoderValue = lcd_state.menuDownSpeed_EncoderValue;
+  menuItem[END_POS_INDEX].encoderValue = lcd_state.menuEndPos_EncoderValue;
+  menuItem[START_POS_INDEX].encoderValue = lcd_state.menuStartPos_EncoderValue;  
+}
+ 
+ 
 /******************************
  * 
  * render()
@@ -74,40 +164,27 @@ void render(void) {
   int y_pos;
   int idx;
   
-  for(int i = 0; i < 3; i++) // menuArraySize; i++)
+  for(int i = 0; i < menuArraySize; i++)
   { 
     switch(i)
     {
-      case PAUSE_PLAY_INDEX: 
-            // 1. Get x y coordinates      
-            x_pos = getMenuItemProgMemVal(PAUSE_PLAY_INDEX, X_POS_INDEX);
-            y_pos = getMenuItemProgMemVal(PAUSE_PLAY_INDEX, Y_POS_INDEX);
-            // 3. Get index      
-            idx = (menuItem[PAUSE_PLAY_INDEX].encoderValue / ENCODER_STEP);
-            // 4. Read numerical value from start_stop table
-            unsigned int pause_play_symbol = pgm_read_word_near(pause_play + idx);
-            // 5. Set font
-            u8g2.setFont(u8g2_font_unifont_t_symbols);            
-            // 6. Print
-            u8g2.drawGlyph(x_pos, y_pos, pause_play_symbol);
-            // 7. Debug menu size
-            //menuArraySize
-            
-//            if((menuItem[i].encoderValue / ENCODER_STEP) == 0)
-//            {
-//              // we are paused
-//              unsigned int pause_symbol = 0x23f8;
-//
-//              u8g2.drawGlyph(x_pos, y_pos, pause_symbol); //PAUSE_SYMBOL 
-//              // UPDATE STATE MACHINE
-//            }
-//            else
-//            {
-//              // we are moving
-//              u8g2.setFont(u8g2_font_unifont_t_symbols);
-//              u8g2.drawGlyph(x_pos, y_pos, PLAY_SYMBOL);
-//              // UPDATE STATE MACHINE
-//            }
+      case START_STOP_INDEX: 
+            x_pos = getMenuItemProgMemVal(START_STOP_INDEX, X_POS_INDEX);
+            y_pos = getMenuItemProgMemVal(START_STOP_INDEX, Y_POS_INDEX);
+            if((menuItem[i].encoderValue / ENCODER_STEP) == 0)
+            {
+              // we are paused
+              u8g2.setFont(u8g2_font_unifont_t_symbols);
+              u8g2.drawGlyph(x_pos, y_pos, PAUSE_SYMBOL); 
+              // UPDATE STATE MACHINE
+            }
+            else
+            {
+              // we are moving
+              u8g2.setFont(u8g2_font_unifont_t_symbols);
+              u8g2.drawGlyph(x_pos, y_pos, PLAY_SYMBOL);
+              // UPDATE STATE MACHINE
+            }
             //sprintf(buf, "[%d]", (menuItem[i].encoderValue / ENCODER_STEP));   
             //u8g2.drawStr( menuItem[i].xPos, menuItem[i].yPos, buf); 
             break;
@@ -118,8 +195,7 @@ void render(void) {
             {
               // we are going up
               u8g2.setFont(u8g2_font_unifont_t_symbols);
-              unsigned int up_symbol = 0x23f6;              
-              u8g2.drawGlyph(x_pos, y_pos, up_symbol);  /* UP_SYMBOL dec 9731/hex 2603 Snowman */
+              u8g2.drawGlyph(x_pos, y_pos, UP_SYMBOL);  /* dec 9731/hex 2603 Snowman */
               digitalWrite(DIRECTION_PIN, HIGH);
             }
             else
@@ -131,12 +207,14 @@ void render(void) {
             }
             break;            
       case MAN_PROG_INDEX:
-            // 1. Get x y coordinates
+            // 1. Get x y coordinations
             x_pos = getMenuItemProgMemVal(MAN_PROG_INDEX, X_POS_INDEX);
+            // Serial.println(START_POS_INDEX);
             y_pos = getMenuItemProgMemVal(MAN_PROG_INDEX, Y_POS_INDEX);
+            //Serial.println(Y_POS_INDEX);
             // 3. Get index      
             idx = (menuItem[MAN_PROG_INDEX].encoderValue / ENCODER_STEP);
-            // 4. copy to buffer - character syntax
+            // 4. copy to buffer - different sytax
             strcpy_P(buf, (char*)pgm_read_word(&man_prog_table[idx])); 
             // 5. Set font
             u8g2.setFont(u8g2_font_pcsenior_8f);
@@ -158,15 +236,16 @@ void render(void) {
             u8g2.drawStr(x_pos, y_pos, buf); 
             break;
              
-      case UPWARD_SPEED_INDEX:
+      case UP_SPEED_INDEX:
             // 1. Get x y coordinates        
-            x_pos = getMenuItemProgMemVal(UPWARD_SPEED_INDEX, X_POS_INDEX);
-            y_pos = getMenuItemProgMemVal(UPWARD_SPEED_INDEX, Y_POS_INDEX);
+            x_pos = getMenuItemProgMemVal(UP_SPEED_INDEX, X_POS_INDEX);
+            y_pos = getMenuItemProgMemVal(UP_SPEED_INDEX, Y_POS_INDEX);
             // 3. Get index      
-            idx = (menuItem[UPWARD_SPEED_INDEX].encoderValue / ENCODER_STEP);
-            // NOTE, this is where we deal with all speed change cases
+            idx = (menuItem[UP_SPEED_INDEX].encoderValue / ENCODER_STEP);
+
+           // NOTE, this is where we deal with all speed change cases
             // and adjust timer interrupt
-            if(bUpdateSpeed == true) 
+            if(bUpdateSpeed == true) // state machine: AND we are going up
             {
               adjustSpeed(); 
               bUpdateSpeed = false;             
@@ -267,7 +346,9 @@ void render(void) {
     }
 
     // TODO PRINT ABSOLUTE LOCATION
-    
+    // This one has a different logic
+    // first we get the absolute location - this is the step counter
+    // idx = 
   } 
 }
 
@@ -312,15 +393,14 @@ void adjustSpeed()
   if((menuItem[UP_DOWN_INDEX].encoderValue / ENCODER_STEP) == 0)
   {
     // we are going up, read speed from  up speed register
-    idx = (menuItem[UPWARD_SPEED_INDEX].encoderValue / ENCODER_STEP); 
+    idx = (menuItem[UP_SPEED_INDEX].encoderValue / ENCODER_STEP); 
   }
   else
   {
     // we are going down, read speed from  down speed register
     idx = (menuItem[DOWN_SPEED_INDEX].encoderValue / ENCODER_STEP);     
   }
-  // read numerical value from frequencies table
-  unsigned int half_frequency = pgm_read_word_near(frequencies + idx);  
+  unsigned int half_frequency = pgm_read_word_near(frequencies + idx);;  
   Timer1.initialize(half_frequency);
 }
 
@@ -454,13 +534,23 @@ void updateEncoder()
   
   if(menuItem[iMit].lastEncoderValue != menuItem[iMit].encoderValue) 
   {
+    // TODO implement in state machine later, for now, let's get it working
+    if(iMit == START_STOP_INDEX)
+    {
+      // Check if we transitioned from play to pause
+      if((menuItem[START_STOP_INDEX].encoderValue / ENCODER_STEP) == 0) // we have i.e. it was 1 (play) now it's 0 (pause)
+      {
+        saveConfigToEEPROM();
+      }
+    }
+    // Update State Machine
     menuItem[iMit].lastEncoderValue = menuItem[iMit].encoderValue;
     // special case, speed changes, as this calls a timer interrupt
     // and we don't want it happening inside a function that is called
     // several times by pins 2 and 3 interrupts
     
     // State machine, if any transition between up/down, stop/pause, up speed/down speed, flag speed change required
-    if(iMit == UPWARD_SPEED_INDEX || iMit == DOWN_SPEED_INDEX || iMit == PAUSE_PLAY_INDEX || iMit == UP_DOWN_INDEX  ) 
+    if(iMit == UP_SPEED_INDEX || iMit == DOWN_SPEED_INDEX || iMit == START_STOP_INDEX || iMit == UP_DOWN_INDEX  ) 
     {
       bUpdateSpeed = true;
     }
@@ -468,6 +558,26 @@ void updateEncoder()
   }
 }
 
+/*************************************
+ * 
+ * updateStateMachine()
+ * 
+ * Keep track of what has changed
+ * 
+ *************************************/
+
+// void updateStateMachine(int iMit)
+// {
+//  // iMit is the menu index i.e. which menu item are we updating
+//  int idx;
+//  switch(iMit)
+//    case START_STOP_INDEX:
+//      int idx =   
+//
+//    saveConfigToEEPROM
+//
+//  
+// }
 /**************************************
  * 
  * checkTopBottomLimits()
@@ -483,7 +593,7 @@ void checkTopBottomLimits(void) {
     if((menuItem[UP_DOWN_INDEX].encoderValue / ENCODER_STEP) == 0)
     {
       // 1. We ARE going up - STOP!!!
-      menuItem[PAUSE_PLAY_INDEX].encoderValue = 0;
+      menuItem[START_STOP_INDEX].encoderValue = 0;
       // 2. Invert Up/Down Arrow
       menuItem[UP_DOWN_INDEX].encoderValue = ENCODER_STEP; // 4 e.g. second index of up down array (increments in counts of 4 most times.
     }
@@ -494,7 +604,7 @@ void checkTopBottomLimits(void) {
     if((menuItem[UP_DOWN_INDEX].encoderValue / ENCODER_STEP) == 1)
     {
       // 1. We ARE going down - STOP!!!
-      menuItem[PAUSE_PLAY_INDEX].encoderValue = 0;
+      menuItem[START_STOP_INDEX].encoderValue = 0;
       // 2. Invert Up/Down Arrow
       menuItem[UP_DOWN_INDEX].encoderValue = 0; // 0 e.g. up down index of up down array (increments in counts of 4 most times.
     }   
@@ -528,9 +638,12 @@ void setup(void) {
   Timer1.initialize(37500); // 37500 0,50 cm/min
   Timer1.attachInterrupt( timerIsr ); // attach the service routine here  
 
+  // Load values from last session
+  readConfigFromEEPROM();
+  
   // TODOS 
   // 1. SPLASH SCREEN
-  // 2. LOAD ABSOLUTE LOCATION FROM EEPROM
+  
 }
 
 void loop(void) {
@@ -551,7 +664,7 @@ void loop(void) {
 void timerIsr()
 {
     // if(bOn == true) { // TODO USE A BETTER SCHEME
-    if((menuItem[PAUSE_PLAY_INDEX].encoderValue / ENCODER_STEP) == 1)
+    if((menuItem[START_STOP_INDEX].encoderValue / ENCODER_STEP) == 1)
     {
       // Toggle LED at ISR Timer interval
       digitalWrite( PWM_PIN, digitalRead( PWM_PIN ) ^ 1 );    
