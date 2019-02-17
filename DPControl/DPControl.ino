@@ -40,12 +40,13 @@ struct MenuItem
 MenuItem menuItem[TOTAL_MENU_ITEMS] = {{4,4,4},  // LCD_MENU_X_POS 10 LCD_MENU_Y_POS 10 // OUR ASTERISK SELECTED TRACKER 
                        {0,0,0}, // on off LCD_START_STOP_X_POS 9 LCD_START_STOP_Y_POS 19
                        {0,0,0}, // up down  LCD_UP_DOWN_X_POS 30 LCD_UP_DOWN_Y_POS 19
-                       {0,0,0}, // up speed LCD_SPEED_X_POS 30 LCD_SPEED_Y_POS 19 // (odd cycle) 
+                       {0,0,0}, // UPWARD_SPEED_INDEX 
                        {0,0,0}, // DOWN_SPEED_INDEX                                                                     
                        {0,0,0}, // END_POS_INDEX
                        {0,0,0}, // START_POS_INDEX
                        {0,0,0}, // MAN_PROG_INDEX
-                       {0,0,0}}; // CYCLES_INDEX               
+                       {0,0,0}, // CYCLES_INDEX               
+                       {0,0,0}}; // POSITION INDEX
 
 // state machine variables
 // 1. Track if speed update is required
@@ -55,6 +56,9 @@ bool bUpdateSpeed;
 bool bOn = false;
 // 3. Track current menu index 
 int iMenuIdx = 0;
+// 4. Track absolute position
+// did this break our menu?
+// unsigned long lAbsoluteStepCounter = 0;
 
 /******************************
  * 
@@ -70,27 +74,40 @@ void render(void) {
   int y_pos;
   int idx;
   
-  for(int i = 0; i < menuArraySize; i++)
+  for(int i = 0; i < 3; i++) // menuArraySize; i++)
   { 
     switch(i)
     {
-      case START_STOP_INDEX: 
-            x_pos = getMenuItemProgMemVal(START_STOP_INDEX, X_POS_INDEX);
-            y_pos = getMenuItemProgMemVal(START_STOP_INDEX, Y_POS_INDEX);
-            if((menuItem[i].encoderValue / ENCODER_STEP) == 0)
-            {
-              // we are paused
-              u8g2.setFont(u8g2_font_unifont_t_symbols);
-              u8g2.drawGlyph(x_pos, y_pos, PAUSE_SYMBOL); 
-              // UPDATE STATE MACHINE
-            }
-            else
-            {
-              // we are moving
-              u8g2.setFont(u8g2_font_unifont_t_symbols);
-              u8g2.drawGlyph(x_pos, y_pos, PLAY_SYMBOL);
-              // UPDATE STATE MACHINE
-            }
+      case PAUSE_PLAY_INDEX: 
+            // 1. Get x y coordinates      
+            x_pos = getMenuItemProgMemVal(PAUSE_PLAY_INDEX, X_POS_INDEX);
+            y_pos = getMenuItemProgMemVal(PAUSE_PLAY_INDEX, Y_POS_INDEX);
+            // 3. Get index      
+            idx = (menuItem[PAUSE_PLAY_INDEX].encoderValue / ENCODER_STEP);
+            // 4. Read numerical value from start_stop table
+            unsigned int pause_play_symbol = pgm_read_word_near(pause_play + idx);
+            // 5. Set font
+            u8g2.setFont(u8g2_font_unifont_t_symbols);            
+            // 6. Print
+            u8g2.drawGlyph(x_pos, y_pos, pause_play_symbol);
+            // 7. Debug menu size
+            //menuArraySize
+            
+//            if((menuItem[i].encoderValue / ENCODER_STEP) == 0)
+//            {
+//              // we are paused
+//              unsigned int pause_symbol = 0x23f8;
+//
+//              u8g2.drawGlyph(x_pos, y_pos, pause_symbol); //PAUSE_SYMBOL 
+//              // UPDATE STATE MACHINE
+//            }
+//            else
+//            {
+//              // we are moving
+//              u8g2.setFont(u8g2_font_unifont_t_symbols);
+//              u8g2.drawGlyph(x_pos, y_pos, PLAY_SYMBOL);
+//              // UPDATE STATE MACHINE
+//            }
             //sprintf(buf, "[%d]", (menuItem[i].encoderValue / ENCODER_STEP));   
             //u8g2.drawStr( menuItem[i].xPos, menuItem[i].yPos, buf); 
             break;
@@ -101,7 +118,8 @@ void render(void) {
             {
               // we are going up
               u8g2.setFont(u8g2_font_unifont_t_symbols);
-              u8g2.drawGlyph(x_pos, y_pos, UP_SYMBOL);  /* dec 9731/hex 2603 Snowman */
+              unsigned int up_symbol = 0x23f6;              
+              u8g2.drawGlyph(x_pos, y_pos, up_symbol);  /* UP_SYMBOL dec 9731/hex 2603 Snowman */
               digitalWrite(DIRECTION_PIN, HIGH);
             }
             else
@@ -113,14 +131,12 @@ void render(void) {
             }
             break;            
       case MAN_PROG_INDEX:
-            // 1. Get x y coordinations
+            // 1. Get x y coordinates
             x_pos = getMenuItemProgMemVal(MAN_PROG_INDEX, X_POS_INDEX);
-            // Serial.println(START_POS_INDEX);
             y_pos = getMenuItemProgMemVal(MAN_PROG_INDEX, Y_POS_INDEX);
-            //Serial.println(Y_POS_INDEX);
             // 3. Get index      
             idx = (menuItem[MAN_PROG_INDEX].encoderValue / ENCODER_STEP);
-            // 4. copy to buffer - different sytax
+            // 4. copy to buffer - character syntax
             strcpy_P(buf, (char*)pgm_read_word(&man_prog_table[idx])); 
             // 5. Set font
             u8g2.setFont(u8g2_font_pcsenior_8f);
@@ -129,12 +145,12 @@ void render(void) {
             break;
 
       case CYCLES_INDEX:
-            // 1. Get x y coordinations
+            // 1. Get x y coordinates
             x_pos = getMenuItemProgMemVal(CYCLES_INDEX, X_POS_INDEX);
             y_pos = getMenuItemProgMemVal(CYCLES_INDEX, Y_POS_INDEX);
             // 3. Get index      
             idx = (menuItem[CYCLES_INDEX].encoderValue / ENCODER_STEP);
-            // 4. copy to buffer - different sytax
+            // 4. copy character array from cycles_table to buffer
             strcpy_P(buf, (char*)pgm_read_word(&cycles_table[idx])); 
             // 5. Set font
             u8g2.setFont(u8g2_font_pcsenior_8f);
@@ -142,38 +158,42 @@ void render(void) {
             u8g2.drawStr(x_pos, y_pos, buf); 
             break;
              
-      case UP_SPEED_INDEX:        
-            x_pos = getMenuItemProgMemVal(UP_SPEED_INDEX, X_POS_INDEX);
-            y_pos = getMenuItemProgMemVal(UP_SPEED_INDEX, Y_POS_INDEX);      
-            idx = (menuItem[UP_SPEED_INDEX].encoderValue / ENCODER_STEP);
-
-           // NOTE, this is where we deal with all speed change cases
+      case UPWARD_SPEED_INDEX:
+            // 1. Get x y coordinates        
+            x_pos = getMenuItemProgMemVal(UPWARD_SPEED_INDEX, X_POS_INDEX);
+            y_pos = getMenuItemProgMemVal(UPWARD_SPEED_INDEX, Y_POS_INDEX);
+            // 3. Get index      
+            idx = (menuItem[UPWARD_SPEED_INDEX].encoderValue / ENCODER_STEP);
+            // NOTE, this is where we deal with all speed change cases
             // and adjust timer interrupt
-            if(bUpdateSpeed == true) // state machine: AND we are going up
+            if(bUpdateSpeed == true) 
             {
               adjustSpeed(); 
               bUpdateSpeed = false;             
             }
+            // 4. Copy character array from speed_table to buffer
             strcpy_P(buf, (char*)pgm_read_word(&speed_table[idx])); 
-            u8g2.setFont(u8g2_font_pcsenior_8f);            
-            u8g2.drawStr(x_pos, y_pos, buf); 
+            // 5. Set font
+            u8g2.setFont(u8g2_font_pcsenior_8f);
+            // 6. Print nominal upward speed            
+            u8g2.drawStr(x_pos, y_pos, buf);
+            // 7. Print nominal speed rate unit
             u8g2.drawStr(x_pos + SPEED_RATE_OFFSET, y_pos, SPEED_RATE);         
             break;   
              
       case DOWN_SPEED_INDEX:
-            // 1. Get x y coordinations
+            // 1. Get x y coordinates
             x_pos = getMenuItemProgMemVal(DOWN_SPEED_INDEX, X_POS_INDEX);
             y_pos = getMenuItemProgMemVal(DOWN_SPEED_INDEX, Y_POS_INDEX);
             // 3. Get index      
             idx = (menuItem[DOWN_SPEED_INDEX].encoderValue / ENCODER_STEP);
-            // Serial.println(idx);
-            // 4. copy to buffer
+            // 4. Copy character array from speed_table to buffer
             strcpy_P(buf, (char*)pgm_read_word(&speed_table[idx]));
             // 5. Set font
             u8g2.setFont(u8g2_font_pcsenior_8f);
-            // 6. print            
+            // 6. Print nominal downward speed             
             u8g2.drawStr(x_pos, y_pos, buf); 
-            // 7. unit
+            // 7. Print nominal speed rate unit
             u8g2.drawStr(x_pos + SPEED_RATE_OFFSET, y_pos, SPEED_RATE); 
             break;  
 
@@ -292,14 +312,15 @@ void adjustSpeed()
   if((menuItem[UP_DOWN_INDEX].encoderValue / ENCODER_STEP) == 0)
   {
     // we are going up, read speed from  up speed register
-    idx = (menuItem[UP_SPEED_INDEX].encoderValue / ENCODER_STEP); 
+    idx = (menuItem[UPWARD_SPEED_INDEX].encoderValue / ENCODER_STEP); 
   }
   else
   {
     // we are going down, read speed from  down speed register
     idx = (menuItem[DOWN_SPEED_INDEX].encoderValue / ENCODER_STEP);     
   }
-  unsigned int half_frequency = pgm_read_word_near(frequencies + idx);;  
+  // read numerical value from frequencies table
+  unsigned int half_frequency = pgm_read_word_near(frequencies + idx);  
   Timer1.initialize(half_frequency);
 }
 
@@ -439,7 +460,7 @@ void updateEncoder()
     // several times by pins 2 and 3 interrupts
     
     // State machine, if any transition between up/down, stop/pause, up speed/down speed, flag speed change required
-    if(iMit == UP_SPEED_INDEX || iMit == DOWN_SPEED_INDEX || iMit == START_STOP_INDEX || iMit == UP_DOWN_INDEX  ) 
+    if(iMit == UPWARD_SPEED_INDEX || iMit == DOWN_SPEED_INDEX || iMit == PAUSE_PLAY_INDEX || iMit == UP_DOWN_INDEX  ) 
     {
       bUpdateSpeed = true;
     }
@@ -462,7 +483,7 @@ void checkTopBottomLimits(void) {
     if((menuItem[UP_DOWN_INDEX].encoderValue / ENCODER_STEP) == 0)
     {
       // 1. We ARE going up - STOP!!!
-      menuItem[START_STOP_INDEX].encoderValue = 0;
+      menuItem[PAUSE_PLAY_INDEX].encoderValue = 0;
       // 2. Invert Up/Down Arrow
       menuItem[UP_DOWN_INDEX].encoderValue = ENCODER_STEP; // 4 e.g. second index of up down array (increments in counts of 4 most times.
     }
@@ -473,7 +494,7 @@ void checkTopBottomLimits(void) {
     if((menuItem[UP_DOWN_INDEX].encoderValue / ENCODER_STEP) == 1)
     {
       // 1. We ARE going down - STOP!!!
-      menuItem[START_STOP_INDEX].encoderValue = 0;
+      menuItem[PAUSE_PLAY_INDEX].encoderValue = 0;
       // 2. Invert Up/Down Arrow
       menuItem[UP_DOWN_INDEX].encoderValue = 0; // 0 e.g. up down index of up down array (increments in counts of 4 most times.
     }   
@@ -530,7 +551,7 @@ void loop(void) {
 void timerIsr()
 {
     // if(bOn == true) { // TODO USE A BETTER SCHEME
-    if((menuItem[START_STOP_INDEX].encoderValue / ENCODER_STEP) == 1)
+    if((menuItem[PAUSE_PLAY_INDEX].encoderValue / ENCODER_STEP) == 1)
     {
       // Toggle LED at ISR Timer interval
       digitalWrite( PWM_PIN, digitalRead( PWM_PIN ) ^ 1 );    
