@@ -1078,5 +1078,14 @@ const uint16_t * const menuItemProgMem[] PROGMEM = {
 
 // STATE MACHINE DEFINES
 #define PAUSED_INDEX 0
+#define PLAY_INDEX 1
 #define UP_INDEX 0
+#define DOWN_INDEX 1
+#define MANUAL_INDEX 0
+#define PROG_INDEX 1
 #define STEP_COUNTER_RESET 5
+
+// ICON POSITIONS
+#define ICON_X_POS 109
+#define ICON_Y_OFFSET 2
+#define ACRONYM_OFFSET 7

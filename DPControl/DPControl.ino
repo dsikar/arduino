@@ -9,16 +9,14 @@
 /*******************
  * DP Control v0.02
  * ROADMAP
- * 1. Add Absolute Position OK
- *    based on number of steps i.e. 200 steps
- *    in either direction = 1.8mm advance / retraction OK
- * 2. Save Absolute Position to EEPROM on every play/pause transition OK
- * 3. Implement PROG mode * SKIP - JUST ONE PROG
- * 4. Implement Save/Read saved progs * SKIP - JUST ONE PROG
- * 5. Add up/icons for speed and location  e.g. v up, v d
- * 6. Implement Programmed mode and cycles 
+ * 1. Added Absolute Position 
+ * 2. Saving current configuration to memory
 
- NB EEPROM is only set after power cycle following uploading sketch
+ * Known bugs
+ * 1. Unit needs to be started and stopped (play/pause cycle) and
+ * restarted before absolute position can be taken. This seems
+ * to be related to a bug in the EEPROM library.
+ * 
  ******************/
  
 // NB ADD U8g2lib and TimerOne via Tools > Include libraries > Manage libraries
@@ -269,7 +267,13 @@ void render(void) {
             // 6. Print nominal upward speed            
             u8g2.drawStr(x_pos, y_pos, buf);
             // 7. Print nominal speed rate unit
-            u8g2.drawStr(x_pos + SPEED_RATE_OFFSET, y_pos, SPEED_RATE);         
+            u8g2.drawStr(x_pos + SPEED_RATE_OFFSET, y_pos, SPEED_RATE);      
+            // 8. Print icon acronym
+            //u8g2.drawStr(ICON_X_POS - ACRONYM_OFFSET, y_pos, "vs");  
+            // 9. Set icon font
+            u8g2.setFont(u8g2_font_unifont_t_symbols);
+            // 10. Print icond
+            u8g2.drawGlyph(ICON_X_POS, y_pos + ICON_Y_OFFSET, UP_SYMBOL);                           
             break;   
              
       case DOWN_SPEED_INDEX:
@@ -286,6 +290,12 @@ void render(void) {
             u8g2.drawStr(x_pos, y_pos, buf); 
             // 7. Print nominal speed rate unit
             u8g2.drawStr(x_pos + SPEED_RATE_OFFSET, y_pos, SPEED_RATE); 
+            // 8. Print icon acronym
+            //u8g2.drawStr(ICON_X_POS - ACRONYM_OFFSET, y_pos, "vd");  
+            // 9. Set icon font
+            u8g2.setFont(u8g2_font_unifont_t_symbols);
+            // 10. Print icond
+            u8g2.drawGlyph(ICON_X_POS, y_pos + ICON_Y_OFFSET, DOWN_SYMBOL);              
             break;  
 
       case END_POS_INDEX:
@@ -303,6 +313,12 @@ void render(void) {
             u8g2.drawStr(x_pos, y_pos, buf); 
             // 7. print unit
             u8g2.drawStr(x_pos + SPEED_RATE_OFFSET, y_pos, DISTANCE_UNIT);
+            // 8. Print icon acronym
+            // u8g2.drawStr(ICON_X_POS - ACRONYM_OFFSET, y_pos, "vs");  
+            // 9. Set icon font
+            u8g2.setFont(u8g2_font_unifont_t_symbols);
+            // 10. Print icond
+            u8g2.drawGlyph(ICON_X_POS, y_pos + ICON_Y_OFFSET, DOWN_SYMBOL);             
             break; 
             
       case START_POS_INDEX:
@@ -321,7 +337,13 @@ void render(void) {
             // 6. print            
             u8g2.drawStr(x_pos, y_pos, buf);
             // 7. print unit
-            u8g2.drawStr(x_pos + SPEED_RATE_OFFSET, y_pos, DISTANCE_UNIT);             
+            u8g2.drawStr(x_pos + SPEED_RATE_OFFSET, y_pos, DISTANCE_UNIT);
+            // 8. Print icon acronym
+            //u8g2.drawStr(ICON_X_POS - ACRONYM_OFFSET, y_pos, "vs");  
+            // 9. Set icon font
+            u8g2.setFont(u8g2_font_unifont_t_symbols);
+            // 10. Print icond
+            u8g2.drawGlyph(ICON_X_POS, y_pos + ICON_Y_OFFSET, UP_SYMBOL);                      
             break;  
                      
       default:
@@ -360,7 +382,7 @@ void render(void) {
     // Print absolute location
     // 200 steps - 1.8mm
     // 111.111 steps = 1mm
-    int iCurrentPos = uiAbsoluteStepCount / 111.111;
+    int iCurrentPos = uiAbsoluteStepCount / 112; // TODO FIX CALCULATION
     u8g2.setFont(u8g2_font_pcsenior_8f);    
     if(uiAbsoluteStepCount == 0) // we don't know where we are, print question marks
     {
@@ -376,7 +398,7 @@ void render(void) {
       u8g2.drawStr(12, 59, buf);           
     }
     // print unit
-    u8g2.drawStr(12 + SPEED_RATE_OFFSET, 59, DISTANCE_UNIT);
+    u8g2.drawStr(12 + SPEED_RATE_OFFSET, 59, DISTANCE_UNIT);   
   } 
 }
 
@@ -407,6 +429,9 @@ unsigned int getMenuItemProgMemVal(int i, int k)
   return pgm_read_word(&indexedMenuItem[k]);  
 }
 
+/****************************************
+ * updateStateMachine
+ */
 /************************
  * 
  * adjustSpeed()
@@ -600,26 +625,70 @@ void updateEncoder()
   }
 }
 
+/**************************************************
+ * 
+ * GetPositionIndex()
+ * Turn absolute count into a value we can compare
+ * with top and bottom possition indexes.
+ * 
+ *************************************************/
+int GetPositionIndex(unsigned int iAbsStepCount)
+{
+  return 1;
+}
 /*************************************
  * 
  * updateStateMachine()
  * 
+ * For lack of a better name
+ * 
  * Keep track of what has changed
  * 
  *************************************/
+ void updateStateMachine()
+ {
+    // Things we need to check
+    // 1. Are more moving?
+    if(menuItem[START_STOP_INDEX].encoderValue == PAUSED_INDEX)
+    { // we are not, no action required
+      return; 
+    }
+    // 2. Are we in programmed mode?
+    if(menuItem[MAN_PROG_INDEX].encoderValue == MANUAL_INDEX)
+    { // we are not, no action required
+      return; 
+    }
+    // 3. We go this far, so we are moving and we are in programmed mode, get the indexes
+    int endIdx = (menuItem[END_POS_INDEX].encoderValue / ENCODER_STEP);
+    int startIdx = (menuItem[START_POS_INDEX].encoderValue / ENCODER_STEP);
+    int currIdx = GetPositionIndex(uiAbsoluteStepCount);
+    if(endIdx == startIdx)
+    {
+      // TODO decide what to do
+    }
+    if(currIdx == endIdx)
+    {
+      // TODO decide what to do
+      // 1. What direction are we travelling?
+      // If we are travelling up, reverse direction, decrease counter, if we are on 1, stop and return to manual mode
+      // if we are travelling down, no action required
+    }
+    if(currIdx == startIdx)
+    {
+      // 1. What direction are we travelling?
+      // If we are travelling down, reverse direction, decrease counter, if we are on 1, stop and return to manual mode
+      // If we are travelling up, no action required.
+    }    
+    /*
+          TODO implement limits logic
+          Maximum for lower pos is top pos
+          Minimum for top pos is lower pos
 
-// void updateStateMachine(int iMit)
-// {
-//  // iMit is the menu index i.e. which menu item are we updating
-//  int idx;
-//  switch(iMit)
-//    case START_STOP_INDEX:
-//      int idx =   
-//
-//    saveConfigToEEPROM
-//
-//  
-// }
+     
+     */
+  
+ }
+ 
 /**************************************
  * 
  * checkTopBottomLimits()
