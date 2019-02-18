@@ -2,115 +2,117 @@
 
 #define ENCODER_STEP 4
 // SPEEDS
-const char speed_0[] PROGMEM = " 0.50"; 
-const char speed_1[] PROGMEM = " 0.51"; 
-const char speed_2[] PROGMEM = " 0.52"; 
-const char speed_3[] PROGMEM = " 0.53"; 
-const char speed_4[] PROGMEM = " 0.54"; 
-const char speed_5[] PROGMEM = " 0.55"; 
-const char speed_6[] PROGMEM = " 0.56"; 
-const char speed_7[] PROGMEM = " 0.57"; 
-const char speed_8[] PROGMEM = " 0.58"; 
-const char speed_9[] PROGMEM = " 0.59"; 
-const char speed_10[] PROGMEM = " 0.60"; 
-const char speed_11[] PROGMEM = " 0.61"; 
-const char speed_12[] PROGMEM = " 0.62"; 
-const char speed_13[] PROGMEM = " 0.63"; 
-const char speed_14[] PROGMEM = " 0.64"; 
-const char speed_15[] PROGMEM = " 0.65"; 
-const char speed_16[] PROGMEM = " 0.66"; 
-const char speed_17[] PROGMEM = " 0.67"; 
-const char speed_18[] PROGMEM = " 0.68"; 
-const char speed_19[] PROGMEM = " 0.69"; 
-const char speed_20[] PROGMEM = " 0.70"; 
-const char speed_21[] PROGMEM = " 0.71"; 
-const char speed_22[] PROGMEM = " 0.72"; 
-const char speed_23[] PROGMEM = " 0.73"; 
-const char speed_24[] PROGMEM = " 0.74"; 
-const char speed_25[] PROGMEM = " 0.75"; 
-const char speed_26[] PROGMEM = " 0.76"; 
-const char speed_27[] PROGMEM = " 0.77"; 
-const char speed_28[] PROGMEM = " 0.78"; 
-const char speed_29[] PROGMEM = " 0.79"; 
-const char speed_30[] PROGMEM = " 0.80"; 
-const char speed_31[] PROGMEM = " 0.81"; 
-const char speed_32[] PROGMEM = " 0.82"; 
-const char speed_33[] PROGMEM = " 0.83"; 
-const char speed_34[] PROGMEM = " 0.84"; 
-const char speed_35[] PROGMEM = " 0.85"; 
-const char speed_36[] PROGMEM = " 0.86"; 
-const char speed_37[] PROGMEM = " 0.87"; 
-const char speed_38[] PROGMEM = " 0.88"; 
-const char speed_39[] PROGMEM = " 0.89"; 
-const char speed_40[] PROGMEM = " 0.90"; 
-const char speed_41[] PROGMEM = " 0.91"; 
-const char speed_42[] PROGMEM = " 0.92"; 
-const char speed_43[] PROGMEM = " 0.93"; 
-const char speed_44[] PROGMEM = " 0.94"; 
-const char speed_45[] PROGMEM = " 0.95"; 
-const char speed_46[] PROGMEM = " 0.96"; 
-const char speed_47[] PROGMEM = " 0.97"; 
-const char speed_48[] PROGMEM = " 0.98"; 
-const char speed_49[] PROGMEM = " 0.99"; 
-const char speed_50[] PROGMEM = " 1.00"; 
-const char speed_51[] PROGMEM = " 1.10"; 
-const char speed_52[] PROGMEM = " 1.20"; 
-const char speed_53[] PROGMEM = " 1.30"; 
-const char speed_54[] PROGMEM = " 1.40"; 
-const char speed_55[] PROGMEM = " 1.50"; 
-const char speed_56[] PROGMEM = " 1.60"; 
-const char speed_57[] PROGMEM = " 1.70"; 
-const char speed_58[] PROGMEM = " 1.80"; 
-const char speed_59[] PROGMEM = " 1.90"; 
-const char speed_60[] PROGMEM = " 2.00"; 
-const char speed_61[] PROGMEM = " 2.10"; 
-const char speed_62[] PROGMEM = " 2.20"; 
-const char speed_63[] PROGMEM = " 2.30"; 
-const char speed_64[] PROGMEM = " 2.40"; 
-const char speed_65[] PROGMEM = " 2.50"; 
-const char speed_66[] PROGMEM = " 2.60"; 
-const char speed_67[] PROGMEM = " 2.70"; 
-const char speed_68[] PROGMEM = " 2.80"; 
-const char speed_69[] PROGMEM = " 2.90"; 
-const char speed_70[] PROGMEM = " 3.00"; 
-const char speed_71[] PROGMEM = " 3.10"; 
-const char speed_72[] PROGMEM = " 3.20"; 
-const char speed_73[] PROGMEM = " 3.30"; 
-const char speed_74[] PROGMEM = " 3.40"; 
-const char speed_75[] PROGMEM = " 3.50"; 
-const char speed_76[] PROGMEM = " 3.60"; 
-const char speed_77[] PROGMEM = " 3.70"; 
-const char speed_78[] PROGMEM = " 3.80"; 
-const char speed_79[] PROGMEM = " 3.90"; 
-const char speed_80[] PROGMEM = " 4.00"; 
-const char speed_81[] PROGMEM = " 4.10"; 
-const char speed_82[] PROGMEM = " 4.20"; 
-const char speed_83[] PROGMEM = " 4.30"; 
-const char speed_84[] PROGMEM = " 4.40"; 
-const char speed_85[] PROGMEM = " 4.50"; 
-const char speed_86[] PROGMEM = " 4.60"; 
-const char speed_87[] PROGMEM = " 4.70"; 
-const char speed_88[] PROGMEM = " 4.80"; 
-const char speed_89[] PROGMEM = " 4.90"; 
-const char speed_90[] PROGMEM = " 5.00"; 
-const char speed_91[] PROGMEM = " 6.00"; 
-const char speed_92[] PROGMEM = " 7.00"; 
-const char speed_93[] PROGMEM = " 8.00"; 
-const char speed_94[] PROGMEM = " 9.00"; 
-const char speed_95[] PROGMEM = "10.00"; 
-const char speed_96[] PROGMEM = "11.00"; 
-const char speed_97[] PROGMEM = "12.00"; 
-const char speed_98[] PROGMEM = "13.00"; 
-const char speed_99[] PROGMEM = "14.00"; 
-const char speed_100[] PROGMEM = "15.00"; 
-const char speed_101[] PROGMEM = "16.00"; 
-const char speed_102[] PROGMEM = "16.00"; 
-const char speed_103[] PROGMEM = "18.00"; 
-const char speed_104[] PROGMEM = "20.00"; 
-const char speed_105[] PROGMEM = "22.00"; 
-const char speed_106[] PROGMEM = "24.00"; 
-const char speed_107[] PROGMEM = "27.00"; 
-const char speed_108[] PROGMEM = "30.00";
+#define SPEED_ARRAY_ENTRIES 109
+const char speed_0[] PROGMEM = " 0,50"; 
+const char speed_1[] PROGMEM = " 0,51"; 
+const char speed_2[] PROGMEM = " 0,52"; 
+const char speed_3[] PROGMEM = " 0,53"; 
+const char speed_4[] PROGMEM = " 0,54"; 
+const char speed_5[] PROGMEM = " 0,55"; 
+const char speed_6[] PROGMEM = " 0,56"; 
+const char speed_7[] PROGMEM = " 0,57"; 
+const char speed_8[] PROGMEM = " 0,58"; 
+const char speed_9[] PROGMEM = " 0,59"; 
+const char speed_10[] PROGMEM = " 0,60"; 
+const char speed_11[] PROGMEM = " 0,61"; 
+const char speed_12[] PROGMEM = " 0,62"; 
+const char speed_13[] PROGMEM = " 0,63"; 
+const char speed_14[] PROGMEM = " 0,64"; 
+const char speed_15[] PROGMEM = " 0,65"; 
+const char speed_16[] PROGMEM = " 0,66"; 
+const char speed_17[] PROGMEM = " 0,67"; 
+const char speed_18[] PROGMEM = " 0,68"; 
+const char speed_19[] PROGMEM = " 0,69"; 
+const char speed_20[] PROGMEM = " 0,70"; 
+const char speed_21[] PROGMEM = " 0,71"; 
+const char speed_22[] PROGMEM = " 0,72"; 
+const char speed_23[] PROGMEM = " 0,73"; 
+const char speed_24[] PROGMEM = " 0,74"; 
+const char speed_25[] PROGMEM = " 0,75"; 
+const char speed_26[] PROGMEM = " 0,76"; 
+const char speed_27[] PROGMEM = " 0,77"; 
+const char speed_28[] PROGMEM = " 0,78"; 
+const char speed_29[] PROGMEM = " 0,79"; 
+const char speed_30[] PROGMEM = " 0,80"; 
+const char speed_31[] PROGMEM = " 0,81"; 
+const char speed_32[] PROGMEM = " 0,82"; 
+const char speed_33[] PROGMEM = " 0,83"; 
+const char speed_34[] PROGMEM = " 0,84"; 
+const char speed_35[] PROGMEM = " 0,85"; 
+const char speed_36[] PROGMEM = " 0,86"; 
+const char speed_37[] PROGMEM = " 0,87"; 
+const char speed_38[] PROGMEM = " 0,88"; 
+const char speed_39[] PROGMEM = " 0,89"; 
+const char speed_40[] PROGMEM = " 0,90"; 
+const char speed_41[] PROGMEM = " 0,91"; 
+const char speed_42[] PROGMEM = " 0,92"; 
+const char speed_43[] PROGMEM = " 0,93"; 
+const char speed_44[] PROGMEM = " 0,94"; 
+const char speed_45[] PROGMEM = " 0,95"; 
+const char speed_46[] PROGMEM = " 0,96"; 
+const char speed_47[] PROGMEM = " 0,97"; 
+const char speed_48[] PROGMEM = " 0,98"; 
+const char speed_49[] PROGMEM = " 0,99"; 
+const char speed_50[] PROGMEM = " 1,00"; 
+const char speed_51[] PROGMEM = " 1,10"; 
+const char speed_52[] PROGMEM = " 1,20"; 
+const char speed_53[] PROGMEM = " 1,30"; 
+const char speed_54[] PROGMEM = " 1,40"; 
+const char speed_55[] PROGMEM = " 1,50"; 
+const char speed_56[] PROGMEM = " 1,60"; 
+const char speed_57[] PROGMEM = " 1,70"; 
+const char speed_58[] PROGMEM = " 1,80"; 
+const char speed_59[] PROGMEM = " 1,90"; 
+const char speed_60[] PROGMEM = " 2,00"; 
+const char speed_61[] PROGMEM = " 2,10"; 
+const char speed_62[] PROGMEM = " 2,20"; 
+const char speed_63[] PROGMEM = " 2,30"; 
+const char speed_64[] PROGMEM = " 2,40"; 
+const char speed_65[] PROGMEM = " 2,50"; 
+const char speed_66[] PROGMEM = " 2,60"; 
+const char speed_67[] PROGMEM = " 2,70"; 
+const char speed_68[] PROGMEM = " 2,80"; 
+const char speed_69[] PROGMEM = " 2,90"; 
+const char speed_70[] PROGMEM = " 3,00"; 
+const char speed_71[] PROGMEM = " 3,10"; 
+const char speed_72[] PROGMEM = " 3,20"; 
+const char speed_73[] PROGMEM = " 3,30"; 
+const char speed_74[] PROGMEM = " 3,40"; 
+const char speed_75[] PROGMEM = " 3,50"; 
+const char speed_76[] PROGMEM = " 3,60"; 
+const char speed_77[] PROGMEM = " 3,70"; 
+const char speed_78[] PROGMEM = " 3,80"; 
+const char speed_79[] PROGMEM = " 3,90"; 
+const char speed_80[] PROGMEM = " 4,00"; 
+const char speed_81[] PROGMEM = " 4,10"; 
+const char speed_82[] PROGMEM = " 4,20"; 
+const char speed_83[] PROGMEM = " 4,30"; 
+const char speed_84[] PROGMEM = " 4,40"; 
+const char speed_85[] PROGMEM = " 4,50"; 
+const char speed_86[] PROGMEM = " 4,60"; 
+const char speed_87[] PROGMEM = " 4,70"; 
+const char speed_88[] PROGMEM = " 4,80"; 
+const char speed_89[] PROGMEM = " 4,90"; 
+const char speed_90[] PROGMEM = " 5,00"; 
+const char speed_91[] PROGMEM = " 6,00"; 
+const char speed_92[] PROGMEM = " 7,00"; 
+const char speed_93[] PROGMEM = " 8,00"; 
+const char speed_94[] PROGMEM = " 9,00"; 
+const char speed_95[] PROGMEM = "10,00"; 
+const char speed_96[] PROGMEM = "11,00"; 
+const char speed_97[] PROGMEM = "12,00"; 
+const char speed_98[] PROGMEM = "13,00"; 
+const char speed_99[] PROGMEM = "14,00"; 
+const char speed_100[] PROGMEM = "15,00"; 
+const char speed_101[] PROGMEM = "16,00"; 
+const char speed_102[] PROGMEM = "16,00"; 
+const char speed_103[] PROGMEM = "18,00"; 
+const char speed_104[] PROGMEM = "20,00"; 
+const char speed_105[] PROGMEM = "22,00"; 
+const char speed_106[] PROGMEM = "24,00"; 
+const char speed_107[] PROGMEM = "27,00"; 
+const char speed_108[] PROGMEM = "30,00";
+
 // REFERENCE ARRAY
 const char * const speed_table[] PROGMEM = { 
     speed_0, 
@@ -223,8 +225,8 @@ const char * const speed_table[] PROGMEM = {
     speed_107, 
     speed_108
 };
-// FREQUENCIES
-const uint16_t frequencies[]  PROGMEM  = { 
+// FREQUENCIES - different declaration
+const PROGMEM uint16_t frequencies[] = { 
     37500, 
     36764, 
     36057, 
@@ -336,309 +338,312 @@ const uint16_t frequencies[]  PROGMEM  = {
     625
 };
 // distances
-const char distance_0_0[] PROGMEM = " 0.0"; 
-const char distance_0_1[] PROGMEM = " 0.1"; 
-const char distance_0_2[] PROGMEM = " 0.2"; 
-const char distance_0_3[] PROGMEM = " 0.3"; 
-const char distance_0_4[] PROGMEM = " 0.4"; 
-const char distance_0_5[] PROGMEM = " 0.5"; 
-const char distance_0_6[] PROGMEM = " 0.6"; 
-const char distance_0_7[] PROGMEM = " 0.7"; 
-const char distance_0_8[] PROGMEM = " 0.8"; 
-const char distance_0_9[] PROGMEM = " 0.9"; 
-const char distance_1_0[] PROGMEM = " 1.0"; 
-const char distance_1_1[] PROGMEM = " 1.1"; 
-const char distance_1_2[] PROGMEM = " 1.2"; 
-const char distance_1_3[] PROGMEM = " 1.3"; 
-const char distance_1_4[] PROGMEM = " 1.4"; 
-const char distance_1_5[] PROGMEM = " 1.5"; 
-const char distance_1_6[] PROGMEM = " 1.6"; 
-const char distance_1_7[] PROGMEM = " 1.7"; 
-const char distance_1_8[] PROGMEM = " 1.8"; 
-const char distance_1_9[] PROGMEM = " 1.9"; 
-const char distance_2_0[] PROGMEM = " 2.0"; 
-const char distance_2_1[] PROGMEM = " 2.1"; 
-const char distance_2_2[] PROGMEM = " 2.2"; 
-const char distance_2_3[] PROGMEM = " 2.3"; 
-const char distance_2_4[] PROGMEM = " 2.4"; 
-const char distance_2_5[] PROGMEM = " 2.5"; 
-const char distance_2_6[] PROGMEM = " 2.6"; 
-const char distance_2_7[] PROGMEM = " 2.7"; 
-const char distance_2_8[] PROGMEM = " 2.8"; 
-const char distance_2_9[] PROGMEM = " 2.9"; 
-const char distance_3_0[] PROGMEM = " 3.0"; 
-const char distance_3_1[] PROGMEM = " 3.1"; 
-const char distance_3_2[] PROGMEM = " 3.2"; 
-const char distance_3_3[] PROGMEM = " 3.3"; 
-const char distance_3_4[] PROGMEM = " 3.4"; 
-const char distance_3_5[] PROGMEM = " 3.5"; 
-const char distance_3_6[] PROGMEM = " 3.6"; 
-const char distance_3_7[] PROGMEM = " 3.7"; 
-const char distance_3_8[] PROGMEM = " 3.8"; 
-const char distance_3_9[] PROGMEM = " 3.9"; 
-const char distance_4_0[] PROGMEM = " 4.0"; 
-const char distance_4_1[] PROGMEM = " 4.1"; 
-const char distance_4_2[] PROGMEM = " 4.2"; 
-const char distance_4_3[] PROGMEM = " 4.3"; 
-const char distance_4_4[] PROGMEM = " 4.4"; 
-const char distance_4_5[] PROGMEM = " 4.5"; 
-const char distance_4_6[] PROGMEM = " 4.6"; 
-const char distance_4_7[] PROGMEM = " 4.7"; 
-const char distance_4_8[] PROGMEM = " 4.8"; 
-const char distance_4_9[] PROGMEM = " 4.9"; 
-const char distance_5_0[] PROGMEM = " 5.0"; 
-const char distance_5_1[] PROGMEM = " 5.1"; 
-const char distance_5_2[] PROGMEM = " 5.2"; 
-const char distance_5_3[] PROGMEM = " 5.3"; 
-const char distance_5_4[] PROGMEM = " 5.4"; 
-const char distance_5_5[] PROGMEM = " 5.5"; 
-const char distance_5_6[] PROGMEM = " 5.6"; 
-const char distance_5_7[] PROGMEM = " 5.7"; 
-const char distance_5_8[] PROGMEM = " 5.8"; 
-const char distance_5_9[] PROGMEM = " 5.9"; 
-const char distance_6_0[] PROGMEM = " 6.0"; 
-const char distance_6_1[] PROGMEM = " 6.1"; 
-const char distance_6_2[] PROGMEM = " 6.2"; 
-const char distance_6_3[] PROGMEM = " 6.3"; 
-const char distance_6_4[] PROGMEM = " 6.4"; 
-const char distance_6_5[] PROGMEM = " 6.5"; 
-const char distance_6_6[] PROGMEM = " 6.6"; 
-const char distance_6_7[] PROGMEM = " 6.7"; 
-const char distance_6_8[] PROGMEM = " 6.8"; 
-const char distance_6_9[] PROGMEM = " 6.9"; 
-const char distance_7_0[] PROGMEM = " 7.0"; 
-const char distance_7_1[] PROGMEM = " 7.1"; 
-const char distance_7_2[] PROGMEM = " 7.2"; 
-const char distance_7_3[] PROGMEM = " 7.3"; 
-const char distance_7_4[] PROGMEM = " 7.4"; 
-const char distance_7_5[] PROGMEM = " 7.5"; 
-const char distance_7_6[] PROGMEM = " 7.6"; 
-const char distance_7_7[] PROGMEM = " 7.7"; 
-const char distance_7_8[] PROGMEM = " 7.8"; 
-const char distance_7_9[] PROGMEM = " 7.9"; 
-const char distance_8_0[] PROGMEM = " 8.0"; 
-const char distance_8_1[] PROGMEM = " 8.1"; 
-const char distance_8_2[] PROGMEM = " 8.2"; 
-const char distance_8_3[] PROGMEM = " 8.3"; 
-const char distance_8_4[] PROGMEM = " 8.4"; 
-const char distance_8_5[] PROGMEM = " 8.5"; 
-const char distance_8_6[] PROGMEM = " 8.6"; 
-const char distance_8_7[] PROGMEM = " 8.7"; 
-const char distance_8_8[] PROGMEM = " 8.8"; 
-const char distance_8_9[] PROGMEM = " 8.9"; 
-const char distance_9_0[] PROGMEM = " 9.0"; 
-const char distance_9_1[] PROGMEM = " 9.1"; 
-const char distance_9_2[] PROGMEM = " 9.2"; 
-const char distance_9_3[] PROGMEM = " 9.3"; 
-const char distance_9_4[] PROGMEM = " 9.4"; 
-const char distance_9_5[] PROGMEM = " 9.5"; 
-const char distance_9_6[] PROGMEM = " 9.6"; 
-const char distance_9_7[] PROGMEM = " 9.7"; 
-const char distance_9_8[] PROGMEM = " 9.8"; 
-const char distance_9_9[] PROGMEM = " 9.9";
-const char distance_10_0[] PROGMEM = "10.0"; 
-const char distance_10_1[] PROGMEM = "10.1"; 
-const char distance_10_2[] PROGMEM = "10.2"; 
-const char distance_10_3[] PROGMEM = "10.3"; 
-const char distance_10_4[] PROGMEM = "10.4"; 
-const char distance_10_5[] PROGMEM = "10.5"; 
-const char distance_10_6[] PROGMEM = "10.6"; 
-const char distance_10_7[] PROGMEM = "10.7"; 
-const char distance_10_8[] PROGMEM = "10.8"; 
-const char distance_10_9[] PROGMEM = "10.9"; 
-const char distance_11_0[] PROGMEM = "11.0"; 
-const char distance_11_1[] PROGMEM = "11.1"; 
-const char distance_11_2[] PROGMEM = "11.2"; 
-const char distance_11_3[] PROGMEM = "11.3"; 
-const char distance_11_4[] PROGMEM = "11.4"; 
-const char distance_11_5[] PROGMEM = "11.5"; 
-const char distance_11_6[] PROGMEM = "11.6"; 
-const char distance_11_7[] PROGMEM = "11.7"; 
-const char distance_11_8[] PROGMEM = "11.8"; 
-const char distance_11_9[] PROGMEM = "11.9"; 
-const char distance_12_0[] PROGMEM = "12.0"; 
-const char distance_12_1[] PROGMEM = "12.1"; 
-const char distance_12_2[] PROGMEM = "12.2"; 
-const char distance_12_3[] PROGMEM = "12.3"; 
-const char distance_12_4[] PROGMEM = "12.4"; 
-const char distance_12_5[] PROGMEM = "12.5"; 
-const char distance_12_6[] PROGMEM = "12.6"; 
-const char distance_12_7[] PROGMEM = "12.7"; 
-const char distance_12_8[] PROGMEM = "12.8"; 
-const char distance_12_9[] PROGMEM = "12.9"; 
-const char distance_13_0[] PROGMEM = "13.0"; 
-const char distance_13_1[] PROGMEM = "13.1"; 
-const char distance_13_2[] PROGMEM = "13.2"; 
-const char distance_13_3[] PROGMEM = "13.3"; 
-const char distance_13_4[] PROGMEM = "13.4"; 
-const char distance_13_5[] PROGMEM = "13.5"; 
-const char distance_13_6[] PROGMEM = "13.6"; 
-const char distance_13_7[] PROGMEM = "13.7"; 
-const char distance_13_8[] PROGMEM = "13.8"; 
-const char distance_13_9[] PROGMEM = "13.9"; 
-const char distance_14_0[] PROGMEM = "14.0"; 
-const char distance_14_1[] PROGMEM = "14.1"; 
-const char distance_14_2[] PROGMEM = "14.2"; 
-const char distance_14_3[] PROGMEM = "14.3"; 
-const char distance_14_4[] PROGMEM = "14.4"; 
-const char distance_14_5[] PROGMEM = "14.5"; 
-const char distance_14_6[] PROGMEM = "14.6"; 
-const char distance_14_7[] PROGMEM = "14.7"; 
-const char distance_14_8[] PROGMEM = "14.8"; 
-const char distance_14_9[] PROGMEM = "14.9"; 
-const char distance_15_0[] PROGMEM = "15.0"; 
-const char distance_15_1[] PROGMEM = "15.1"; 
-const char distance_15_2[] PROGMEM = "15.2"; 
-const char distance_15_3[] PROGMEM = "15.3"; 
-const char distance_15_4[] PROGMEM = "15.4"; 
-const char distance_15_5[] PROGMEM = "15.5"; 
-const char distance_15_6[] PROGMEM = "15.6"; 
-const char distance_15_7[] PROGMEM = "15.7"; 
-const char distance_15_8[] PROGMEM = "15.8"; 
-const char distance_15_9[] PROGMEM = "15.9"; 
-const char distance_16_0[] PROGMEM = "16.0"; 
-const char distance_16_1[] PROGMEM = "16.1"; 
-const char distance_16_2[] PROGMEM = "16.2"; 
-const char distance_16_3[] PROGMEM = "16.3"; 
-const char distance_16_4[] PROGMEM = "16.4"; 
-const char distance_16_5[] PROGMEM = "16.5"; 
-const char distance_16_6[] PROGMEM = "16.6"; 
-const char distance_16_7[] PROGMEM = "16.7"; 
-const char distance_16_8[] PROGMEM = "16.8"; 
-const char distance_16_9[] PROGMEM = "16.9"; 
-const char distance_17_0[] PROGMEM = "17.0"; 
-const char distance_17_1[] PROGMEM = "17.1"; 
-const char distance_17_2[] PROGMEM = "17.2"; 
-const char distance_17_3[] PROGMEM = "17.3"; 
-const char distance_17_4[] PROGMEM = "17.4"; 
-const char distance_17_5[] PROGMEM = "17.5"; 
-const char distance_17_6[] PROGMEM = "17.6"; 
-const char distance_17_7[] PROGMEM = "17.7"; 
-const char distance_17_8[] PROGMEM = "17.8"; 
-const char distance_17_9[] PROGMEM = "17.9"; 
-const char distance_18_0[] PROGMEM = "18.0"; 
-const char distance_18_1[] PROGMEM = "18.1"; 
-const char distance_18_2[] PROGMEM = "18.2"; 
-const char distance_18_3[] PROGMEM = "18.3"; 
-const char distance_18_4[] PROGMEM = "18.4"; 
-const char distance_18_5[] PROGMEM = "18.5"; 
-const char distance_18_6[] PROGMEM = "18.6"; 
-const char distance_18_7[] PROGMEM = "18.7"; 
-const char distance_18_8[] PROGMEM = "18.8"; 
-const char distance_18_9[] PROGMEM = "18.9"; 
-const char distance_19_0[] PROGMEM = "19.0"; 
-const char distance_19_1[] PROGMEM = "19.1"; 
-const char distance_19_2[] PROGMEM = "19.2"; 
-const char distance_19_3[] PROGMEM = "19.3"; 
-const char distance_19_4[] PROGMEM = "19.4"; 
-const char distance_19_5[] PROGMEM = "19.5"; 
-const char distance_19_6[] PROGMEM = "19.6"; 
-const char distance_19_7[] PROGMEM = "19.7"; 
-const char distance_19_8[] PROGMEM = "19.8"; 
-const char distance_19_9[] PROGMEM = "19.9"; 
-const char distance_20_0[] PROGMEM = "20.0"; 
-const char distance_20_1[] PROGMEM = "20.1"; 
-const char distance_20_2[] PROGMEM = "20.2"; 
-const char distance_20_3[] PROGMEM = "20.3"; 
-const char distance_20_4[] PROGMEM = "20.4"; 
-const char distance_20_5[] PROGMEM = "20.5"; 
-const char distance_20_6[] PROGMEM = "20.6"; 
-const char distance_20_7[] PROGMEM = "20.7"; 
-const char distance_20_8[] PROGMEM = "20.8"; 
-const char distance_20_9[] PROGMEM = "20.9"; 
-const char distance_21_0[] PROGMEM = "21.0"; 
-const char distance_21_1[] PROGMEM = "21.1"; 
-const char distance_21_2[] PROGMEM = "21.2"; 
-const char distance_21_3[] PROGMEM = "21.3"; 
-const char distance_21_4[] PROGMEM = "21.4"; 
-const char distance_21_5[] PROGMEM = "21.5"; 
-const char distance_21_6[] PROGMEM = "21.6"; 
-const char distance_21_7[] PROGMEM = "21.7"; 
-const char distance_21_8[] PROGMEM = "21.8"; 
-const char distance_21_9[] PROGMEM = "21.9"; 
-const char distance_22_0[] PROGMEM = "22.0"; 
-const char distance_22_1[] PROGMEM = "22.1"; 
-const char distance_22_2[] PROGMEM = "22.2"; 
-const char distance_22_3[] PROGMEM = "22.3"; 
-const char distance_22_4[] PROGMEM = "22.4"; 
-const char distance_22_5[] PROGMEM = "22.5"; 
-const char distance_22_6[] PROGMEM = "22.6"; 
-const char distance_22_7[] PROGMEM = "22.7"; 
-const char distance_22_8[] PROGMEM = "22.8"; 
-const char distance_22_9[] PROGMEM = "22.9"; 
-const char distance_23_0[] PROGMEM = "23.0"; 
-const char distance_23_1[] PROGMEM = "23.1"; 
-const char distance_23_2[] PROGMEM = "23.2"; 
-const char distance_23_3[] PROGMEM = "23.3"; 
-const char distance_23_4[] PROGMEM = "23.4"; 
-const char distance_23_5[] PROGMEM = "23.5"; 
-const char distance_23_6[] PROGMEM = "23.6"; 
-const char distance_23_7[] PROGMEM = "23.7"; 
-const char distance_23_8[] PROGMEM = "23.8"; 
-const char distance_23_9[] PROGMEM = "23.9"; 
-const char distance_24_0[] PROGMEM = "24.0"; 
-const char distance_24_1[] PROGMEM = "24.1"; 
-const char distance_24_2[] PROGMEM = "24.2"; 
-const char distance_24_3[] PROGMEM = "24.3"; 
-const char distance_24_4[] PROGMEM = "24.4"; 
-const char distance_24_5[] PROGMEM = "24.5"; 
-const char distance_24_6[] PROGMEM = "24.6"; 
-const char distance_24_7[] PROGMEM = "24.7"; 
-const char distance_24_8[] PROGMEM = "24.8"; 
-const char distance_24_9[] PROGMEM = "24.9"; 
-const char distance_25_0[] PROGMEM = "25.0"; 
-const char distance_25_1[] PROGMEM = "25.1"; 
-const char distance_25_2[] PROGMEM = "25.2"; 
-const char distance_25_3[] PROGMEM = "25.3"; 
-const char distance_25_4[] PROGMEM = "25.4"; 
-const char distance_25_5[] PROGMEM = "25.5"; 
-const char distance_25_6[] PROGMEM = "25.6"; 
-const char distance_25_7[] PROGMEM = "25.7"; 
-const char distance_25_8[] PROGMEM = "25.8"; 
-const char distance_25_9[] PROGMEM = "25.9"; 
-const char distance_26_0[] PROGMEM = "26.0"; 
-const char distance_26_1[] PROGMEM = "26.1"; 
-const char distance_26_2[] PROGMEM = "26.2"; 
-const char distance_26_3[] PROGMEM = "26.3"; 
-const char distance_26_4[] PROGMEM = "26.4"; 
-const char distance_26_5[] PROGMEM = "26.5"; 
-const char distance_26_6[] PROGMEM = "26.6"; 
-const char distance_26_7[] PROGMEM = "26.7"; 
-const char distance_26_8[] PROGMEM = "26.8"; 
-const char distance_26_9[] PROGMEM = "26.9"; 
-const char distance_27_0[] PROGMEM = "27.0"; 
-const char distance_27_1[] PROGMEM = "27.1"; 
-const char distance_27_2[] PROGMEM = "27.2"; 
-const char distance_27_3[] PROGMEM = "27.3"; 
-const char distance_27_4[] PROGMEM = "27.4"; 
-const char distance_27_5[] PROGMEM = "27.5"; 
-const char distance_27_6[] PROGMEM = "27.6"; 
-const char distance_27_7[] PROGMEM = "27.7"; 
-const char distance_27_8[] PROGMEM = "27.8"; 
-const char distance_27_9[] PROGMEM = "27.9"; 
-const char distance_28_0[] PROGMEM = "28.0"; 
-const char distance_28_1[] PROGMEM = "28.1"; 
-const char distance_28_2[] PROGMEM = "28.2"; 
-const char distance_28_3[] PROGMEM = "28.3"; 
-const char distance_28_4[] PROGMEM = "28.4"; 
-const char distance_28_5[] PROGMEM = "28.5"; 
-const char distance_28_6[] PROGMEM = "28.6"; 
-const char distance_28_7[] PROGMEM = "28.7"; 
-const char distance_28_8[] PROGMEM = "28.8"; 
-const char distance_28_9[] PROGMEM = "28.9"; 
-const char distance_29_0[] PROGMEM = "29.0"; 
-const char distance_29_1[] PROGMEM = "29.1"; 
-const char distance_29_2[] PROGMEM = "29.2"; 
-const char distance_29_3[] PROGMEM = "29.3"; 
-const char distance_29_4[] PROGMEM = "29.4"; 
-const char distance_29_5[] PROGMEM = "29.5"; 
-const char distance_29_6[] PROGMEM = "29.6"; 
-const char distance_29_7[] PROGMEM = "29.7"; 
-const char distance_29_8[] PROGMEM = "29.8"; 
-const char distance_29_9[] PROGMEM = "29.9"; 
-const char distance_30_0[] PROGMEM = "30.0";
+const char distance_0_0[] PROGMEM = " 0,0"; 
+const char distance_0_1[] PROGMEM = " 0,1"; 
+const char distance_0_2[] PROGMEM = " 0,2"; 
+const char distance_0_3[] PROGMEM = " 0,3"; 
+const char distance_0_4[] PROGMEM = " 0,4"; 
+const char distance_0_5[] PROGMEM = " 0,5"; 
+const char distance_0_6[] PROGMEM = " 0,6"; 
+const char distance_0_7[] PROGMEM = " 0,7"; 
+const char distance_0_8[] PROGMEM = " 0,8"; 
+const char distance_0_9[] PROGMEM = " 0,9"; 
+const char distance_1_0[] PROGMEM = " 1,0"; 
+const char distance_1_1[] PROGMEM = " 1,1"; 
+const char distance_1_2[] PROGMEM = " 1,2"; 
+const char distance_1_3[] PROGMEM = " 1,3"; 
+const char distance_1_4[] PROGMEM = " 1,4"; 
+const char distance_1_5[] PROGMEM = " 1,5"; 
+const char distance_1_6[] PROGMEM = " 1,6"; 
+const char distance_1_7[] PROGMEM = " 1,7"; 
+const char distance_1_8[] PROGMEM = " 1,8"; 
+const char distance_1_9[] PROGMEM = " 1,9"; 
+const char distance_2_0[] PROGMEM = " 2,0"; 
+const char distance_2_1[] PROGMEM = " 2,1"; 
+const char distance_2_2[] PROGMEM = " 2,2"; 
+const char distance_2_3[] PROGMEM = " 2,3"; 
+const char distance_2_4[] PROGMEM = " 2,4"; 
+const char distance_2_5[] PROGMEM = " 2,5"; 
+const char distance_2_6[] PROGMEM = " 2,6"; 
+const char distance_2_7[] PROGMEM = " 2,7"; 
+const char distance_2_8[] PROGMEM = " 2,8"; 
+const char distance_2_9[] PROGMEM = " 2,9"; 
+const char distance_3_0[] PROGMEM = " 3,0"; 
+const char distance_3_1[] PROGMEM = " 3,1"; 
+const char distance_3_2[] PROGMEM = " 3,2"; 
+const char distance_3_3[] PROGMEM = " 3,3"; 
+const char distance_3_4[] PROGMEM = " 3,4"; 
+const char distance_3_5[] PROGMEM = " 3,5"; 
+const char distance_3_6[] PROGMEM = " 3,6"; 
+const char distance_3_7[] PROGMEM = " 3,7"; 
+const char distance_3_8[] PROGMEM = " 3,8"; 
+const char distance_3_9[] PROGMEM = " 3,9"; 
+const char distance_4_0[] PROGMEM = " 4,0"; 
+const char distance_4_1[] PROGMEM = " 4,1"; 
+const char distance_4_2[] PROGMEM = " 4,2"; 
+const char distance_4_3[] PROGMEM = " 4,3"; 
+const char distance_4_4[] PROGMEM = " 4,4"; 
+const char distance_4_5[] PROGMEM = " 4,5"; 
+const char distance_4_6[] PROGMEM = " 4,6"; 
+const char distance_4_7[] PROGMEM = " 4,7"; 
+const char distance_4_8[] PROGMEM = " 4,8"; 
+const char distance_4_9[] PROGMEM = " 4,9"; 
+const char distance_5_0[] PROGMEM = " 5,0"; 
+const char distance_5_1[] PROGMEM = " 5,1"; 
+const char distance_5_2[] PROGMEM = " 5,2"; 
+const char distance_5_3[] PROGMEM = " 5,3"; 
+const char distance_5_4[] PROGMEM = " 5,4"; 
+const char distance_5_5[] PROGMEM = " 5,5"; 
+const char distance_5_6[] PROGMEM = " 5,6"; 
+const char distance_5_7[] PROGMEM = " 5,7"; 
+const char distance_5_8[] PROGMEM = " 5,8"; 
+const char distance_5_9[] PROGMEM = " 5,9"; 
+const char distance_6_0[] PROGMEM = " 6,0"; 
+const char distance_6_1[] PROGMEM = " 6,1"; 
+const char distance_6_2[] PROGMEM = " 6,2"; 
+const char distance_6_3[] PROGMEM = " 6,3"; 
+const char distance_6_4[] PROGMEM = " 6,4"; 
+const char distance_6_5[] PROGMEM = " 6,5"; 
+const char distance_6_6[] PROGMEM = " 6,6"; 
+const char distance_6_7[] PROGMEM = " 6,7"; 
+const char distance_6_8[] PROGMEM = " 6,8"; 
+const char distance_6_9[] PROGMEM = " 6,9"; 
+const char distance_7_0[] PROGMEM = " 7,0"; 
+const char distance_7_1[] PROGMEM = " 7,1"; 
+const char distance_7_2[] PROGMEM = " 7,2"; 
+const char distance_7_3[] PROGMEM = " 7,3"; 
+const char distance_7_4[] PROGMEM = " 7,4"; 
+const char distance_7_5[] PROGMEM = " 7,5"; 
+const char distance_7_6[] PROGMEM = " 7,6"; 
+const char distance_7_7[] PROGMEM = " 7,7"; 
+const char distance_7_8[] PROGMEM = " 7,8"; 
+const char distance_7_9[] PROGMEM = " 7,9"; 
+const char distance_8_0[] PROGMEM = " 8,0"; 
+const char distance_8_1[] PROGMEM = " 8,1"; 
+const char distance_8_2[] PROGMEM = " 8,2"; 
+const char distance_8_3[] PROGMEM = " 8,3"; 
+const char distance_8_4[] PROGMEM = " 8,4"; 
+const char distance_8_5[] PROGMEM = " 8,5"; 
+const char distance_8_6[] PROGMEM = " 8,6"; 
+const char distance_8_7[] PROGMEM = " 8,7"; 
+const char distance_8_8[] PROGMEM = " 8,8"; 
+const char distance_8_9[] PROGMEM = " 8,9"; 
+const char distance_9_0[] PROGMEM = " 9,0"; 
+const char distance_9_1[] PROGMEM = " 9,1"; 
+const char distance_9_2[] PROGMEM = " 9,2"; 
+const char distance_9_3[] PROGMEM = " 9,3"; 
+const char distance_9_4[] PROGMEM = " 9,4"; 
+const char distance_9_5[] PROGMEM = " 9,5"; 
+const char distance_9_6[] PROGMEM = " 9,6"; 
+const char distance_9_7[] PROGMEM = " 9,7"; 
+const char distance_9_8[] PROGMEM = " 9,8"; 
+const char distance_9_9[] PROGMEM = " 9,9";
+const char distance_10_0[] PROGMEM = "10,0"; 
+const char distance_10_1[] PROGMEM = "10,1"; 
+const char distance_10_2[] PROGMEM = "10,2"; 
+const char distance_10_3[] PROGMEM = "10,3"; 
+const char distance_10_4[] PROGMEM = "10,4"; 
+const char distance_10_5[] PROGMEM = "10,5"; 
+const char distance_10_6[] PROGMEM = "10,6"; 
+const char distance_10_7[] PROGMEM = "10,7"; 
+const char distance_10_8[] PROGMEM = "10,8"; 
+const char distance_10_9[] PROGMEM = "10,9"; 
+const char distance_11_0[] PROGMEM = "11,0"; 
+const char distance_11_1[] PROGMEM = "11,1"; 
+const char distance_11_2[] PROGMEM = "11,2"; 
+const char distance_11_3[] PROGMEM = "11,3"; 
+const char distance_11_4[] PROGMEM = "11,4"; 
+const char distance_11_5[] PROGMEM = "11,5"; 
+const char distance_11_6[] PROGMEM = "11,6"; 
+const char distance_11_7[] PROGMEM = "11,7"; 
+const char distance_11_8[] PROGMEM = "11,8"; 
+const char distance_11_9[] PROGMEM = "11,9"; 
+const char distance_12_0[] PROGMEM = "12,0"; 
+const char distance_12_1[] PROGMEM = "12,1"; 
+const char distance_12_2[] PROGMEM = "12,2"; 
+const char distance_12_3[] PROGMEM = "12,3"; 
+const char distance_12_4[] PROGMEM = "12,4"; 
+const char distance_12_5[] PROGMEM = "12,5"; 
+const char distance_12_6[] PROGMEM = "12,6"; 
+const char distance_12_7[] PROGMEM = "12,7"; 
+const char distance_12_8[] PROGMEM = "12,8"; 
+const char distance_12_9[] PROGMEM = "12,9"; 
+const char distance_13_0[] PROGMEM = "13,0"; 
+const char distance_13_1[] PROGMEM = "13,1"; 
+const char distance_13_2[] PROGMEM = "13,2"; 
+const char distance_13_3[] PROGMEM = "13,3"; 
+const char distance_13_4[] PROGMEM = "13,4"; 
+const char distance_13_5[] PROGMEM = "13,5"; 
+const char distance_13_6[] PROGMEM = "13,6"; 
+const char distance_13_7[] PROGMEM = "13,7"; 
+const char distance_13_8[] PROGMEM = "13,8"; 
+const char distance_13_9[] PROGMEM = "13,9"; 
+const char distance_14_0[] PROGMEM = "14,0"; 
+const char distance_14_1[] PROGMEM = "14,1"; 
+const char distance_14_2[] PROGMEM = "14,2"; 
+const char distance_14_3[] PROGMEM = "14,3"; 
+const char distance_14_4[] PROGMEM = "14,4"; 
+const char distance_14_5[] PROGMEM = "14,5"; 
+const char distance_14_6[] PROGMEM = "14,6"; 
+const char distance_14_7[] PROGMEM = "14,7"; 
+const char distance_14_8[] PROGMEM = "14,8"; 
+const char distance_14_9[] PROGMEM = "14,9"; 
+const char distance_15_0[] PROGMEM = "15,0"; 
+const char distance_15_1[] PROGMEM = "15,1"; 
+const char distance_15_2[] PROGMEM = "15,2"; 
+const char distance_15_3[] PROGMEM = "15,3"; 
+const char distance_15_4[] PROGMEM = "15,4"; 
+const char distance_15_5[] PROGMEM = "15,5"; 
+const char distance_15_6[] PROGMEM = "15,6"; 
+const char distance_15_7[] PROGMEM = "15,7"; 
+const char distance_15_8[] PROGMEM = "15,8"; 
+const char distance_15_9[] PROGMEM = "15,9"; 
+const char distance_16_0[] PROGMEM = "16,0"; 
+const char distance_16_1[] PROGMEM = "16,1"; 
+const char distance_16_2[] PROGMEM = "16,2"; 
+const char distance_16_3[] PROGMEM = "16,3"; 
+const char distance_16_4[] PROGMEM = "16,4"; 
+const char distance_16_5[] PROGMEM = "16,5"; 
+const char distance_16_6[] PROGMEM = "16,6"; 
+const char distance_16_7[] PROGMEM = "16,7"; 
+const char distance_16_8[] PROGMEM = "16,8"; 
+const char distance_16_9[] PROGMEM = "16,9"; 
+const char distance_17_0[] PROGMEM = "17,0"; 
+const char distance_17_1[] PROGMEM = "17,1"; 
+const char distance_17_2[] PROGMEM = "17,2"; 
+const char distance_17_3[] PROGMEM = "17,3"; 
+const char distance_17_4[] PROGMEM = "17,4"; 
+const char distance_17_5[] PROGMEM = "17,5"; 
+const char distance_17_6[] PROGMEM = "17,6"; 
+const char distance_17_7[] PROGMEM = "17,7"; 
+const char distance_17_8[] PROGMEM = "17,8"; 
+const char distance_17_9[] PROGMEM = "17,9"; 
+const char distance_18_0[] PROGMEM = "18,0"; 
+const char distance_18_1[] PROGMEM = "18,1"; 
+const char distance_18_2[] PROGMEM = "18,2"; 
+const char distance_18_3[] PROGMEM = "18,3"; 
+const char distance_18_4[] PROGMEM = "18,4"; 
+const char distance_18_5[] PROGMEM = "18,5"; 
+const char distance_18_6[] PROGMEM = "18,6"; 
+const char distance_18_7[] PROGMEM = "18,7"; 
+const char distance_18_8[] PROGMEM = "18,8"; 
+const char distance_18_9[] PROGMEM = "18,9"; 
+const char distance_19_0[] PROGMEM = "19,0"; 
+const char distance_19_1[] PROGMEM = "19,1"; 
+const char distance_19_2[] PROGMEM = "19,2"; 
+const char distance_19_3[] PROGMEM = "19,3"; 
+const char distance_19_4[] PROGMEM = "19,4"; 
+const char distance_19_5[] PROGMEM = "19,5"; 
+const char distance_19_6[] PROGMEM = "19,6"; 
+const char distance_19_7[] PROGMEM = "19,7"; 
+const char distance_19_8[] PROGMEM = "19,8"; 
+const char distance_19_9[] PROGMEM = "19,9"; 
+const char distance_20_0[] PROGMEM = "20,0"; 
+const char distance_20_1[] PROGMEM = "20,1"; 
+const char distance_20_2[] PROGMEM = "20,2"; 
+const char distance_20_3[] PROGMEM = "20,3"; 
+const char distance_20_4[] PROGMEM = "20,4"; 
+const char distance_20_5[] PROGMEM = "20,5"; 
+const char distance_20_6[] PROGMEM = "20,6"; 
+const char distance_20_7[] PROGMEM = "20,7"; 
+const char distance_20_8[] PROGMEM = "20,8"; 
+const char distance_20_9[] PROGMEM = "20,9"; 
+const char distance_21_0[] PROGMEM = "21,0"; 
+const char distance_21_1[] PROGMEM = "21,1"; 
+const char distance_21_2[] PROGMEM = "21,2"; 
+const char distance_21_3[] PROGMEM = "21,3"; 
+const char distance_21_4[] PROGMEM = "21,4"; 
+const char distance_21_5[] PROGMEM = "21,5"; 
+const char distance_21_6[] PROGMEM = "21,6"; 
+const char distance_21_7[] PROGMEM = "21,7"; 
+const char distance_21_8[] PROGMEM = "21,8"; 
+const char distance_21_9[] PROGMEM = "21,9"; 
+const char distance_22_0[] PROGMEM = "22,0"; 
+const char distance_22_1[] PROGMEM = "22,1"; 
+const char distance_22_2[] PROGMEM = "22,2"; 
+const char distance_22_3[] PROGMEM = "22,3"; 
+const char distance_22_4[] PROGMEM = "22,4"; 
+const char distance_22_5[] PROGMEM = "22,5"; 
+const char distance_22_6[] PROGMEM = "22,6"; 
+const char distance_22_7[] PROGMEM = "22,7"; 
+const char distance_22_8[] PROGMEM = "22,8"; 
+const char distance_22_9[] PROGMEM = "22,9"; 
+const char distance_23_0[] PROGMEM = "23,0"; 
+const char distance_23_1[] PROGMEM = "23,1"; 
+const char distance_23_2[] PROGMEM = "23,2"; 
+const char distance_23_3[] PROGMEM = "23,3"; 
+const char distance_23_4[] PROGMEM = "23,4"; 
+const char distance_23_5[] PROGMEM = "23,5"; 
+const char distance_23_6[] PROGMEM = "23,6"; 
+const char distance_23_7[] PROGMEM = "23,7"; 
+const char distance_23_8[] PROGMEM = "23,8"; 
+const char distance_23_9[] PROGMEM = "23,9"; 
+const char distance_24_0[] PROGMEM = "24,0"; 
+const char distance_24_1[] PROGMEM = "24,1"; 
+const char distance_24_2[] PROGMEM = "24,2"; 
+const char distance_24_3[] PROGMEM = "24,3"; 
+const char distance_24_4[] PROGMEM = "24,4"; 
+const char distance_24_5[] PROGMEM = "24,5"; 
+const char distance_24_6[] PROGMEM = "24,6"; 
+const char distance_24_7[] PROGMEM = "24,7"; 
+const char distance_24_8[] PROGMEM = "24,8"; 
+const char distance_24_9[] PROGMEM = "24,9"; 
+const char distance_25_0[] PROGMEM = "25,0"; 
+const char distance_25_1[] PROGMEM = "25,1"; 
+const char distance_25_2[] PROGMEM = "25,2"; 
+const char distance_25_3[] PROGMEM = "25,3"; 
+const char distance_25_4[] PROGMEM = "25,4"; 
+const char distance_25_5[] PROGMEM = "25,5"; 
+const char distance_25_6[] PROGMEM = "25,6"; 
+const char distance_25_7[] PROGMEM = "25,7"; 
+const char distance_25_8[] PROGMEM = "25,8"; 
+const char distance_25_9[] PROGMEM = "25,9"; 
+const char distance_26_0[] PROGMEM = "26,0"; 
+const char distance_26_1[] PROGMEM = "26,1"; 
+const char distance_26_2[] PROGMEM = "26,2"; 
+const char distance_26_3[] PROGMEM = "26,3"; 
+const char distance_26_4[] PROGMEM = "26,4"; 
+const char distance_26_5[] PROGMEM = "26,5"; 
+const char distance_26_6[] PROGMEM = "26,6"; 
+const char distance_26_7[] PROGMEM = "26,7"; 
+const char distance_26_8[] PROGMEM = "26,8"; 
+const char distance_26_9[] PROGMEM = "26,9"; 
+const char distance_27_0[] PROGMEM = "27,0"; 
+const char distance_27_1[] PROGMEM = "27,1"; 
+const char distance_27_2[] PROGMEM = "27,2"; 
+const char distance_27_3[] PROGMEM = "27,3"; 
+const char distance_27_4[] PROGMEM = "27,4"; 
+const char distance_27_5[] PROGMEM = "27,5"; 
+const char distance_27_6[] PROGMEM = "27,6"; 
+const char distance_27_7[] PROGMEM = "27,7"; 
+const char distance_27_8[] PROGMEM = "27,8"; 
+const char distance_27_9[] PROGMEM = "27,9"; 
+const char distance_28_0[] PROGMEM = "28,0"; 
+const char distance_28_1[] PROGMEM = "28,1"; 
+const char distance_28_2[] PROGMEM = "28,2"; 
+const char distance_28_3[] PROGMEM = "28,3"; 
+const char distance_28_4[] PROGMEM = "28,4"; 
+const char distance_28_5[] PROGMEM = "28,5"; 
+const char distance_28_6[] PROGMEM = "28,6"; 
+const char distance_28_7[] PROGMEM = "28,7"; 
+const char distance_28_8[] PROGMEM = "28,8"; 
+const char distance_28_9[] PROGMEM = "28,9"; 
+const char distance_29_0[] PROGMEM = "29,0"; 
+const char distance_29_1[] PROGMEM = "29,1"; 
+const char distance_29_2[] PROGMEM = "29,2"; 
+const char distance_29_3[] PROGMEM = "29,3"; 
+const char distance_29_4[] PROGMEM = "29,4"; 
+const char distance_29_5[] PROGMEM = "29,5"; 
+const char distance_29_6[] PROGMEM = "29,6"; 
+const char distance_29_7[] PROGMEM = "29,7"; 
+const char distance_29_8[] PROGMEM = "29,8"; 
+const char distance_29_9[] PROGMEM = "29,9"; 
+const char distance_30_0[] PROGMEM = "30,0";
 
 // DISTANCE ARRAY REFERENCE
+#define DISTANCE_ARRAY_ENTRIES 301
+// NB array contains 301 entry 
+// address is unsigned int
 const char * const distance_table[] PROGMEM = { 
     distance_0_0,
     distance_0_1,
@@ -940,16 +945,112 @@ const char * const distance_table[] PROGMEM = {
     distance_29_7,
     distance_29_8,
     distance_29_9,
-    distance_30_0,
+    distance_30_0
 };
+
+// CYCLES' ARRAYS
+const char cycles_0_1[] PROGMEM = " 1"; 
+const char cycles_0_2[] PROGMEM = " 2"; 
+const char cycles_0_3[] PROGMEM = " 3"; 
+const char cycles_0_4[] PROGMEM = " 4"; 
+const char cycles_0_5[] PROGMEM = " 5"; 
+const char cycles_0_6[] PROGMEM = " 6"; 
+const char cycles_0_7[] PROGMEM = " 7"; 
+const char cycles_0_8[] PROGMEM = " 8"; 
+const char cycles_0_9[] PROGMEM = " 9"; 
+const char cycles_1_0[] PROGMEM = "10"; 
+
+// CYCLES ARRAY REFERENCE
+#define CYCLES_ARRAY_ENTRIES 10
+const char * const cycles_table[] PROGMEM = { 
+    cycles_0_1,
+    cycles_0_2,
+    cycles_0_3,
+    cycles_0_4,
+    cycles_0_5,
+    cycles_0_6,
+    cycles_0_7,
+    cycles_0_8,
+    cycles_0_9,
+    cycles_1_0
+};
+
+#define MAN_PROG_ARRAY_ENTRIES 2
+const char man_prog_0[] PROGMEM = "Man"; 
+const char man_prog_1[] PROGMEM = "Prg"; 
+
+// REFERENCE ARRAY
+const char * const man_prog_table[] PROGMEM = { 
+    man_prog_0,
+    man_prog_1
+};
+
+// Moving some elements of menuItem struct to program memory
+
+// ADDING ITEMS:
+// 1. ADD ARRAY and update TOTAL_MENU_ITEMS to array size - 1
+// 2. Add new menu array to menuItemProgMem at correct position as has defined i.e. END_POS_INDEX
+// 3. Add entry in menuItem struct
+
+
+#define TOTAL_MENU_ITEMS 9 // array base 0 e.g. number of elements - 1
+// TODO - GET RID OF ALL MAGIC NUMBERS
+const unsigned int menuController[5] PROGMEM =  {TOTAL_MENU_ITEMS - 1,8, 9, 5, 0};  // x y asterisk x offset, asterisk y offset
+const unsigned int menuStartPause[5] PROGMEM =  {1,7,11, 5, 2}; // 2 array entries - 1 = 1
+const unsigned int menuUpDown[5] PROGMEM =      {1,28,11,8, 2};// same
+const unsigned int menuManProg[5] PROGMEM =     {MAN_PROG_ARRAY_ENTRIES - 1,55,9, 10, 0}; // 2 array entries // 55, 9, 10, 0};
+const unsigned int menuCycles[5] PROGMEM =      {CYCLES_ARRAY_ENTRIES - 1,97,9, 10, 0};
+const unsigned int menuUpSpeed[5] PROGMEM =     {SPEED_ARRAY_ENTRIES - 1,12, 19, 10, 0};
+const unsigned int menuDownSpeed[5] PROGMEM =   {SPEED_ARRAY_ENTRIES - 1,12,29, 10, 0}; 
+const unsigned int menuEndPos[5] PROGMEM =      {DISTANCE_ARRAY_ENTRIES - 1,12,39, 10  , 0}; // END_POS_INDEX 5
+const unsigned int menuStartPos[5] PROGMEM =    {DISTANCE_ARRAY_ENTRIES - 1,12,49, 10, 0}; // START_POS_INDEX 6
+const unsigned int menuPos[5] PROGMEM =    {301,10,10, 8, 0};
+
+
+// FORGOT TO ADD HERE
+const uint16_t * const menuItemProgMem[] PROGMEM = {   
+                                                    menuController, 
+                                                    menuStartPause,
+                                                    menuUpDown,
+                                                    menuManProg,                                                                                                           
+                                                    menuCycles,
+                                                    menuUpSpeed,                                                       
+                                                    menuDownSpeed,                                                    
+                                                    menuEndPos,
+                                                    menuStartPos
+                                                };
 
 // INDEXES
 #define MENU_TRACKER_IDX 0
 #define START_STOP_INDEX 1
 #define UP_DOWN_INDEX 2
-#define SPEED_INDEX 3
+#define MAN_PROG_INDEX 3
+#define CYCLES_INDEX 4
+#define UP_SPEED_INDEX 5
+#define DOWN_SPEED_INDEX 6
+#define END_POS_INDEX 7
+#define START_POS_INDEX 8
+#define POS_INDEX 9
 
-// LCD POSITIONING
+// SELECTED ASTERISK OFFSET INDEXES
+#define MENU_TRACKER_IDX 0
+#define START_STOP_INDEX 1
+#define UP_DOWN_INDEX 2
+#define MAN_PROG_INDEX 3
+#define CYCLES_INDEX 4
+#define UP_SPEED_INDEX 5
+#define DOWN_SPEED_INDEX 6
+#define END_POS_INDEX 7
+#define START_POS_INDEX 8
+#define POS_INDEX 9
+
+#define ARR_MAX_INDEX 0
+#define X_POS_INDEX 1
+#define Y_POS_INDEX 2
+#define ASTERISK_X_OFFSET_INDEX 3
+#define ASTERISK_Y_OFFSET_INDEX 4
+
+// LCD POSITIONING INCLUDING "SELECTED" *
 // MENU ASTERISK SELECTED TRACKER
 #define LCD_MENU_X_POS 10 
 #define LCD_MENU_Y_POS 10
@@ -970,5 +1071,12 @@ const char * const distance_table[] PROGMEM = {
 #define DOWN_SYMBOL 0x23f7
 
 // STRINGS
-#define SPEED_RATE "cm/m"
+#define SPEED_RATE "cm/min"
+#define DISTANCE_UNIT "cm"
+#define NOT_CALIBRATED "??.?"
 #define SPEED_RATE_OFFSET 42
+
+// STATE MACHINE DEFINES
+#define PAUSED_INDEX 0
+#define UP_INDEX 0
+#define STEP_COUNTER_RESET 5
