@@ -7,33 +7,167 @@
     The purpose of this example is to highlight how the EEPROM object can be used just like an array.
 
     // NB Run on UNO
+
+    Steps
+
+    
 ***/
 
 #include <Arduino.h>
 #include <EEPROM.h>
 
-// 4. Absolute step count
-unsigned int uiAbsoluteStepCount = 0;
+// CRC ADDRESSES
+#define CONFIG_DATA_EEPROM_START 4
+#define CONFIG_DATA_EEPROM_END 20
+#define SAVED_CRC_START 0
 
-void setup() {
+// EEPROM stored struct
+struct LCDState {
+  int menuUpDown_EncoderValue;
+  int menuManProg_EncoderValue;                                                                                                           
+  int menuCycles_EncoderValue;
+  int menuUpSpeed_EncoderValue;                                                       
+  int menuDownSpeed_EncoderValue;                                                    
+  int menuEndPos_EncoderValue;
+  int menuStartPos_EncoderValue;
+  unsigned long AbsoluteStepCount;    
+};
 
-  //Start serial
-  Serial.begin(9600);
+LCDState lcd_state;
+
+static int count = 0;
+
+void init_struct(void)
+{
+  lcd_state.menuUpDown_EncoderValue = 0;
+  lcd_state.menuManProg_EncoderValue = 0;
+  lcd_state.menuCycles_EncoderValue = 0;
+  lcd_state.menuUpSpeed_EncoderValue = 0;
+  lcd_state.menuDownSpeed_EncoderValue = 0;
+  lcd_state.menuEndPos_EncoderValue = 0;
+  lcd_state.menuStartPos_EncoderValue = 0;
+  lcd_state.AbsoluteStepCount = 0; 
 }
 
+/*****************************
+ * 
+ * Print CRC information
+ * 1. The computed CRC on data
+ * 2. The saved computation
+ *****************************/
 void CRC_info()
 {
   //Print length of data to run CRC on.
-  Serial.print("EEPROM length: ");
-  Serial.println(EEPROM.length());
+  // Serial.print("EEPROM length: "); // we are running on a section - 4 to 20
+  // Serial.println(EEPROM.length());
 
-  //Print the result of calling eeprom_crc()
-  Serial.print("CRC32 of EEPROM data: 0x");
+  Serial.print("Saved data CRC32 (address 0 to 3): ");
+  Serial.println(eeprom_get_saved_crc(), HEX);    
+  Serial.print("Computed data CRC32 (address 4 to 20): ");
   Serial.println(eeprom_crc(), HEX);
-  Serial.print("\n\nDone!");  
+  Serial.print("Saved count: ");
+  Serial.println(lcd_state.AbsoluteStepCount);  
+  Serial.print("***************************\n");  
 }
 
- void saveConfigToEEPROM(int count)
+/********************************
+ * 
+ * eeprom_crc()
+ * 
+ * Calculate CRC
+ *******************************/
+unsigned long eeprom_crc(void) {
+
+  const unsigned long crc_table[16] = {
+    0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
+    0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
+    0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
+    0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
+  };
+
+  unsigned long crc = ~0L;
+  // Compute CRC from CONFIG_DATA_EEPROM_START (4) up to and including CONFIG_DATA_EEPROM_END (20)
+  // This accounts for the 7 integers (2 bytes each and 1 long (4 bytes)
+  for (int index = CONFIG_DATA_EEPROM_START; index <= CONFIG_DATA_EEPROM_END; ++index) {
+    crc = crc_table[(crc ^ EEPROM[index]) & 0x0f] ^ (crc >> 4);
+    crc = crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f] ^ (crc >> 4);
+    crc = ~crc;
+  }  
+  return crc;
+}
+
+/**************************************
+ * 
+ * eeprom_get_saved_crc()
+ * 
+ * Get saved CRC32, starting from address
+ * 0.
+ *************************************/
+unsigned long eeprom_get_saved_crc(void) {
+  unsigned long ulSavedCRC;
+  EEPROM.get(SAVED_CRC_START, ulSavedCRC); 
+  return ulSavedCRC;
+}
+
+/****************************
+ * 
+ * readConfigFromEEPROM
+ * 
+ * Read LCD State from EEPROM
+ * 
+ ****************************/
+void readConfigFromEEPROM()
+{
+  // LCD struct
+  LCDState lcd_state;
+
+  // get state - EEPROM library manages variable addresses
+  EEPROM.get(CONFIG_DATA_EEPROM_START, lcd_state);  
+  // Compute Saved Data CRC
+  unsigned long data_crc = eeprom_crc();
+  unsigned long saved_crc = eeprom_get_saved_crc();
+  if(data_crc != saved_crc)
+  {
+     // 1. Don't read struct data
+     // 2. Write empty struct data - EEPROM will be reinitialised.
+     // 3. Continue from here
+     
+     Serial.println("Computed and stored CRCs do not match - initialising EEPROM");
+     init_struct();
+     writeConfigToEEPROM();
+     
+    data_crc = eeprom_crc();
+    saved_crc = eeprom_get_saved_crc();   
+    Serial.print("New saved data CRC32: ");  
+    Serial.println(data_crc, HEX);
+    Serial.print("New computed data: ");  
+    Serial.println(saved_crc, HEX); 
+    //Serial.print("Saved count: ");
+    //Serial.println(lcd_state.AbsoluteStepCount);
+    Serial.print("***************************\n"); 
+  }
+  else
+  {
+    Serial.print("Saved data CRC32: ");  
+    Serial.println(data_crc, HEX);
+    Serial.print("Computed data: ");  
+    Serial.println(saved_crc, HEX); 
+    Serial.print("Saved count: ");
+    Serial.println(lcd_state.AbsoluteStepCount);
+    Serial.print("***************************\n");  
+  }
+  
+  /*
+  menuItem[MAN_PROG_INDEX].encoderValue = lcd_state.menuManProg_EncoderValue;
+  menuItem[CYCLES_INDEX].encoderValue = lcd_state.menuCycles_EncoderValue;
+  menuItem[UP_SPEED_INDEX].encoderValue = lcd_state.menuUpSpeed_EncoderValue;
+  menuItem[DOWN_SPEED_INDEX].encoderValue = lcd_state.menuDownSpeed_EncoderValue;
+  menuItem[END_POS_INDEX].encoderValue = lcd_state.menuEndPos_EncoderValue;
+  menuItem[START_POS_INDEX].encoderValue = lcd_state.menuStartPos_EncoderValue; 
+  */
+}
+
+void writeConfigToEEPROM()
  {
   // Note we are saving and retrieving the lastEncoderValue for every menu item
   // except index 0 (Menu Controller) and index 1 (start/stop) as we will always
@@ -48,19 +182,10 @@ void CRC_info()
   // 6. Down speed         uint 16
   // 7. Up pos             uint 16
   // 8. Down pos           uint 16
-   struct LCDState {
-    int menuUpDown_EncoderValue;
-    int menuManProg_EncoderValue;                                                                                                           
-    int menuCycles_EncoderValue;
-    int menuUpSpeed_EncoderValue;                                                       
-    int menuDownSpeed_EncoderValue;                                                    
-    int menuEndPos_EncoderValue;
-    int menuStartPos_EncoderValue;
-    int AbsoluteStepCount;    
-  };
-
   // Populate struct objects
-  LCDState lcd_state;
+  lcd_state.AbsoluteStepCount++;
+  int count = lcd_state.AbsoluteStepCount;
+
   lcd_state.menuUpDown_EncoderValue = count;
   lcd_state.menuManProg_EncoderValue = count;
   lcd_state.menuCycles_EncoderValue = count;
@@ -68,86 +193,39 @@ void CRC_info()
   lcd_state.menuDownSpeed_EncoderValue = count;
   lcd_state.menuEndPos_EncoderValue = count;
   lcd_state.menuStartPos_EncoderValue = count;
-  lcd_state.AbsoluteStepCount = count;
+  
 
-  // storage address
-  int eeAddress = 0;
   // Store state - EEPROM library manages variable addresses
-  EEPROM.put(eeAddress, lcd_state); 
+  EEPROM.put(CONFIG_DATA_EEPROM_START, lcd_state); 
+
+  // Compute the CRC
+  unsigned long crc = eeprom_crc(); // CRC_info();
+  // Save
+  EEPROM.put(SAVED_CRC_START, crc);   
 }
 
-/****************************
- * 
- * readConfigFromEEPROM
- * 
- * Read LCD State from EEPROM
- * 
- ****************************/
-void readConfigFromEEPROM()
-{
-  struct LCDState {
-    int menuUpDown_EncoderValue;
-    int menuManProg_EncoderValue;                                                                                                           
-    int menuCycles_EncoderValue;
-    int menuUpSpeed_EncoderValue;                                                       
-    int menuDownSpeed_EncoderValue;                                                    
-    int menuEndPos_EncoderValue;
-    int menuStartPos_EncoderValue;
-    int AbsoluteStepCount;    
-  };
-
-  // LCD struct
-  LCDState lcd_state;
-
-  // storage address
-  int eeAddress = 0;
-  // get state - EEPROM library manages variable addresses
-  EEPROM.get(eeAddress, lcd_state);  
-
-  // retrieve absolute position and populate menu struct objects
-  Serial.println("lcd_state.menuUpDown_EncoderValue");
-  Serial.println(lcd_state.menuUpDown_EncoderValue);
-  /*
-  menuItem[MAN_PROG_INDEX].encoderValue = lcd_state.menuManProg_EncoderValue;
-  menuItem[CYCLES_INDEX].encoderValue = lcd_state.menuCycles_EncoderValue;
-  menuItem[UP_SPEED_INDEX].encoderValue = lcd_state.menuUpSpeed_EncoderValue;
-  menuItem[DOWN_SPEED_INDEX].encoderValue = lcd_state.menuDownSpeed_EncoderValue;
-  menuItem[END_POS_INDEX].encoderValue = lcd_state.menuEndPos_EncoderValue;
-  menuItem[START_POS_INDEX].encoderValue = lcd_state.menuStartPos_EncoderValue; 
-  */
-  uiAbsoluteStepCount = lcd_state.AbsoluteStepCount; 
-  // EEPROM library initialisation bug.
-  // uiAbsoluteStepCount is 65535 when we expect 0
-  Serial.println("uiAbsoluteStepCount");
-  Serial.println(uiAbsoluteStepCount);
+void setup() {
+  //Start serial
+  Serial.begin(9600);
+  // CRC
+  readConfigFromEEPROM();
 }
 
-void loop() {
-  static int iCount = 1;
+void loop() {  
   /* Empty loop */
-  saveConfigToEEPROM(iCount);
+  writeConfigToEEPROM();
   delay(2000);
   CRC_info();
-  delay(2000);
-  readConfigFromEEPROM();
-  delay(2000);
-}
-
-unsigned long eeprom_crc(void) {
-
-  const unsigned long crc_table[16] = {
-    0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
-    0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
-    0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
-    0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
-  };
-
-  unsigned long crc = ~0L;
-
-  for (int index = 0 ; index < EEPROM.length()  ; ++index) {
-    crc = crc_table[(crc ^ EEPROM[index]) & 0x0f] ^ (crc >> 4);
-    crc = crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f] ^ (crc >> 4);
-    crc = ~crc;
+  if(lcd_state.AbsoluteStepCount == 25) {
+    // corrupt crc
+    Serial.println("Corrupting EEPROM");
+    Serial.println("EEPROM.put(CONFIG_DATA_EEPROM_START, 0x00);");    
+    EEPROM.put(CONFIG_DATA_EEPROM_START, 0x00);
+    // CRC_info(); 
+    readConfigFromEEPROM();
   }
-  return crc;
+  delay(2000);
+
+
+
 }
