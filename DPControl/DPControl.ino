@@ -7,16 +7,11 @@
 #include <EEPROM.h>
 
 /*******************
- * DP Control v0.02
+ * DP Control v0.03
+ * Added programmed mode
  * ROADMAP
- * 1. Added Absolute Position 
- * 2. Saving current configuration to memory
-
- * Known bugs
- * 1. Unit needs to be started and stopped (play/pause cycle) and
- * restarted before absolute position can be taken. This seems
- * to be related to a bug in the EEPROM library.
- * 
+ * Add simple CRC
+ * Add splash screen
  ******************/
  
 // NB ADD U8g2lib and TimerOne via Tools > Include libraries > Manage libraries
@@ -181,7 +176,7 @@ void render(void) {
             y_pos = getMenuItemProgMemVal(START_STOP_INDEX, Y_POS_INDEX);
             // Add one in case encoder value is 3 i.e. encoder was turned but only 3 was registered
             // instead of the expected 4
-            if((menuItem[i].encoderValue / ENCODER_STEP) == 0)
+            if((menuItem[START_STOP_INDEX].encoderValue / ENCODER_STEP) == STOP_INDEX)
             {
               // we are paused
               u8g2.setFont(u8g2_font_unifont_t_symbols);
@@ -201,7 +196,7 @@ void render(void) {
       case UP_DOWN_INDEX: 
             x_pos = getMenuItemProgMemVal(UP_DOWN_INDEX, X_POS_INDEX);
             y_pos = getMenuItemProgMemVal(UP_DOWN_INDEX, Y_POS_INDEX);
-            if((menuItem[i].encoderValue / ENCODER_STEP) == 0)
+            if((menuItem[UP_DOWN_INDEX].encoderValue / ENCODER_STEP) == UP_INDEX)
             {
               // we are going up
               u8g2.setFont(u8g2_font_unifont_t_symbols);
@@ -345,30 +340,15 @@ void render(void) {
             // 10. Print icond
             u8g2.drawGlyph(ICON_X_POS, y_pos + ICON_Y_OFFSET, UP_SYMBOL);                      
             break;  
-                     
       default:
         // do nothing
-        break;  
-
-/*
-      // CASES TO ADD
-      case WRITE_TO_EEPROM:
-        break;
-
-      case READ_FROM_EEPROM:
-        break;
-
-      case SAVED_ADDRESS:
-        break;
-
-      case ACTION_OK:
-        break;
-*/          
+        break;           
     }
 
     // EXTRAS
+    // PRINT SELECTION ASTERISK
     // if this is the current active item, print an asterisk to denote state 
-    if(i == (menuItem[0].encoderValue / ENCODER_STEP))
+    if(i == (menuItem[MENU_TRACKER_IDX].encoderValue / ENCODER_STEP))
     { 
       x_pos = getMenuItemProgMemVal(i, X_POS_INDEX);
       y_pos = getMenuItemProgMemVal(i, Y_POS_INDEX);
@@ -382,23 +362,20 @@ void render(void) {
     // Print absolute location
     // 200 steps - 1.8mm
     // 111.111 steps = 1mm
-    int iCurrentPos = uiAbsoluteStepCount / 112; // TODO FIX CALCULATION
+    // int iCurrentPos = uiAbsoluteStepCount / 159; Note 159 is now defined as STEPS_PER_MILLIMITER in LCDData.h
+    int iCurrentPos = GetPositionIndex();
     u8g2.setFont(u8g2_font_pcsenior_8f);    
     if(uiAbsoluteStepCount == 0) // we don't know where we are, print question marks
     {
-      //strcpy_P(buf, (char*)pgm_read_word(&cycles_table[idx]));
-      // sprintf(buf, "%07u", uiAbsoluteStepCount);
-      // hash defines
-      u8g2.drawStr(12, 59, NOT_CALIBRATED);
-      //u8g2.drawStr(44, 59, buf);        
+      u8g2.drawStr(12, 59, NOT_CALIBRATED);       
     }
     else
     {
       strcpy_P(buf, (char*)pgm_read_word(&distance_table[iCurrentPos]));      
       u8g2.drawStr(12, 59, buf);           
     }
-    // print unit
-    u8g2.drawStr(12 + SPEED_RATE_OFFSET, 59, DISTANCE_UNIT);   
+    // print cm unit
+    u8g2.drawStr(12 + SPEED_RATE_OFFSET, 59, DISTANCE_UNIT);    
   } 
 }
 
@@ -443,7 +420,7 @@ void adjustSpeed()
 {
   unsigned int idx;
   // Which way are we going?
-  if((menuItem[UP_DOWN_INDEX].encoderValue / ENCODER_STEP) == 0)
+  if((menuItem[UP_DOWN_INDEX].encoderValue / ENCODER_STEP) == UP_INDEX)
   {
     // we are going up, read speed from  up speed register
     idx = (menuItem[UP_SPEED_INDEX].encoderValue / ENCODER_STEP); 
@@ -555,10 +532,10 @@ void updateEncoder()
   int iMit = GetMenuIndexTrack(); // if iMit equals 0, we are switching, otherwise, changing
   // iAbsMax - We add (ENCODER_STEP / 2) in case count is offset e.g. by 2 resulting in 2, 6, 10, 12, ...
   // get value from menuItemProgMem
-  int arrMax = getMenuItemProgMemVal(iMit, ARR_MAX_INDEX);
+  int arrMax = getArrMaxValue(iMit); // getMenuItemProgMemVal(iMit, ARR_MAX_INDEX);
   // int iAbsMax = (ENCODER_STEP * arrMax) + (ENCODER_STEP / 2);
   int iAbsMax = (ENCODER_STEP * arrMax);
-  int iAbsMin = (iMit == 0 ? ENCODER_STEP : 0); // start at 4 for menu tracker, 0 otherwise
+  int iAbsMin = getArrMinValue(iMit); // (iMit == 0 ? ENCODER_STEP : 0); // start at 4 for menu tracker, 0 otherwise
   int MSB = digitalRead(ENCODER_PIN_1); //MSB = most significant bit
   int LSB = digitalRead(ENCODER_PIN_2); //LSB = least significant bit
   
@@ -583,11 +560,7 @@ void updateEncoder()
   menuItem[iMit].lastEncoded = encoded;
   // update index only if boolean flag (cheaper) has changed
   // we are going to update this in the menu renderer
-
-  // TODO IMPLEMENT STATE MACHINE AT THIS POINT E.G.
-  // updateStateMachine();
-  // 1. if we transitioned from running to stopped, save current location
-  
+ 
   if(menuItem[iMit].lastEncoderValue != menuItem[iMit].encoderValue) 
   {
     // TODO implement in state machine later, for now, let's get it working
@@ -625,6 +598,70 @@ void updateEncoder()
   }
 }
 
+/*************************************************
+ * getArrMaxValue()
+ * 
+ * @params iMit The menu index being changed
+ * 
+ * @output Maximum array index i.e. maximum
+ * value for menu item.
+ * 
+ * @notes every menu item will have value 
+ * retrived with function getMenuItemProgMemVal()
+ * except START_POS_INDEX which max value cannot 
+ * be greater than END_POS_INDEX
+ * 
+ *************************************************/
+int getArrMaxValue(int iMit)
+{
+  int iAbsMax;
+  switch(iMit)
+  {
+    case START_POS_INDEX:
+      iAbsMax = menuItem[END_POS_INDEX].encoderValue / 4;
+      break;
+    default:
+      iAbsMax = getMenuItemProgMemVal(iMit, ARR_MAX_INDEX);
+      break; 
+  }
+  return iAbsMax;
+}
+
+/*************************************************
+ * getArrMinValue()
+ * 
+ * @params iMit The menu index being changed
+ * 
+ * @output Minimum array index i.e. minimum
+ * value for menu item.
+ * 
+ * @notes every menu item will have a minimum of 0,
+ * exception are:
+ * 1. MENU_TRACKER_IDX
+ * This will start at position 1 (START_STOP_INDEX)
+ * because the menu tracker itself does not appear in 
+ * the LCD. 
+ * 2. END_POS_INDEX
+ * This minimum cannot be less than START_POS_INDEX
+ * 
+ *************************************************/
+int getArrMinValue(int iMit)
+{
+  int iAbsMin = 0;
+  switch(iMit)
+  {
+    case MENU_TRACKER_IDX:
+        iAbsMin = ENCODER_STEP; // start at 4 (the rotary encoder average value for one step)
+        break;
+    case END_POS_INDEX:
+      iAbsMin = menuItem[START_POS_INDEX].encoderValue;
+      break;
+    default:
+      iAbsMin = 0;
+      break; 
+  }
+  return iAbsMin;
+}
 /**************************************************
  * 
  * GetPositionIndex()
@@ -632,61 +669,94 @@ void updateEncoder()
  * with top and bottom possition indexes.
  * 
  *************************************************/
-int GetPositionIndex(unsigned int iAbsStepCount)
+int GetPositionIndex()
 {
-  return 1;
+  return uiAbsoluteStepCount / STEPS_PER_MILLIMITER;
 }
 /*************************************
  * 
- * updateStateMachine()
+ * updateProgMode()
  * 
- * For lack of a better name
- * 
- * Keep track of what has changed
+ * If we are running in programmed mode
+ * keep track of changes
  * 
  *************************************/
- void updateStateMachine()
+ void updateProgMode()
  {
     // Things we need to check
-    // 1. Are more moving?
-    if(menuItem[START_STOP_INDEX].encoderValue == PAUSED_INDEX)
+    // 1. Do we know where we are?
+    if(uiAbsoluteStepCount == 0)
+    { // no, carry on doing what you were doing
+      return; 
+    }    
+    // 2. Are more moving?
+    if(menuItem[START_STOP_INDEX].encoderValue == STOP_INDEX)
     { // we are not, no action required
       return; 
     }
-    // 2. Are we in programmed mode?
+    // 3. Are we in programmed mode?
     if(menuItem[MAN_PROG_INDEX].encoderValue == MANUAL_INDEX)
     { // we are not, no action required
       return; 
     }
-    // 3. We go this far, so we are moving and we are in programmed mode, get the indexes
+    // 3. We got this far, so we are moving, we know where we are and we are in programmed mode, get location the indexes
     int endIdx = (menuItem[END_POS_INDEX].encoderValue / ENCODER_STEP);
     int startIdx = (menuItem[START_POS_INDEX].encoderValue / ENCODER_STEP);
-    int currIdx = GetPositionIndex(uiAbsoluteStepCount);
+    int currIdx = GetPositionIndex();
+    // 4. Is there a min man range greater than 0 to cover?
     if(endIdx == startIdx)
-    {
-      // TODO decide what to do
+    { // No, don't do anything
+      return;
     }
+    // 4. Are we at the top?
     if(currIdx == endIdx)
-    {
-      // TODO decide what to do
-      // 1. What direction are we travelling?
-      // If we are travelling up, reverse direction, decrease counter, if we are on 1, stop and return to manual mode
+    { // Yes. Have we reached the top end travelling up?
+      if((menuItem[UP_DOWN_INDEX].encoderValue / ENCODER_STEP) == UP_INDEX)
+      { // Yes. Have we got any cycles left to run?
+        if(menuItem[CYCLES_INDEX].encoderValue < ENCODER_STEP)
+        { // No, 1. stop
+          menuItem[START_STOP_INDEX].encoderValue = STOP_INDEX;
+          // 2. Return to manual mode
+          menuItem[MAN_PROG_INDEX].encoderValue = MANUAL_INDEX;       
+          // 3. We transitioned from play to pause, store configuration
+          saveConfigToEEPROM();          
+        }
+        else
+        { // Yes, decrement the counter by 4 and...
+          menuItem[CYCLES_INDEX].encoderValue -= ENCODER_STEP;
+          //  inverse direction i.e. we are at index 0 (up travel) so we add 4 (DOWN_INDEX 1 * ENCODER_STEP 4) (down travel)
+          menuItem[UP_DOWN_INDEX].encoderValue = DOWN_INDEX * ENCODER_STEP;
+          // adjustSpeed()
+          adjustSpeed();           
+        }
+      }
       // if we are travelling down, no action required
     }
+    // 5. Are we at the bottom?
     if(currIdx == startIdx)
-    {
-      // 1. What direction are we travelling?
-      // If we are travelling down, reverse direction, decrease counter, if we are on 1, stop and return to manual mode
-      // If we are travelling up, no action required.
-    }    
-    /*
-          TODO implement limits logic
-          Maximum for lower pos is top pos
-          Minimum for top pos is lower pos
-
-     
-     */
-  
+    { // Yes. Have we reached the bottom travelling down?
+      if((menuItem[UP_DOWN_INDEX].encoderValue / ENCODER_STEP) == DOWN_INDEX)
+      { // Yes. Have we got any cycles left to run?
+        if(menuItem[CYCLES_INDEX].encoderValue < ENCODER_STEP)
+        { // No, 1. stop
+          menuItem[START_STOP_INDEX].encoderValue = STOP_INDEX;
+          // TODO flag or run saveConfigToEEPROM()
+          // 2. Return to manual mode
+          menuItem[MAN_PROG_INDEX].encoderValue = MANUAL_INDEX; 
+          // 3. We transitioned from play to pause, store configuration
+          saveConfigToEEPROM();                
+        }
+        else
+        { // Yes, decrement the counter by 4 and...
+          menuItem[CYCLES_INDEX].encoderValue -= ENCODER_STEP;
+          //  inverse direction i.e. set index to 0 (UP_INDEX)
+          menuItem[UP_DOWN_INDEX].encoderValue = UP_INDEX;
+          // adjustSpeed()
+          adjustSpeed(); 
+        }        
+      }   
+    }
+    // If we are travelling up, no action required.  
  }
  
 /**************************************
@@ -770,7 +840,9 @@ void loop(void) {
     render(); 
     // There is a 50ms debounce delay in pushedButton() 
     // so we are checking about twenty times per second
-    checkTopBottomLimits();  
+    checkTopBottomLimits();
+    // Update programmed mode
+    updateProgMode();  
   } while ( u8g2.nextPage() );
   // delay(50);
 }
@@ -784,7 +856,7 @@ void loop(void) {
  {
     // What is the current state of counter?
     // 1. If we are not moving, it does not matter
-    if((menuItem[START_STOP_INDEX].encoderValue / ENCODER_STEP) == PAUSED_INDEX)
+    if((menuItem[START_STOP_INDEX].encoderValue / ENCODER_STEP) == STOP_INDEX)
     {
       return;
     }

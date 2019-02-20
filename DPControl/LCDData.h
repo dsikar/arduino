@@ -976,8 +976,8 @@ const char * const cycles_table[] PROGMEM = {
 };
 
 #define MAN_PROG_ARRAY_ENTRIES 2
-const char man_prog_0[] PROGMEM = "Man"; 
-const char man_prog_1[] PROGMEM = "Prg"; 
+const char man_prog_0[] PROGMEM = "Manual"; 
+const char man_prog_1[] PROGMEM = "Prog"; 
 
 // REFERENCE ARRAY
 const char * const man_prog_table[] PROGMEM = { 
@@ -999,7 +999,7 @@ const unsigned int menuController[5] PROGMEM =  {TOTAL_MENU_ITEMS - 1,8, 9, 5, 0
 const unsigned int menuStartPause[5] PROGMEM =  {1,7,11, 5, 2}; // 2 array entries - 1 = 1
 const unsigned int menuUpDown[5] PROGMEM =      {1,28,11,8, 2};// same
 const unsigned int menuManProg[5] PROGMEM =     {MAN_PROG_ARRAY_ENTRIES - 1,55,9, 10, 0}; // 2 array entries // 55, 9, 10, 0};
-const unsigned int menuCycles[5] PROGMEM =      {CYCLES_ARRAY_ENTRIES - 1,97,9, 10, 0};
+const unsigned int menuCycles[5] PROGMEM =      {CYCLES_ARRAY_ENTRIES - 1,113,9, 10, 0};
 const unsigned int menuUpSpeed[5] PROGMEM =     {SPEED_ARRAY_ENTRIES - 1,12, 19, 10, 0};
 const unsigned int menuDownSpeed[5] PROGMEM =   {SPEED_ARRAY_ENTRIES - 1,12,29, 10, 0}; 
 const unsigned int menuEndPos[5] PROGMEM =      {DISTANCE_ARRAY_ENTRIES - 1,12,39, 10  , 0}; // END_POS_INDEX 5
@@ -1077,15 +1077,22 @@ const uint16_t * const menuItemProgMem[] PROGMEM = {
 #define SPEED_RATE_OFFSET 42
 
 // STATE MACHINE DEFINES
-#define PAUSED_INDEX 0
+#define STOP_INDEX 0
 #define PLAY_INDEX 1
 #define UP_INDEX 0
 #define DOWN_INDEX 1
 #define MANUAL_INDEX 0
 #define PROG_INDEX 1
 #define STEP_COUNTER_RESET 5
+// STEPS PER MILLIMITER
+#define STEPS_PER_MILLIMITER 159
 
 // ICON POSITIONS
-#define ICON_X_POS 109
+#define ICON_X_POS 106
 #define ICON_Y_OFFSET 2
 #define ACRONYM_OFFSET 7
+
+// CRC ADDRESSES
+#define CONFIG_DATA_EEPROM_START 4
+#define CONFIG_DATA_EEPROM_END 20
+#define SAVED_CRC_START 0
