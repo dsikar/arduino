@@ -80,11 +80,18 @@ unsigned long eeprom_crc(void) {
 
   const unsigned long crc_table[16] = {
     0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
-    0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
-    0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
-    0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
+    0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c//,
+    //0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
+    //0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
   };
 
+/*
+
+ 11101101101110001000001100100
+111011011011100010000011001000
+100110110110010011000010101100
+ 
+ */
   unsigned long crc = ~0L;
   // Compute CRC from CONFIG_DATA_EEPROM_START (4) up to and including CONFIG_DATA_EEPROM_END (20)
   // This accounts for the 7 integers (2 bytes each and 1 long (4 bytes)
@@ -216,7 +223,7 @@ void loop() {
   writeConfigToEEPROM();
   delay(2000);
   CRC_info();
-  if(lcd_state.AbsoluteStepCount == 25) {
+  if(lcd_state.AbsoluteStepCount == 5) {
     // corrupt crc
     Serial.println("Corrupting EEPROM");
     Serial.println("EEPROM.put(CONFIG_DATA_EEPROM_START, 0x00);");    
