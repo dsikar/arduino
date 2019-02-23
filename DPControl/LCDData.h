@@ -1092,7 +1092,9 @@ const uint16_t * const menuItemProgMem[] PROGMEM = {
 #define ICON_Y_OFFSET 2
 #define ACRONYM_OFFSET 7
 
+// SPLASH SCREEN
+#define SPLASH_SCREEN_DELAY 2000
+
 // CRC ADDRESSES
-#define CONFIG_DATA_EEPROM_START 4
-#define CONFIG_DATA_EEPROM_END 20
-#define SAVED_CRC_START 0
+#define DATA_EEPROM_OFFSET 0
+#define COPY_EEPROM_OFFSET 18 // 7 integers (14 bytes) 1 unsigned long (4 bytes)

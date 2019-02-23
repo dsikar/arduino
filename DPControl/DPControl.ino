@@ -35,6 +35,7 @@ struct MenuItem
   volatile int lastEncoderValue;      
 };
 
+// Menu object
 MenuItem menuItem[TOTAL_MENU_ITEMS] = {{4,4,4},  // LCD_MENU_X_POS 10 LCD_MENU_Y_POS 10 // OUR ASTERISK SELECTED TRACKER 
                        {0,0,0}, // on off LCD_START_STOP_X_POS 9 LCD_START_STOP_Y_POS 19
                        {0,0,0}, // up down  LCD_UP_DOWN_X_POS 30 LCD_UP_DOWN_Y_POS 19
@@ -45,7 +46,10 @@ MenuItem menuItem[TOTAL_MENU_ITEMS] = {{4,4,4},  // LCD_MENU_X_POS 10 LCD_MENU_Y
                        {0,0,0}, // MAN_PROG_INDEX
                        {0,0,0}}; // CYCLES_INDEX               
 
-// state machine variables
+/////////////////////////////
+// STATE MACHINE VARIABLES //
+/////////////////////////////
+
 // 1. Track if speed update is required
 bool bUpdateSpeed;
 // 2. Track if rotary encoder button 
@@ -63,7 +67,6 @@ unsigned int uiAbsoluteStepCount = 0;
  * Save LCD State to EEPROM
  * 
  *************************/
-
  void saveConfigToEEPROM()
  {
   // Note we are saving and retrieving the lastEncoderValue for every menu item
@@ -101,10 +104,11 @@ unsigned int uiAbsoluteStepCount = 0;
   lcd_state.menuStartPos_EncoderValue = menuItem[START_POS_INDEX].encoderValue;
   lcd_state.AbsoluteStepCount = uiAbsoluteStepCount;
 
-  // storage address
-  int eeAddress = 0;
   // Store state - EEPROM library manages variable addresses
-  EEPROM.put(eeAddress, lcd_state);  
+  EEPROM.put(DATA_EEPROM_OFFSET, lcd_state);  
+
+  // Store backup copy
+  EEPROM.put(COPY_EEPROM_OFFSET, lcd_state);  
 }
 
 /****************************
@@ -116,6 +120,7 @@ unsigned int uiAbsoluteStepCount = 0;
  ****************************/
 void readConfigFromEEPROM()
 {
+  
   struct LCDState {
     int menuUpDown_EncoderValue;
     int menuManProg_EncoderValue;                                                                                                           
@@ -129,21 +134,36 @@ void readConfigFromEEPROM()
 
   // LCD struct
   LCDState lcd_state;
+  // Copy
+  LCDState lcd_state_copy;
 
-  // storage address
-  int eeAddress = 0;
   // get state - EEPROM library manages variable addresses
-  EEPROM.get(eeAddress, lcd_state);  
+  EEPROM.get(DATA_EEPROM_OFFSET, lcd_state); 
+  // get state - EEPROM library manages variable addresses
+  EEPROM.get(COPY_EEPROM_OFFSET, lcd_state_copy); 
 
-  // retrieve absolute position and populate menu struct objects
-  menuItem[UP_DOWN_INDEX].encoderValue = lcd_state.menuUpDown_EncoderValue;
-  menuItem[MAN_PROG_INDEX].encoderValue = lcd_state.menuManProg_EncoderValue;
-  menuItem[CYCLES_INDEX].encoderValue = lcd_state.menuCycles_EncoderValue;
-  menuItem[UP_SPEED_INDEX].encoderValue = lcd_state.menuUpSpeed_EncoderValue;
-  menuItem[DOWN_SPEED_INDEX].encoderValue = lcd_state.menuDownSpeed_EncoderValue;
-  menuItem[END_POS_INDEX].encoderValue = lcd_state.menuEndPos_EncoderValue;
-  menuItem[START_POS_INDEX].encoderValue = lcd_state.menuStartPos_EncoderValue; 
-  uiAbsoluteStepCount = lcd_state.AbsoluteStepCount; 
+  // Validate, if data is the same as copy
+  if( (lcd_state.menuUpDown_EncoderValue == lcd_state_copy.menuUpDown_EncoderValue) &&
+      (lcd_state.menuManProg_EncoderValue == lcd_state_copy.menuManProg_EncoderValue) &&
+      (lcd_state.menuCycles_EncoderValue == lcd_state_copy.menuCycles_EncoderValue) &&
+      (lcd_state.menuUpSpeed_EncoderValue == lcd_state_copy.menuUpSpeed_EncoderValue) &&
+      (lcd_state.menuDownSpeed_EncoderValue == lcd_state_copy.menuDownSpeed_EncoderValue) &&
+      (lcd_state.menuEndPos_EncoderValue == lcd_state_copy.menuEndPos_EncoderValue) &&
+      (lcd_state.menuStartPos_EncoderValue == lcd_state_copy.menuStartPos_EncoderValue) &&
+      (lcd_state.AbsoluteStepCount == lcd_state_copy.AbsoluteStepCount) )
+    {
+      // no corrupted bits, retrieve absolute position and populate menu struct objects
+      menuItem[UP_DOWN_INDEX].encoderValue = lcd_state.menuUpDown_EncoderValue;
+      menuItem[MAN_PROG_INDEX].encoderValue = lcd_state.menuManProg_EncoderValue;
+      menuItem[CYCLES_INDEX].encoderValue = lcd_state.menuCycles_EncoderValue;
+      menuItem[UP_SPEED_INDEX].encoderValue = lcd_state.menuUpSpeed_EncoderValue;
+      menuItem[DOWN_SPEED_INDEX].encoderValue = lcd_state.menuDownSpeed_EncoderValue;
+      menuItem[END_POS_INDEX].encoderValue = lcd_state.menuEndPos_EncoderValue;
+      menuItem[START_POS_INDEX].encoderValue = lcd_state.menuStartPos_EncoderValue; 
+      uiAbsoluteStepCount = lcd_state.AbsoluteStepCount;
+    }
+    // else memory has been corrupted, keep blank values from initialisation
+    
   // EEPROM library initialisation bug.
   // uiAbsoluteStepCount is 65535 when we expect 0
   if(uiAbsoluteStepCount == 65535)
@@ -151,7 +171,6 @@ void readConfigFromEEPROM()
     uiAbsoluteStepCount = 0;
   }
 }
- 
  
 /******************************
  * 
@@ -572,17 +591,6 @@ void updateEncoder()
         saveConfigToEEPROM();
       }   
     }
-//    if(iMit == UP_DOWN_INDEX)
-//    {
-      // Check if we transitioned from down to up, if yes, we have an absolute position, initialise counter
-      // TODO change 0 for something sensible such as UP_INDEX 0
-      // TODO we need to change this when we check the pins, not here, this would cause a reset if we changed the menu from down to up
-//      if((menuItem[UP_DOWN_INDEX].encoderValue / ENCODER_STEP) == 0) // we have i.e. it was 1 (down) now it's 0 (up)
-//      {
-//        // 
-//        uiAbsoluteStepCount = STEP_COUNTER_RESET; // initialise at STEP_COUNTER_RESET (5) as a safeguard for extra interrupt driven steps decrementing counter
-//      }     
-//    }
     // Update State Machine
     menuItem[iMit].lastEncoderValue = menuItem[iMit].encoderValue;
     // special case, speed changes, as this calls a timer interrupt
@@ -798,6 +806,21 @@ void checkTopBottomLimits(void) {
   }
 }
 
+void splashScreen()
+{
+  // welcome screen, only display one
+  static bool displayedSplashScreen = false;
+  if(displayedSplashScreen == false)
+  {
+    u8g2.setFont(u8g2_font_pcsenior_8f);
+    // 6. Print nominal upward speed            
+    // u8g2.drawStr(40, 25, DISTANCE_UNIT);
+    u8g2.drawStr(0,1,"Hello World!");
+    delay(2000);    
+    displayedSplashScreen = true;
+  }
+}
+
 void setup(void) {
   u8g2.begin();
 
@@ -825,17 +848,16 @@ void setup(void) {
   Timer1.initialize(37500); // 37500 0,50 cm/min
   Timer1.attachInterrupt( timerIsr ); // attach the service routine here  
 
+  // splashScreen();
+
   // Load values from last session
   readConfigFromEEPROM();
-  
-  // TODOS 
-  // 1. SPLASH SCREEN
-  
 }
 
 void loop(void) {
-  u8g2.firstPage();
+  u8g2.firstPage(); // now called in splashScreen()  
   do {
+    // splashScreen();
     pushedButton();
     render(); 
     // There is a 50ms debounce delay in pushedButton() 
@@ -844,7 +866,6 @@ void loop(void) {
     // Update programmed mode
     updateProgMode();  
   } while ( u8g2.nextPage() );
-  // delay(50);
 }
 
 /****************************************
