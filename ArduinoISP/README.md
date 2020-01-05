@@ -68,6 +68,9 @@ where the pins on target ATmega328P processor would map as follows:
 
 ![Wiring ATmega328P](images/atmega328-pinouts.jpg)
 
+One possible setup (header to header):  
+![Wiring ATmega328P](images/Arduino-ISP.jfif)
+
 5. Configuring Arduino IDE to use Mega2560 as programmer 
 
 Once wiring is complete the Arduino IDE is configured as follows:  
