@@ -5,3 +5,6 @@ https://github.com/olikraus/u8g2/wiki/u8g2reference
 ## Required libraries
 * [u8g2](https://github.com/olikraus/u8g2)
 * [TimerOne](https://github.com/Timeone)
+
+## Arduino IDE version
+1.8.8
