@@ -7,7 +7,7 @@ Assuming processor on target Arduino is the ATmega328P
 
 1. Preparing sketch   
 
-First step to transform the Mega2560 in a programmer is to flash the Arduino.ino sketch. Load the ArduinoISP sketch from the examples:
+First step to transform the Mega2560 into a programmer is to flash the Arduino.ino sketch. Load the ArduinoISP sketch from the examples:
 
 ![Arduino IDE setup](images/ArduinoISP-sketch.png)
 
