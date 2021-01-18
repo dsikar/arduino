@@ -1082,7 +1082,7 @@ const uint16_t * const menuItemProgMem[] PROGMEM = {
 #define PROG_INDEX 1
 #define STEP_COUNTER_RESET 5
 // STEPS PER MILLIMITER
-#define STEPS_PER_MILLIMITER 100
+#define STEPS_PER_MILLIMITER 98
 
 // ICON POSITIONS
 #define ICON_X_POS 106
