@@ -2,7 +2,7 @@
 
 #define ENCODER_STEP 4
 // SPEEDS
-#define SPEED_ARRAY_ENTRIES 109
+#define SPEED_ARRAY_ENTRIES 108
 const char speed_0[] PROGMEM = " 0.50"; 
 const char speed_1[] PROGMEM = " 0.51"; 
 const char speed_2[] PROGMEM = " 0.52"; 
