@@ -7,7 +7,7 @@
 #include <EEPROM.h>
 
 /*******************
- * DP Control v0.03
+ * DP Control v1.01
  * Added programmed mode
  * ROADMAP
  * Add simple CRC
