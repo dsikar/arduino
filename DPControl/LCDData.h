@@ -2,7 +2,7 @@
 
 #define ENCODER_STEP 4
 // SPEEDS
-#define SPEED_ARRAY_ENTRIES 109
+#define SPEED_ARRAY_ENTRIES 108
 const char speed_0[] PROGMEM = " 0.50"; 
 const char speed_1[] PROGMEM = " 0.51"; 
 const char speed_2[] PROGMEM = " 0.52"; 
@@ -638,7 +638,7 @@ const char distance_29_9[] PROGMEM = "29,9";
 const char distance_30_0[] PROGMEM = "30,0";
 
 // DISTANCE ARRAY REFERENCE
-#define DISTANCE_ARRAY_ENTRIES 301
+#define DISTANCE_ARRAY_ENTRIES 259
 // NB array contains 301 entry 
 // address is unsigned int
 const char * const distance_table[] PROGMEM = { 
@@ -1001,7 +1001,7 @@ const unsigned int menuUpSpeed[5] PROGMEM =     {SPEED_ARRAY_ENTRIES - 1,12, 19,
 const unsigned int menuDownSpeed[5] PROGMEM =   {SPEED_ARRAY_ENTRIES - 1,12,29, 10, 0}; 
 const unsigned int menuEndPos[5] PROGMEM =      {DISTANCE_ARRAY_ENTRIES - 1,12,39, 10  , 0}; // END_POS_INDEX 5
 const unsigned int menuStartPos[5] PROGMEM =    {DISTANCE_ARRAY_ENTRIES - 1,12,49, 10, 0}; // START_POS_INDEX 6
-const unsigned int menuPos[5] PROGMEM =    {301,10,10, 8, 0};
+const unsigned int menuPos[5] PROGMEM =    {259,10,10, 8, 0};
 
 
 // FORGOT TO ADD HERE
@@ -1082,7 +1082,7 @@ const uint16_t * const menuItemProgMem[] PROGMEM = {
 #define PROG_INDEX 1
 #define STEP_COUNTER_RESET 5
 // STEPS PER MILLIMITER
-#define STEPS_PER_MILLIMITER 159
+#define STEPS_PER_MILLIMITER 98
 
 // ICON POSITIONS
 #define ICON_X_POS 106
