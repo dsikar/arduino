@@ -2,7 +2,7 @@
 
 #define ENCODER_STEP 4
 // SPEEDS
-#define SPEED_ARRAY_ENTRIES  144
+#define SPEED_ARRAY_ENTRIES  143
 const char speed_0[] PROGMEM = " 0.20"; 
 const char speed_1[] PROGMEM = " 0.21"; 
 const char speed_2[] PROGMEM = " 0.22"; 
@@ -142,13 +142,12 @@ const char speed_135[] PROGMEM = "22.00";
 const char speed_136[] PROGMEM = "24.00"; 
 const char speed_137[] PROGMEM = "27.00"; 
 const char speed_138[] PROGMEM = "30.00"; 
-const char speed_139[] PROGMEM = "30.00"; 
-const char speed_140[] PROGMEM = "35.00"; 
-const char speed_141[] PROGMEM = "40.00"; 
-const char speed_142[] PROGMEM = "45.00"; 
-const char speed_143[] PROGMEM = "50.00"; 
+const char speed_139[] PROGMEM = "35.00"; 
+const char speed_140[] PROGMEM = "40.00"; 
+const char speed_141[] PROGMEM = "45.00"; 
+const char speed_142[] PROGMEM = "50.00"; 
 
-// REFERENCE ARRAY
+// REFERENCE ARRAY // 144 entries
 const char * const speed_table[] PROGMEM = { 
     speed_0, 
     speed_1, 
@@ -293,11 +292,10 @@ const char * const speed_table[] PROGMEM = {
     speed_140, 
     speed_141, 
     speed_142, 
-    speed_143, 
 };
 
-// FREQUENCIES - different declaration
-const uint16_t frequencies[]  PROGMEM  = { 
+// FREQUENCIES 
+const int frequencies[]  PROGMEM  = { 
     600000, 
     571428, 
     545454, 
@@ -437,13 +435,11 @@ const uint16_t frequencies[]  PROGMEM  = {
     5000, 
     4444, 
     4000, 
-    4000, 
     3428, 
     3000, 
     2666, 
     2400, 
 };
-
 
 // distances
 const char distance_0_0[] PROGMEM = " 0.0"; 
@@ -1552,7 +1548,7 @@ const unsigned int menuUpSpeed[5] PROGMEM =     {SPEED_ARRAY_ENTRIES - 1,12, 19,
 const unsigned int menuDownSpeed[5] PROGMEM =   {SPEED_ARRAY_ENTRIES - 1,12,29, 10, 0}; 
 const unsigned int menuEndPos[5] PROGMEM =      {DISTANCE_ARRAY_ENTRIES - 1,12,39, 10  , 0}; // END_POS_INDEX 5
 const unsigned int menuStartPos[5] PROGMEM =    {DISTANCE_ARRAY_ENTRIES - 1,12,49, 10, 0}; // START_POS_INDEX 6
-const unsigned int menuPos[5] PROGMEM =    {259,10,10, 8, 0};
+const unsigned int menuPos[5] PROGMEM =    {DISTANCE_ARRAY_ENTRIES,10,10, 8, 0};
 
 
 // FORGOT TO ADD HERE
