@@ -844,8 +844,8 @@ void setup(void) {
   // Encoder interrupts
   attachInterrupt(0, updateEncoder, CHANGE);
   attachInterrupt(1, updateEncoder, CHANGE); 
-
-  Timer1.initialize(37500); // 37500 0,50 cm/min
+  // TODO CHANGE TO FIRST VALUE OF frequencies[]
+  Timer1.initialize(600000); // 600000 0,2 cm/min
   Timer1.attachInterrupt( timerIsr ); // attach the service routine here  
 
   // splashScreen();
