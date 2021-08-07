@@ -2,7 +2,7 @@
 
 #define ENCODER_STEP 4
 // SPEEDS
-#define SPEED_ARRAY_ENTRIES  143
+#define SPEED_ARRAY_ENTRIES 143
 const char speed_0[] PROGMEM = " 0.20"; 
 const char speed_1[] PROGMEM = " 0.21"; 
 const char speed_2[] PROGMEM = " 0.22"; 
@@ -147,7 +147,7 @@ const char speed_140[] PROGMEM = "40.00";
 const char speed_141[] PROGMEM = "45.00"; 
 const char speed_142[] PROGMEM = "50.00"; 
 
-// REFERENCE ARRAY // 144 entries
+// REFERENCE ARRAY 
 const char * const speed_table[] PROGMEM = { 
     speed_0, 
     speed_1, 
@@ -295,7 +295,7 @@ const char * const speed_table[] PROGMEM = {
 };
 
 // FREQUENCIES 
-const int frequencies[]  PROGMEM  = { 
+const PROGMEM uint32_t frequencies[] = { 
     600000, 
     571428, 
     545454, 
@@ -966,7 +966,6 @@ const char distance_51_9[] PROGMEM = "51.9";
 
 // DISTANCE ARRAY REFERENCE
 #define DISTANCE_ARRAY_ENTRIES 520
-// NB array contains 520 entries 
 // address is unsigned int
 const char * const distance_table[] PROGMEM = { 
     distance_0_0,
