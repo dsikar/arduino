@@ -297,7 +297,7 @@ const char * const speed_table[] PROGMEM = {
 };
 
 // FREQUENCIES - different declaration
-const uint16_t halfFrequencies[]  PROGMEM  = { 
+const uint16_t frequencies[]  PROGMEM  = { 
     600000, 
     571428, 
     545454, 
@@ -1634,7 +1634,8 @@ const uint16_t * const menuItemProgMem[] PROGMEM = {
 #define STEP_COUNTER_RESET 5
 // STEPS PER MILLIMITER
 // #define STEPS_PER_MILLIMITER 98
-// Assuming 50 steps per revolution, 2mm thread
+// Lead screw 8mm advance per revolution (200 steps)
+// 200 / 8 = 25 steps / mm
 #define STEPS_PER_MILLIMITER 25
 
 // ICON POSITIONS
