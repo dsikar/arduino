@@ -449,7 +449,8 @@ void adjustSpeed()
     // we are going down, read speed from  down speed register
     idx = (menuItem[DOWN_SPEED_INDEX].encoderValue / ENCODER_STEP);     
   }
-  unsigned int half_frequency = pgm_read_word_near(frequencies + idx);;  
+  // unsigned int half_frequency = pgm_read_word_near(frequencies + idx);;  
+  uint32_t half_frequency = pgm_read_word_near(frequencies + idx);;  
   Timer1.initialize(half_frequency);
 }
 
