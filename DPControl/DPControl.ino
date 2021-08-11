@@ -450,7 +450,7 @@ void adjustSpeed()
     idx = (menuItem[DOWN_SPEED_INDEX].encoderValue / ENCODER_STEP);     
   }
   // unsigned int half_frequency = pgm_read_word_near(frequencies + idx);;  
-  uint32_t half_frequency = pgm_read_word_near(frequencies + idx);;  
+  uint32_t half_frequency = pgm_read_dword(frequencies + idx);;  
   Timer1.initialize(half_frequency);
 }
 
