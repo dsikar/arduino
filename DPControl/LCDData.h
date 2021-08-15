@@ -965,7 +965,7 @@ const char distance_51_9[] PROGMEM = "51.9";
 
 
 // DISTANCE ARRAY REFERENCE
-#define DISTANCE_ARRAY_ENTRIES 520
+#define DISTANCE_ARRAY_ENTRIES 505 // 505 ~ 0 to 50,4 // 520
 // address is unsigned int
 const char * const distance_table[] PROGMEM = { 
     distance_0_0,
