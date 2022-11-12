@@ -2,116 +2,66 @@
 
 #define ENCODER_STEP 4
 // SPEEDS
-#define SPEED_ARRAY_ENTRIES 109
-const char speed_0[] PROGMEM = " 0,50"; 
-const char speed_1[] PROGMEM = " 0,51"; 
-const char speed_2[] PROGMEM = " 0,52"; 
-const char speed_3[] PROGMEM = " 0,53"; 
-const char speed_4[] PROGMEM = " 0,54"; 
-const char speed_5[] PROGMEM = " 0,55"; 
-const char speed_6[] PROGMEM = " 0,56"; 
-const char speed_7[] PROGMEM = " 0,57"; 
-const char speed_8[] PROGMEM = " 0,58"; 
-const char speed_9[] PROGMEM = " 0,59"; 
-const char speed_10[] PROGMEM = " 0,60"; 
-const char speed_11[] PROGMEM = " 0,61"; 
-const char speed_12[] PROGMEM = " 0,62"; 
-const char speed_13[] PROGMEM = " 0,63"; 
-const char speed_14[] PROGMEM = " 0,64"; 
-const char speed_15[] PROGMEM = " 0,65"; 
-const char speed_16[] PROGMEM = " 0,66"; 
-const char speed_17[] PROGMEM = " 0,67"; 
-const char speed_18[] PROGMEM = " 0,68"; 
-const char speed_19[] PROGMEM = " 0,69"; 
-const char speed_20[] PROGMEM = " 0,70"; 
-const char speed_21[] PROGMEM = " 0,71"; 
-const char speed_22[] PROGMEM = " 0,72"; 
-const char speed_23[] PROGMEM = " 0,73"; 
-const char speed_24[] PROGMEM = " 0,74"; 
-const char speed_25[] PROGMEM = " 0,75"; 
-const char speed_26[] PROGMEM = " 0,76"; 
-const char speed_27[] PROGMEM = " 0,77"; 
-const char speed_28[] PROGMEM = " 0,78"; 
-const char speed_29[] PROGMEM = " 0,79"; 
-const char speed_30[] PROGMEM = " 0,80"; 
-const char speed_31[] PROGMEM = " 0,81"; 
-const char speed_32[] PROGMEM = " 0,82"; 
-const char speed_33[] PROGMEM = " 0,83"; 
-const char speed_34[] PROGMEM = " 0,84"; 
-const char speed_35[] PROGMEM = " 0,85"; 
-const char speed_36[] PROGMEM = " 0,86"; 
-const char speed_37[] PROGMEM = " 0,87"; 
-const char speed_38[] PROGMEM = " 0,88"; 
-const char speed_39[] PROGMEM = " 0,89"; 
-const char speed_40[] PROGMEM = " 0,90"; 
-const char speed_41[] PROGMEM = " 0,91"; 
-const char speed_42[] PROGMEM = " 0,92"; 
-const char speed_43[] PROGMEM = " 0,93"; 
-const char speed_44[] PROGMEM = " 0,94"; 
-const char speed_45[] PROGMEM = " 0,95"; 
-const char speed_46[] PROGMEM = " 0,96"; 
-const char speed_47[] PROGMEM = " 0,97"; 
-const char speed_48[] PROGMEM = " 0,98"; 
-const char speed_49[] PROGMEM = " 0,99"; 
-const char speed_50[] PROGMEM = " 1,00"; 
-const char speed_51[] PROGMEM = " 1,10"; 
-const char speed_52[] PROGMEM = " 1,20"; 
-const char speed_53[] PROGMEM = " 1,30"; 
-const char speed_54[] PROGMEM = " 1,40"; 
-const char speed_55[] PROGMEM = " 1,50"; 
-const char speed_56[] PROGMEM = " 1,60"; 
-const char speed_57[] PROGMEM = " 1,70"; 
-const char speed_58[] PROGMEM = " 1,80"; 
-const char speed_59[] PROGMEM = " 1,90"; 
-const char speed_60[] PROGMEM = " 2,00"; 
-const char speed_61[] PROGMEM = " 2,10"; 
-const char speed_62[] PROGMEM = " 2,20"; 
-const char speed_63[] PROGMEM = " 2,30"; 
-const char speed_64[] PROGMEM = " 2,40"; 
-const char speed_65[] PROGMEM = " 2,50"; 
-const char speed_66[] PROGMEM = " 2,60"; 
-const char speed_67[] PROGMEM = " 2,70"; 
-const char speed_68[] PROGMEM = " 2,80"; 
-const char speed_69[] PROGMEM = " 2,90"; 
-const char speed_70[] PROGMEM = " 3,00"; 
-const char speed_71[] PROGMEM = " 3,10"; 
-const char speed_72[] PROGMEM = " 3,20"; 
-const char speed_73[] PROGMEM = " 3,30"; 
-const char speed_74[] PROGMEM = " 3,40"; 
-const char speed_75[] PROGMEM = " 3,50"; 
-const char speed_76[] PROGMEM = " 3,60"; 
-const char speed_77[] PROGMEM = " 3,70"; 
-const char speed_78[] PROGMEM = " 3,80"; 
-const char speed_79[] PROGMEM = " 3,90"; 
-const char speed_80[] PROGMEM = " 4,00"; 
-const char speed_81[] PROGMEM = " 4,10"; 
-const char speed_82[] PROGMEM = " 4,20"; 
-const char speed_83[] PROGMEM = " 4,30"; 
-const char speed_84[] PROGMEM = " 4,40"; 
-const char speed_85[] PROGMEM = " 4,50"; 
-const char speed_86[] PROGMEM = " 4,60"; 
-const char speed_87[] PROGMEM = " 4,70"; 
-const char speed_88[] PROGMEM = " 4,80"; 
-const char speed_89[] PROGMEM = " 4,90"; 
-const char speed_90[] PROGMEM = " 5,00"; 
-const char speed_91[] PROGMEM = " 6,00"; 
-const char speed_92[] PROGMEM = " 7,00"; 
-const char speed_93[] PROGMEM = " 8,00"; 
-const char speed_94[] PROGMEM = " 9,00"; 
-const char speed_95[] PROGMEM = "10,00"; 
-const char speed_96[] PROGMEM = "11,00"; 
-const char speed_97[] PROGMEM = "12,00"; 
-const char speed_98[] PROGMEM = "13,00"; 
-const char speed_99[] PROGMEM = "14,00"; 
-const char speed_100[] PROGMEM = "15,00"; 
-const char speed_101[] PROGMEM = "16,00"; 
-const char speed_102[] PROGMEM = "16,00"; 
-const char speed_103[] PROGMEM = "18,00"; 
-const char speed_104[] PROGMEM = "20,00"; 
-const char speed_105[] PROGMEM = "22,00"; 
-const char speed_106[] PROGMEM = "24,00"; 
-const char speed_107[] PROGMEM = "27,00"; 
-const char speed_108[] PROGMEM = "30,00";
+#define SPEED_ARRAY_ENTRIES 59
+const char speed_0[] PROGMEM = " 1.00"; 
+const char speed_1[] PROGMEM = " 1.10"; 
+const char speed_2[] PROGMEM = " 1.20"; 
+const char speed_3[] PROGMEM = " 1.30"; 
+const char speed_4[] PROGMEM = " 1.40"; 
+const char speed_5[] PROGMEM = " 1.50"; 
+const char speed_6[] PROGMEM = " 1.60"; 
+const char speed_7[] PROGMEM = " 1.70"; 
+const char speed_8[] PROGMEM = " 1.80"; 
+const char speed_9[] PROGMEM = " 1.90"; 
+const char speed_10[] PROGMEM = " 2.00"; 
+const char speed_11[] PROGMEM = " 2.10"; 
+const char speed_12[] PROGMEM = " 2.20"; 
+const char speed_13[] PROGMEM = " 2.30"; 
+const char speed_14[] PROGMEM = " 2.40"; 
+const char speed_15[] PROGMEM = " 2.50"; 
+const char speed_16[] PROGMEM = " 2.60"; 
+const char speed_17[] PROGMEM = " 2.70"; 
+const char speed_18[] PROGMEM = " 2.80"; 
+const char speed_19[] PROGMEM = " 2.90"; 
+const char speed_20[] PROGMEM = " 3.00"; 
+const char speed_21[] PROGMEM = " 3.10"; 
+const char speed_22[] PROGMEM = " 3.20"; 
+const char speed_23[] PROGMEM = " 3.30"; 
+const char speed_24[] PROGMEM = " 3.40"; 
+const char speed_25[] PROGMEM = " 3.50"; 
+const char speed_26[] PROGMEM = " 3.60"; 
+const char speed_27[] PROGMEM = " 3.70"; 
+const char speed_28[] PROGMEM = " 3.80"; 
+const char speed_29[] PROGMEM = " 3.90"; 
+const char speed_30[] PROGMEM = " 4.00"; 
+const char speed_31[] PROGMEM = " 4.10"; 
+const char speed_32[] PROGMEM = " 4.20"; 
+const char speed_33[] PROGMEM = " 4.30"; 
+const char speed_34[] PROGMEM = " 4.40"; 
+const char speed_35[] PROGMEM = " 4.50"; 
+const char speed_36[] PROGMEM = " 4.60"; 
+const char speed_37[] PROGMEM = " 4.70"; 
+const char speed_38[] PROGMEM = " 4.80"; 
+const char speed_39[] PROGMEM = " 4.90"; 
+const char speed_40[] PROGMEM = " 5.00"; 
+const char speed_41[] PROGMEM = " 6.00"; 
+const char speed_42[] PROGMEM = " 7.00"; 
+const char speed_43[] PROGMEM = " 8.00"; 
+const char speed_44[] PROGMEM = " 9.00"; 
+const char speed_45[] PROGMEM = "10.00"; 
+const char speed_46[] PROGMEM = "11.00"; 
+const char speed_47[] PROGMEM = "12.00"; 
+const char speed_48[] PROGMEM = "13.00"; 
+const char speed_49[] PROGMEM = "14.00"; 
+const char speed_50[] PROGMEM = "15.00"; 
+const char speed_51[] PROGMEM = "16.00"; 
+const char speed_52[] PROGMEM = "16.00"; 
+const char speed_53[] PROGMEM = "18.00"; 
+const char speed_54[] PROGMEM = "20.00"; 
+const char speed_55[] PROGMEM = "22.00"; 
+const char speed_56[] PROGMEM = "24.00"; 
+const char speed_57[] PROGMEM = "27.00"; 
+const char speed_58[] PROGMEM = "30.00"; 
 
 // REFERENCE ARRAY
 const char * const speed_table[] PROGMEM = { 
@@ -173,112 +123,10 @@ const char * const speed_table[] PROGMEM = {
     speed_55, 
     speed_56, 
     speed_57, 
-    speed_58, 
-    speed_59, 
-    speed_60, 
-    speed_61, 
-    speed_62, 
-    speed_63, 
-    speed_64, 
-    speed_65, 
-    speed_66, 
-    speed_67, 
-    speed_68, 
-    speed_69, 
-    speed_70, 
-    speed_71, 
-    speed_72, 
-    speed_73, 
-    speed_74, 
-    speed_75, 
-    speed_76, 
-    speed_77, 
-    speed_78, 
-    speed_79, 
-    speed_80, 
-    speed_81, 
-    speed_82, 
-    speed_83, 
-    speed_84, 
-    speed_85, 
-    speed_86, 
-    speed_87, 
-    speed_88, 
-    speed_89, 
-    speed_90, 
-    speed_91, 
-    speed_92, 
-    speed_93, 
-    speed_94, 
-    speed_95, 
-    speed_96, 
-    speed_97, 
-    speed_98, 
-    speed_99, 
-    speed_100, 
-    speed_101, 
-    speed_102, 
-    speed_103, 
-    speed_104, 
-    speed_105, 
-    speed_106, 
-    speed_107, 
-    speed_108
+    speed_58
 };
 // FREQUENCIES - different declaration
-// Using reduction gears, so uint32_t to accomodate
-// greater values
-const PROGMEM uint32_t frequencies[] = {
-    120000, 
-    117647, 
-    115384, 
-    113207, 
-    111111, 
-    109090, 
-    107142, 
-    105263, 
-    103448, 
-    101694, 
-    99999, 
-    98360, 
-    96774, 
-    95238, 
-    93749, 
-    92307, 
-    90909, 
-    89552, 
-    88235, 
-    86956, 
-    85714, 
-    84507, 
-    83333, 
-    82191, 
-    81081, 
-    79999, 
-    78947, 
-    77922, 
-    76923, 
-    75949, 
-    74999, 
-    74074, 
-    73170, 
-    72289, 
-    71428, 
-    70588, 
-    69767, 
-    68965, 
-    68181, 
-    67415, 
-    66666, 
-    65934, 
-    65217, 
-    64516, 
-    63829, 
-    63157, 
-    62499, 
-    61855, 
-    61224, 
-    60606, 
+const PROGMEM uint16_t frequencies[] = {
     60000, 
     54545, 
     49999, 
@@ -337,7 +185,7 @@ const PROGMEM uint32_t frequencies[] = {
     2727, 
     2500, 
     2222, 
-    2000
+    2000 
 };
 // distances
 const char distance_0_0[] PROGMEM = " 0.0"; 
