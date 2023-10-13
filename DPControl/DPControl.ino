@@ -220,14 +220,14 @@ void render(void) {
               // we are going up
               u8g2.setFont(u8g2_font_unifont_t_symbols);
               u8g2.drawGlyph(x_pos, y_pos, UP_SYMBOL);  /* dec 9731/hex 2603 Snowman */
-              digitalWrite(DIRECTION_PIN, HIGH);
+              digitalWrite(DIRECTION_PIN, LOW);
             }
             else
             {
               // we are going down
               u8g2.setFont(u8g2_font_unifont_t_symbols);
               u8g2.drawGlyph(x_pos, y_pos, DOWN_SYMBOL);
-              digitalWrite(DIRECTION_PIN, LOW);
+              digitalWrite(DIRECTION_PIN, HIGH);
             }
             break;            
       case MAN_PROG_INDEX:
