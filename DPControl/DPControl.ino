@@ -449,6 +449,10 @@ void adjustSpeed()
     // we are going down, read speed from  down speed register
     idx = (menuItem[DOWN_SPEED_INDEX].encoderValue / ENCODER_STEP);     
   }
+  /* The pgm_read_word_near() is defined in hardware/tools/avr/avr/include/avr/pgmspace.h as below.
+  #define pgm_read_word_near(address_short) __LPM_word((uint16_t)(address_short))
+  Note uint16_t max value is 65535,  hexadecimal 0xFFFF
+  */
   unsigned int half_frequency = pgm_read_word_near(frequencies + idx);;  
   Timer1.initialize(half_frequency);
 }
