@@ -2,8 +2,7 @@
 
 #define ENCODER_STEP 4
 // SPEEDS
-#define SPEED_ARRAY_ENTRIES 109
-const char speed_0[] PROGMEM = " 0,50"; 
+#define SPEED_ARRAY_ENTRIES 108
 const char speed_1[] PROGMEM = " 0,51"; 
 const char speed_2[] PROGMEM = " 0,52"; 
 const char speed_3[] PROGMEM = " 0,53"; 
@@ -222,14 +221,12 @@ const char * const speed_table[] PROGMEM = {
     speed_104, 
     speed_105, 
     speed_106, 
-    speed_107, 
-    speed_108
+    speed_107
 };
 // FREQUENCIES - different declaration
 // Using reduction gears, so uint32_t to accomodate
 // greater values
-const PROGMEM uint32_t frequencies[] = {
-    120000, 
+const PROGMEM uint32_t frequencies[] = { 
     117647, 
     115384, 
     113207, 
