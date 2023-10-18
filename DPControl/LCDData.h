@@ -459,12 +459,52 @@ const char distance_26_7[] PROGMEM = "26.7";
 const char distance_26_8[] PROGMEM = "26.8"; 
 const char distance_26_9[] PROGMEM = "26.9"; 
 const char distance_27_0[] PROGMEM = "27.0"; 
+const char distance_27_1[] PROGMEM = "27.1"; 
+const char distance_27_2[] PROGMEM = "27.2"; 
+const char distance_27_3[] PROGMEM = "27.3"; 
+const char distance_27_4[] PROGMEM = "27.4"; 
+const char distance_27_5[] PROGMEM = "27.5"; 
+const char distance_27_6[] PROGMEM = "27.6"; 
+const char distance_27_7[] PROGMEM = "27.7"; 
+const char distance_27_8[] PROGMEM = "27.8"; 
+const char distance_27_9[] PROGMEM = "27.9"; 
+const char distance_28_0[] PROGMEM = "28.0"; 
+const char distance_28_1[] PROGMEM = "28.1"; 
+const char distance_28_2[] PROGMEM = "28.2"; 
+const char distance_28_3[] PROGMEM = "28.3"; 
+const char distance_28_4[] PROGMEM = "28.4"; 
+const char distance_28_5[] PROGMEM = "28.5"; 
+const char distance_28_6[] PROGMEM = "28.6"; 
+const char distance_28_7[] PROGMEM = "28.7"; 
+const char distance_28_8[] PROGMEM = "28.8"; 
+const char distance_28_9[] PROGMEM = "28.9"; 
+const char distance_29_0[] PROGMEM = "29.0"; 
+const char distance_29_1[] PROGMEM = "29.1"; 
+const char distance_29_2[] PROGMEM = "29.2"; 
+const char distance_29_3[] PROGMEM = "29.3"; 
+const char distance_29_4[] PROGMEM = "29.4"; 
+const char distance_29_5[] PROGMEM = "29.5"; 
+const char distance_29_6[] PROGMEM = "29.6"; 
+const char distance_29_7[] PROGMEM = "29.7"; 
+const char distance_29_8[] PROGMEM = "29.8"; 
+const char distance_29_9[] PROGMEM = "29.9"; 
+const char distance_30_0[] PROGMEM = "30.0"; 
+const char distance_30_1[] PROGMEM = "30.1"; 
+const char distance_30_2[] PROGMEM = "30.2"; 
+const char distance_30_3[] PROGMEM = "30.3"; 
+const char distance_30_4[] PROGMEM = "30.4"; 
+const char distance_30_5[] PROGMEM = "30.5"; 
+const char distance_30_6[] PROGMEM = "30.6"; 
+const char distance_30_7[] PROGMEM = "30.7"; 
+const char distance_30_8[] PROGMEM = "30.8"; 
+const char distance_30_9[] PROGMEM = "30.9"; 
+const char distance_31_0[] PROGMEM = "31.0"; 
 
 // DISTANCE ARRAY REFERENCE
 // Change this define to adjust distance
 // with distance_table array adjustment 
-// #define DISTANCE_ARRAY_ENTRIES 311 // 31cm // we can go up to 321 (32cm)
-#define DISTANCE_ARRAY_ENTRIES 271 // 27cm // we can go up to 271 (32cm)
+#define DISTANCE_ARRAY_ENTRIES 311 // 31cm // we can go up to 321 (32cm)
+//#define DISTANCE_ARRAY_ENTRIES 271 // 27cm // we can go up to 271 (32cm)
 // NB array contains 301 entry 
 // address is unsigned int
 const char * const distance_table[] PROGMEM = { 
@@ -739,6 +779,46 @@ const char * const distance_table[] PROGMEM = {
     distance_26_8,
     distance_26_9,
     distance_27_0,
+    distance_27_1,
+    distance_27_2,
+    distance_27_3,
+    distance_27_4,
+    distance_27_5,
+    distance_27_6,
+    distance_27_7,
+    distance_27_8,
+    distance_27_9,
+    distance_28_0,
+    distance_28_1,
+    distance_28_2,
+    distance_28_3,
+    distance_28_4,
+    distance_28_5,
+    distance_28_6,
+    distance_28_7,
+    distance_28_8,
+    distance_28_9,
+    distance_29_0,
+    distance_29_1,
+    distance_29_2,
+    distance_29_3,
+    distance_29_4,
+    distance_29_5,
+    distance_29_6,
+    distance_29_7,
+    distance_29_8,
+    distance_29_9,
+    distance_30_0,
+    distance_30_1,
+    distance_30_2,
+    distance_30_3,
+    distance_30_4,
+    distance_30_5,
+    distance_30_6,
+    distance_30_7,
+    distance_30_8,
+    distance_30_9,
+    distance_31_0,
 };
 
 // CYCLES' ARRAYS
