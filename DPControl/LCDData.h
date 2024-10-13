@@ -2,7 +2,8 @@
 
 #define ENCODER_STEP 4
 // SPEEDS
-#define SPEED_ARRAY_ENTRIES 109
+// Oscar dip, remove duplicate 16cm speed
+#define SPEED_ARRAY_ENTRIES 108 // 109
 const char speed_0[] PROGMEM = " 0,50"; 
 const char speed_1[] PROGMEM = " 0,51"; 
 const char speed_2[] PROGMEM = " 0,52"; 
@@ -105,7 +106,7 @@ const char speed_98[] PROGMEM = "13,00";
 const char speed_99[] PROGMEM = "14,00"; 
 const char speed_100[] PROGMEM = "15,00"; 
 const char speed_101[] PROGMEM = "16,00"; 
-const char speed_102[] PROGMEM = "16,00"; 
+// const char speed_102[] PROGMEM = "16,00"; duplicate
 const char speed_103[] PROGMEM = "18,00"; 
 const char speed_104[] PROGMEM = "20,00"; 
 const char speed_105[] PROGMEM = "22,00"; 
@@ -217,7 +218,7 @@ const char * const speed_table[] PROGMEM = {
     speed_99, 
     speed_100, 
     speed_101, 
-    speed_102, 
+    // speed_102, 
     speed_103, 
     speed_104, 
     speed_105, 
@@ -329,7 +330,7 @@ const PROGMEM uint16_t frequencies[] = {
     1339, 
     1250, 
     1171, 
-    1171, 
+    // 1171, 
     1041, 
     937, 
     852, 
